@@ -3,7 +3,7 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime
 from enum import Enum
 
-from ..database.models import AggregationLevel, MetadataType, CalculationStatus, ChangeType, SubjectType
+from ..database.enums import AggregationLevel, MetadataType, CalculationStatus, ChangeType, SubjectType
 
 class TaskStatus(str, Enum):
     PENDING = "pending"

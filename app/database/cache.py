@@ -8,7 +8,7 @@ from typing import Optional, Any, Dict, List, Union
 from datetime import timedelta, datetime
 from contextlib import contextmanager
 
-from ..models import AggregationLevel, CalculationStatus
+from .enums import AggregationLevel, CalculationStatus
 
 logger = logging.getLogger(__name__)
 

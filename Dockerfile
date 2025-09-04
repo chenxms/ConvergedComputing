@@ -8,16 +8,16 @@ WORKDIR /app
 RUN pip install poetry
 
 # 复制依赖定义文件
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml ./
 
 # 安装项目依赖
-RUN poetry config virtualenvs.create false && poetry install --no-root --no-dev
+RUN poetry config virtualenvs.create false && poetry install --no-root --only main
 
 # 复制项目代码
-COPY ./app .
+COPY ./app ./app
 
 # 暴露端口
 EXPOSE 8000
 
 # 启动命令
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

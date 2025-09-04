@@ -4,6 +4,5 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=mysql+pymysql://root:mysql_Lujing2022@117.72.14.166:23506/appraisal_test
-    volumes:
-      - ./app:/app
+      - DATABASE_URL=mysql+pymysql://root:mysql_Lujing2022@117.72.14.166:23506/appraisal_stats
+    command: ["python", "-m", "app.main"]
