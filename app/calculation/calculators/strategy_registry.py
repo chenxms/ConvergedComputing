@@ -8,6 +8,10 @@ from ..formulas import (
     EducationalMetricsStrategy,
     DiscriminationStrategy
 )
+# from .dimension_calculator import DimensionStatisticsStrategy  # Temporarily disabled due to import issues
+# from .difficulty_calculator import DifficultyCalculator  # Temporarily disabled
+# from .discrimination_calculator import DiscriminationCalculator  # Temporarily disabled
+from .grade_calculator import GradeLevelDistributionCalculator
 
 logger = logging.getLogger(__name__)
 
@@ -109,11 +113,39 @@ def register_default_strategies():
         '计算教育专用指标：得分率、等级分布、及格率、优秀率、难度系数'
     )
     
-    # 区分度策略
+    # 区分度策略 (原有策略保持兼容性)
     register_strategy(
         'discrimination',
         DiscriminationStrategy,
         '计算区分度指标(前27%后27%分组法)'
+    )
+    
+    # 年级差异化等级分布策略
+    register_strategy(
+        'grade_distribution',
+        GradeLevelDistributionCalculator,
+        '年级差异化等级分布计算：小学/初中不同阈值的等级划分和统计分析'
+    )
+    
+    # TODO: 新增专业难度计算器 (待实现)
+    # register_strategy(
+    #     'difficulty_calculator',
+    #     DifficultyCalculator,
+    #     '专业难度系数计算器：支持批量计算和详细分析'
+    # )
+    
+    # TODO: 新增专业区分度计算器 (待实现)
+    # register_strategy(
+    #     'discrimination_calculator', 
+    #     DiscriminationCalculator,
+    #     '专业区分度计算器：支持题目级和考试级区分度分析'
+    # )
+    
+    # 维度统计策略
+    register_strategy(
+        'dimension_statistics',
+        DimensionStatisticsStrategy,
+        '多维度统计聚合：基于question_dimension_mapping的复杂维度分析和交叉统计'
     )
     
     logger.info("默认计算策略注册完成")
