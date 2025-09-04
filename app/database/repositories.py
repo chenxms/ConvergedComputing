@@ -90,7 +90,7 @@ class BatchRepository(BaseRepository):
 class TaskRepository(BaseRepository):
     """任务数据仓库"""
     
-    def create_task(self, task_data: Dict[str, Any]) -> Task:
+    def create(self, task_data: Dict[str, Any]) -> Task:
         """创建任务"""
         try:
             task = Task(**task_data)
@@ -99,28 +99,87 @@ class TaskRepository(BaseRepository):
             self.db.refresh(task)
             return task
         except Exception as e:
-            self._handle_db_error(e, "create_task")
+            self._handle_db_error(e, "create")
     
-    def get_task(self, task_id: int) -> Optional[Task]:
+    def get_by_id(self, task_id: str) -> Optional[Task]:
         """获取任务"""
         try:
             return self.db.query(Task).filter(Task.id == task_id).first()
         except Exception as e:
-            self._handle_db_error(e, "get_task")
+            self._handle_db_error(e, "get_by_id")
     
-    def update_task_status(self, task_id: int, status: str) -> bool:
-        """更新任务状态"""
+    def update(self, task_id: str, update_data: Dict[str, Any]) -> bool:
+        """更新任务"""
         try:
-            task = self.get_task(task_id)
+            task = self.get_by_id(task_id)
             if task:
-                task.status = status
-                if status == "completed":
-                    task.completed_at = datetime.now()
+                for key, value in update_data.items():
+                    if hasattr(task, key):
+                        setattr(task, key, value)
                 self.db.commit()
                 return True
             return False
         except Exception as e:
-            self._handle_db_error(e, "update_task_status")
+            self._handle_db_error(e, "update")
+    
+    def delete(self, task_id: str) -> bool:
+        """删除任务"""
+        try:
+            task = self.get_by_id(task_id)
+            if task:
+                self.db.delete(task)
+                self.db.commit()
+                return True
+            return False
+        except Exception as e:
+            self._handle_db_error(e, "delete")
+    
+    def get_paginated(
+        self,
+        filters: Optional[Dict[str, Any]] = None,
+        limit: int = 50,
+        offset: int = 0,
+        order_by: str = "started_at",
+        order_direction: str = "desc"
+    ) -> List[Task]:
+        """分页获取任务列表"""
+        try:
+            query = self.db.query(Task)
+            
+            # 应用筛选条件
+            if filters:
+                for key, value in filters.items():
+                    if hasattr(Task, key):
+                        query = query.filter(getattr(Task, key) == value)
+            
+            # 排序
+            if hasattr(Task, order_by):
+                order_attr = getattr(Task, order_by)
+                if order_direction.lower() == "desc":
+                    query = query.order_by(desc(order_attr))
+                else:
+                    query = query.order_by(asc(order_attr))
+            
+            # 分页
+            return query.offset(offset).limit(limit).all()
+        except Exception as e:
+            self._handle_db_error(e, "get_paginated")
+    
+    # Legacy methods for backward compatibility
+    def create_task(self, task_data: Dict[str, Any]) -> Task:
+        """创建任务（兼容性方法）"""
+        return self.create(task_data)
+    
+    def get_task(self, task_id: Union[int, str]) -> Optional[Task]:
+        """获取任务（兼容性方法）"""
+        return self.get_by_id(str(task_id))
+    
+    def update_task_status(self, task_id: str, status: str) -> bool:
+        """更新任务状态（兼容性方法）"""
+        update_data = {"status": status}
+        if status == "completed":
+            update_data["completed_at"] = datetime.now()
+        return self.update(task_id, update_data)
 
 
 class StatisticalAggregationRepository(BaseRepository):
@@ -303,6 +362,105 @@ class StatisticalAggregationRepository(BaseRepository):
         except Exception as e:
             logger.error(f"Failed to record history change: {str(e)}")
             # 历史记录失败不应阻止主要操作
+    
+    # =================================
+    # 基础CRUD方法
+    # =================================
+    
+    def create(self, aggregation_data: Dict[str, Any]) -> StatisticalAggregation:
+        """创建统计汇聚记录"""
+        try:
+            aggregation_data['created_at'] = datetime.now()
+            aggregation_data['updated_at'] = datetime.now()
+            record = StatisticalAggregation(**aggregation_data)
+            self.db.add(record)
+            self.db.commit()
+            self.db.refresh(record)
+            return record
+        except Exception as e:
+            self._handle_db_error(e, "create")
+    
+    def get_by_id(self, aggregation_id: int) -> Optional[StatisticalAggregation]:
+        """根据ID获取统计汇聚记录"""
+        try:
+            return self.db.query(StatisticalAggregation).filter(
+                StatisticalAggregation.id == aggregation_id
+            ).first()
+        except Exception as e:
+            self._handle_db_error(e, "get_by_id")
+    
+    def get_by_filters(self, filters: Dict[str, Any]) -> Optional[StatisticalAggregation]:
+        """根据筛选条件获取统计汇聚记录"""
+        try:
+            query = self.db.query(StatisticalAggregation)
+            for key, value in filters.items():
+                if hasattr(StatisticalAggregation, key):
+                    query = query.filter(getattr(StatisticalAggregation, key) == value)
+            return query.first()
+        except Exception as e:
+            self._handle_db_error(e, "get_by_filters")
+    
+    def update(self, aggregation_id: int, update_data: Dict[str, Any]) -> Optional[StatisticalAggregation]:
+        """更新统计汇聚记录"""
+        try:
+            record = self.get_by_id(aggregation_id)
+            if not record:
+                return None
+            
+            for key, value in update_data.items():
+                if hasattr(record, key):
+                    setattr(record, key, value)
+            
+            record.updated_at = datetime.now()
+            self.db.commit()
+            self.db.refresh(record)
+            return record
+        except Exception as e:
+            self._handle_db_error(e, "update")
+    
+    def delete(self, aggregation_id: int) -> bool:
+        """删除统计汇聚记录"""
+        try:
+            record = self.get_by_id(aggregation_id)
+            if not record:
+                return False
+            
+            self.db.delete(record)
+            self.db.commit()
+            return True
+        except Exception as e:
+            self._handle_db_error(e, "delete")
+    
+    def get_paginated(
+        self,
+        filters: Optional[Dict[str, Any]] = None,
+        limit: int = 50,
+        offset: int = 0,
+        order_by: str = "created_at",
+        order_direction: str = "desc"
+    ) -> List[StatisticalAggregation]:
+        """分页获取统计汇聚记录"""
+        try:
+            query = self.db.query(StatisticalAggregation)
+            
+            # 应用筛选条件
+            if filters:
+                for key, value in filters.items():
+                    if hasattr(StatisticalAggregation, key):
+                        query = query.filter(getattr(StatisticalAggregation, key) == value)
+            
+            # 排序
+            if hasattr(StatisticalAggregation, order_by):
+                order_attr = getattr(StatisticalAggregation, order_by)
+                if order_direction.lower() == "desc":
+                    query = query.order_by(desc(order_attr))
+                else:
+                    query = query.order_by(asc(order_attr))
+            
+            # 分页
+            return query.offset(offset).limit(limit).all()
+        except Exception as e:
+            self._handle_db_error(e, "get_paginated")
     
     # =================================
     # 复杂查询方法扩展

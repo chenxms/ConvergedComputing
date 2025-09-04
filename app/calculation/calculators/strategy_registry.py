@@ -8,7 +8,7 @@ from ..formulas import (
     EducationalMetricsStrategy,
     DiscriminationStrategy
 )
-# from .dimension_calculator import DimensionStatisticsStrategy  # Temporarily disabled due to import issues
+from .dimension_calculator import DimensionStatisticsStrategy
 # from .difficulty_calculator import DifficultyCalculator  # Temporarily disabled
 # from .discrimination_calculator import DiscriminationCalculator  # Temporarily disabled
 from .grade_calculator import GradeLevelDistributionCalculator

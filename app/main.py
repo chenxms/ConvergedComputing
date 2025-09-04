@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.management_api import router as management_router
 from app.api.reporting_api import router as reporting_router
+from app.api.calculation_api import router as calculation_router
 
 app = FastAPI(
     title="学业发展质量监测统计分析服务",
@@ -24,6 +25,7 @@ app.add_middleware(
 # 注册路由
 app.include_router(management_router, prefix="/api/v1/management", tags=["管理API"])
 app.include_router(reporting_router, prefix="/api/v1/reporting", tags=["报告API"])
+app.include_router(calculation_router, prefix="/api/v1/statistics", tags=["统计计算API"])
 
 @app.get("/")
 async def root():
