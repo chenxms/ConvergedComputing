@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(git clone:*)",
+      "Bash(echo $OS)",
+      "Bash(curl:*)",
+      "Bash(unzip:*)",
+      "Bash(./bin/gh.exe --version)",
+      "WebFetch(domain:claude.ai)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
