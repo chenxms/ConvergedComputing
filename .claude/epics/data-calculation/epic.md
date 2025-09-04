@@ -2,10 +2,10 @@
 name: data-calculation
 status: in_analysis
 created: 2025-09-04T18:28:55Z
-updated: 2025-09-04T19:20:00Z
+updated: 2025-09-04T19:35:05Z
 progress: 15%
 prd: .claude/prds/data-calculation.md
-github: [Will be updated when synced to GitHub]
+github: https://github.com/chenxms/ConvergedComputing/issues/1
 ---
 
 # Epic: data-calculation

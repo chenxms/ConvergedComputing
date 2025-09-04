@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=mysql+pymysql://user:password@db:3306/appraisal_test
+      - PYTHONPATH=/app
+    depends_on:
+      - db
+    volumes:
+      - ./app:/app
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.4.6
+    environment:
+      - MYSQL_ROOT_PASSWORD=your_root_password
+      - MYSQL_DATABASE=appraisal_test
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+    ports:
+      - "3307:3306"  # 将容器的3306端口映射到本地的3307，避免冲突
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - app-network
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+
+volumes:
+  mysql_data:
+
+networks:
+  app-network:
+    driver: bridge
