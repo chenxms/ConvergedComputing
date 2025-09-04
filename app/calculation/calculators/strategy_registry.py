@@ -12,6 +12,12 @@ from .dimension_calculator import DimensionStatisticsStrategy
 # from .difficulty_calculator import DifficultyCalculator  # Temporarily disabled
 # from .discrimination_calculator import DiscriminationCalculator  # Temporarily disabled
 from .grade_calculator import GradeLevelDistributionCalculator
+from ..survey.survey_strategies import (
+    ScaleTransformationStrategy,
+    FrequencyAnalysisStrategy,
+    DimensionAggregationStrategy,
+    SurveyQualityStrategy
+)
 
 logger = logging.getLogger(__name__)
 
@@ -148,7 +154,32 @@ def register_default_strategies():
         '多维度统计聚合：基于question_dimension_mapping的复杂维度分析和交叉统计'
     )
     
-    logger.info("默认计算策略注册完成")
+    # 问卷数据处理策略
+    register_strategy(
+        'scale_transformation',
+        ScaleTransformationStrategy,
+        '量表转换策略：支持正向/反向量表的分值映射转换，处理5级李克特量表'
+    )
+    
+    register_strategy(
+        'frequency_analysis',
+        FrequencyAnalysisStrategy,
+        '选项频率分析策略：计算各选项的频次、百分比分布和描述统计'
+    )
+    
+    register_strategy(
+        'dimension_aggregation',
+        DimensionAggregationStrategy,
+        '维度汇总策略：计算各维度得分统计、相关性分析和整体问卷指标'
+    )
+    
+    register_strategy(
+        'survey_quality',
+        SurveyQualityStrategy,
+        '问卷数据质量检查策略：检测完成率、直线响应、响应时间等质量指标'
+    )
+    
+    logger.info("默认计算策略注册完成（包括问卷处理策略）")
     
     # 自动注册到全局计算引擎
     engine = get_calculation_engine()
