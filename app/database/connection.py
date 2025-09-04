@@ -69,8 +69,9 @@ def get_db() -> Generator:
 def test_connection() -> bool:
     """测试数据库连接"""
     try:
+        from sqlalchemy import text
         with engine.connect() as connection:
-            result = connection.execute("SELECT 1")
+            result = connection.execute(text("SELECT 1"))
             logger.info("Database connection successful")
             return True
     except Exception as e:

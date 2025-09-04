@@ -4,23 +4,6 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=mysql+pymysql://user:password@db:3306/appraisal_test
-    depends_on:
-      - db
+      - DATABASE_URL=mysql+pymysql://root:mysql_Lujing2022@117.72.14.166:23506/appraisal_test
     volumes:
       - ./app:/app
-
-  db:
-    image: mysql:8.4.6
-    environment:
-      - MYSQL_ROOT_PASSWORD=your_root_password
-      - MYSQL_DATABASE=appraisal_test
-      - MYSQL_USER=user
-      - MYSQL_PASSWORD=password
-    ports:
-      - "3307:3306"  # 将容器的3306端口映射到本地的3307，避免冲突
-    volumes:
-      - mysql_data:/var/lib/mysql
-
-volumes:
-  mysql_data:

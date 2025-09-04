@@ -42,7 +42,7 @@
    
    这将启动：
    - FastAPI应用服务（端口：8000）
-   - MySQL 8.4.6 数据库（端口：3307，避免与本地MySQL冲突）
+   - 连接到远程MySQL数据库（117.72.14.166:23506）
 
 3. **访问服务**
    - API文档：http://localhost:8000/docs
@@ -137,16 +137,29 @@
 
 ## 数据库配置
 
+### 远程数据库连接
+本项目使用远程MySQL数据库，连接信息：
+- **主机**: 117.72.14.166
+- **端口**: 23506  
+- **用户名**: root
+- **数据库**: appraisal_test
+
 ### 环境变量
 ```bash
-DATABASE_URL=mysql+pymysql://user:password@db:3306/appraisal_test
+DATABASE_URL=mysql+pymysql://root:mysql_Lujing2022@117.72.14.166:23506/appraisal_test
+```
+
+### 连接测试
+运行数据库连接测试：
+```bash
+python test_db_connection.py
 ```
 
 ### 核心表结构
-- `student_score_detail`: 学生答题明细数据
-- `subject_question_config`: 题目配置和满分信息
-- `question_dimension_mapping`: 题目维度映射
-- `grade_aggregation_main`: 年级汇总信息
+- `student_score_detail`: 学生答题明细数据（✅ 已验证）
+- `subject_question_config`: 题目配置和满分信息（✅ 已验证）
+- `question_dimension_mapping`: 题目维度映射（✅ 已验证）
+- `grade_aggregation_main`: 年级汇总信息（✅ 已验证）
 
 ## 开发规范
 
