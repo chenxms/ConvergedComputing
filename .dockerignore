@@ -1,0 +1,203 @@
+# Git相关
+.git
+.gitignore
+.github/
+
+# Python缓存
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+
+# 虚拟环境
+venv/
+ENV/
+env/
+.venv/
+.env/
+virtualenv/
+
+# IDE配置
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 日志文件
+*.log
+logs/
+*.log.*
+
+# 临时文件
+*.tmp
+*.bak
+*.old
+*.orig
+temp/
+tmp/
+_chunk.txt
+
+# 开发工具
+.claude/
+.gemini/
+.qwen/
+.trae/
+.bmad-core/
+
+# Docker文件（不需要复制到镜像）
+.dockerignore
+docker-compose*.yml
+Dockerfile*
+nginx.conf
+
+# 环境配置
+.env
+.env.*
+*.env
+
+# 测试相关
+tests/
+test_*.py
+*_test.py
+pytest.ini
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+coverage.xml
+*.cover
+
+# 验证和报告文件（运行时生成）
+reports/
+*_report_*.json
+*_report_*.html
+*verification_report*.json
+validation_results.json
+batch_test_results_*.json
+dimension_verification_report_*.json
+final_validation_report_*.json
+
+# 调试和检查脚本
+debug_*.py
+check_*.py
+verify_*.py
+inspect_*.py
+diagnose_*.py
+investigate_*.py
+validate_*.py
+simple_*.py
+quick_*.py
+test_*.py
+final_*.py
+
+# 数据库相关
+*.db
+*.sqlite
+*.sqlite3
+*.sql
+
+# 文档（保留必要的）
+*.md
+!README.md
+!CLAUDE.md
+!docs/*.md
+
+# 大文件
+*.zip
+*.gz
+*.tar
+*.tar.gz
+*.rar
+*.7z
+*.webp
+*.jpg
+*.png
+*.gif
+gh
+screenshot.webp
+gh_*.zip
+
+# SSL证书
+*.pem
+*.key
+*.crt
+ssl/
+
+# 备份文件
+*.backup
+*.save
+
+# OS文件
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Node相关（如果有前端）
+node_modules/
+package-lock.json
+yarn.lock
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# CI/CD
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+jenkins/
+
+# 编辑器备份
+*~
+.*.swp
+.*.swo
+\#*\#
+.\#*
+
+# 批处理脚本（Windows）
+*.bat
+*.cmd
+
+# Shell脚本（根据需要）
+*.sh
+
+# 临时处理文件
+add_*.py
+create_*.py
+update_*.py
+fix_*.py
+clean_*.py
+start_*.py
+run_*.py
+auto_*.py
+batch_*.py
+comprehensive_*.py
+targeted_*.py
+focused_*.py
+minimal_*.py
+direct_*.py
+enhanced_*.py
+updated_*.py
+fixed_*.py

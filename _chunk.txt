@@ -1,0 +1,7 @@
+﻿        if grade_level in ['1st_grade', '2nd_grade', '3rd_grade', 
+                          '4th_grade', '5th_grade', '6th_grade']:
+            # 小学标准 - 使用NumPy布尔索引
+            excellent_mask = scores_array >= (max_score * 0.90)
+            good_mask = (scores_array >= (max_score * 0.80)) & (scores_array < (max_score * 0.90))
+            pass_mask = (scores_array >= (max_score * 0.60)) & (scores_array < (max_score * 0.80))
+            fail_mask = scores_array < (max_score * 0.60)

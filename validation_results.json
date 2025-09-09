@@ -1,0 +1,131 @@
+{
+  "batch_code": "G4-2025",
+  "validation_time": 1757170604.7522442,
+  "overall_status": "OK",
+  "issues_found": 0,
+  "warnings_found": 0,
+  "subjects": {
+    "ai交互": {
+      "subject_name": "ai交互",
+      "max_score": 20.0,
+      "issues": [],
+      "warnings": [],
+      "statistics": {
+        "total_records": 1596,
+        "unique_students": 1596,
+        "min_score": 0.0,
+        "max_score": 20.0,
+        "avg_score": 11.882519,
+        "negative_scores": "0",
+        "overmax_scores": "0",
+        "null_scores": "0"
+      },
+      "status": "OK"
+    },
+    "数学": {
+      "subject_name": "数学",
+      "max_score": 100.0,
+      "issues": [],
+      "warnings": [],
+      "statistics": {
+        "total_records": 3511,
+        "unique_students": 3511,
+        "min_score": 0.0,
+        "max_score": 100.0,
+        "avg_score": 42.742096,
+        "negative_scores": "0",
+        "overmax_scores": "0",
+        "null_scores": "0"
+      },
+      "status": "OK"
+    },
+    "科学": {
+      "subject_name": "科学",
+      "max_score": 100.0,
+      "issues": [],
+      "warnings": [],
+      "statistics": {
+        "total_records": 3511,
+        "unique_students": 3511,
+        "min_score": 0.0,
+        "max_score": 0.0,
+        "avg_score": 0.0,
+        "negative_scores": "0",
+        "overmax_scores": "0",
+        "null_scores": "0"
+      },
+      "status": "OK"
+    },
+    "艺术": {
+      "subject_name": "艺术",
+      "max_score": 200.0,
+      "issues": [],
+      "warnings": [],
+      "statistics": {
+        "total_records": 2700,
+        "unique_students": 2700,
+        "min_score": 68.7,
+        "max_score": 193.81,
+        "avg_score": 154.5877,
+        "negative_scores": "0",
+        "overmax_scores": "0",
+        "null_scores": "0"
+      },
+      "status": "OK"
+    },
+    "问卷": {
+      "subject_name": "问卷",
+      "max_score": 112.0,
+      "issues": [],
+      "warnings": [],
+      "statistics": {
+        "total_records": 1533,
+        "unique_students": 1533,
+        "min_score": 23.0,
+        "max_score": 112.0,
+        "avg_score": 87.574038,
+        "negative_scores": "0",
+        "overmax_scores": "0",
+        "null_scores": "0"
+      },
+      "status": "OK"
+    }
+  },
+  "summary": {
+    "total_issues": 0,
+    "total_warnings": 0,
+    "subjects_checked": 5,
+    "status": "OK",
+    "recommendation": "数据质量良好，可以继续计算"
+  },
+  "basic_checks": {
+    "student_score_detail": {
+      "exists": true,
+      "count": 12851,
+      "issues": []
+    },
+    "subject_question_config": {
+      "exists": true,
+      "count": 118,
+      "issues": []
+    },
+    "batch_dimension_definition": {
+      "exists": true,
+      "count": 28,
+      "issues": []
+    },
+    "question_dimension_mapping": {
+      "exists": true,
+      "count": 123,
+      "issues": []
+    }
+  },
+  "dimension_checks": {
+    "status": "OK",
+    "issues": [],
+    "warnings": [],
+    "subjects_with_dimensions": 5,
+    "total_dimensions": 28,
+    "subjects_checked": 5
+  }
+}

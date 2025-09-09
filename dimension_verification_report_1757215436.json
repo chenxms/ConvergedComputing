@@ -1,0 +1,87 @@
+{
+  "batch_code": "G4-2025",
+  "timestamp": "2025-09-07 11:23:50",
+  "tests_passed": 10,
+  "tests_failed": 1,
+  "tests_details": [
+    {
+      "result": "PASS",
+      "test_name": "data_completeness",
+      "message": "维度数据完整率 100.0% >= 95%",
+      "passed": true
+    },
+    {
+      "result": "PASS",
+      "test_name": "data_consistency",
+      "message": "数据保留率 100.0% >= 90%",
+      "passed": true
+    },
+    {
+      "result": "FAIL",
+      "test_name": "dimension_calculation",
+      "message": "维度计算准确率 60.0% < 90%",
+      "passed": false
+    },
+    {
+      "result": "PASS",
+      "test_name": "dimension_max_scores",
+      "message": "维度满分配置验证完成",
+      "passed": true
+    },
+    {
+      "result": "PASS",
+      "test_name": "query_performance",
+      "message": "查询性能提升 68.7%",
+      "passed": true
+    },
+    {
+      "result": "PASS",
+      "test_name": "data_access_simplification",
+      "message": "简化数据访问，12851 条记录可直接获取维度数据",
+      "passed": true
+    },
+    {
+      "result": "PASS",
+      "test_name": "calculation_service_compatibility",
+      "message": "计算服务可以正常获取清洗数据",
+      "passed": true
+    },
+    {
+      "result": "PASS",
+      "test_name": "statistics_calculation",
+      "message": "统计计算功能正常",
+      "passed": true
+    },
+    {
+      "result": "PASS",
+      "test_name": "dimension_statistics",
+      "message": "成功计算 5 个维度的统计指标",
+      "passed": true
+    },
+    {
+      "result": "PASS",
+      "test_name": "data_quality",
+      "message": "数据质量得分 100.0% >= 95%",
+      "passed": true
+    },
+    {
+      "result": "PASS",
+      "test_name": "json_validity",
+      "message": "JSON有效率 100.0% >= 99%",
+      "passed": true
+    }
+  ],
+  "overall_status": "EXCELLENT",
+  "performance_metrics": {
+    "cleaned_query_time": 0.5150887966156006,
+    "original_query_time": 1.6444077491760254,
+    "performance_improvement": 68.6763336603285
+  },
+  "data_quality_metrics": {
+    "subjects_processed": 5,
+    "total_records": 12851,
+    "unique_students": 3511,
+    "complete_dimension_records": 12851,
+    "dimension_completeness_rate": 100.0
+  }
+}

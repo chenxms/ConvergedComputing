@@ -1,0 +1,96 @@
+{
+  "batch_code": "BATCH_2025_001_TEST",
+  "aggregation_level": "regional",
+  "statistics_data": {
+    "batch_info": {
+      "batch_code": "BATCH_2025_001_TEST",
+      "total_students": 800,
+      "total_schools": 5,
+      "analysis_date": "2025-09-05"
+    },
+    "academic_subjects": [
+      {
+        "subject_id": 1,
+        "subject_name": "语文",
+        "subject_code": "CHN",
+        "statistics": {
+          "total_score": 800,
+          "average_score": 650,
+          "difficulty_coefficient": 0.812,
+          "discrimination": 0.45,
+          "score_distribution": {
+            "excellent": 0.25,
+            "good": 0.35,
+            "pass": 0.30,
+            "fail": 0.10
+          },
+          "percentiles": {
+            "p25": 580,
+            "p50": 650,
+            "p75": 720,
+            "p90": 760
+          }
+        },
+        "dimensions": [
+          {
+            "dimension_id": 1,
+            "dimension_name": "阅读理解",
+            "average_score": 32.5,
+            "max_score": 40,
+            "difficulty_coefficient": 0.813
+          },
+          {
+            "dimension_id": 2,
+            "dimension_name": "语言运用",
+            "average_score": 26.0,
+            "max_score": 35,
+            "difficulty_coefficient": 0.743
+          }
+        ]
+      },
+      {
+        "subject_id": 2,
+        "subject_name": "数学",
+        "subject_code": "MATH",
+        "statistics": {
+          "total_score": 100,
+          "average_score": 78.5,
+          "difficulty_coefficient": 0.785,
+          "discrimination": 0.52,
+          "score_distribution": {
+            "excellent": 0.30,
+            "good": 0.40,
+            "pass": 0.25,
+            "fail": 0.05
+          },
+          "percentiles": {
+            "p25": 65,
+            "p50": 78,
+            "p75": 92,
+            "p90": 96
+          }
+        },
+        "dimensions": [
+          {
+            "dimension_id": 3,
+            "dimension_name": "数与代数",
+            "average_score": 42.3,
+            "max_score": 50,
+            "difficulty_coefficient": 0.846
+          }
+        ]
+      }
+    ],
+    "regional_summary": {
+      "total_subjects": 2,
+      "average_participation_rate": 0.95,
+      "overall_performance": "良好",
+      "improvement_areas": ["语言运用", "几何图形"]
+    }
+  },
+  "data_version": "1.0",
+  "total_students": 800,
+  "total_schools": 5,
+  "change_reason": "测试批次创建",
+  "triggered_by": "test_user"
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "batch_code": "G7-2025",
+    "start_time": "2025-09-08T23:21:09.754410",
+    "regional_count": 1,
+    "school_count": 42,
+    "errors": [],
+    "status": "completed",
+    "end_time": "2025-09-08T23:22:48.588626"
+  },
+  {
+    "batch_code": "G8-2025",
+    "start_time": "2025-09-08T23:22:48.833529",
+    "regional_count": 1,
+    "school_count": 41,
+    "errors": [],
+    "status": "completed",
+    "end_time": "2025-09-08T23:24:02.846587"
+  }
+]

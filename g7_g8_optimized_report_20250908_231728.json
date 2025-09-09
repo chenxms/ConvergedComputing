@@ -1,0 +1,24 @@
+[
+  {
+    "batch_code": "G7-2025",
+    "start_time": "2025-09-08T23:17:26.239057",
+    "regional_count": 0,
+    "school_count": 0,
+    "errors": [
+      "(pymysql.err.OperationalError) (1054, \"Unknown column 'qdm.dimension_name' in 'field list'\")\n[SQL: \n            SELECT DISTINCT \n                qdm.dimension_code,\n                qdm.dimension_name,\n                qdm.max_score\n            FROM question_dimension_mapping qdm\n            WHERE qdm.batch_code = %(batch_code)s \n            AND qdm.subject_name = %(subject_name)s\n        ]\n[parameters: {'batch_code': 'G7-2025', 'subject_name': 'ai交互'}]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+    ],
+    "status": "failed",
+    "end_time": "2025-09-08T23:17:27.356876"
+  },
+  {
+    "batch_code": "G8-2025",
+    "start_time": "2025-09-08T23:17:27.357136",
+    "regional_count": 0,
+    "school_count": 0,
+    "errors": [
+      "(pymysql.err.OperationalError) (1054, \"Unknown column 'qdm.dimension_name' in 'field list'\")\n[SQL: \n            SELECT DISTINCT \n                qdm.dimension_code,\n                qdm.dimension_name,\n                qdm.max_score\n            FROM question_dimension_mapping qdm\n            WHERE qdm.batch_code = %(batch_code)s \n            AND qdm.subject_name = %(subject_name)s\n        ]\n[parameters: {'batch_code': 'G8-2025', 'subject_name': '历史'}]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+    ],
+    "status": "failed",
+    "end_time": "2025-09-08T23:17:28.641437"
+  }
+]

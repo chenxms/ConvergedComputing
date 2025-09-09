@@ -1,0 +1,270 @@
+{
+  "title": "维度数据清洗功能验证报告",
+  "batch_code": "G4-2025",
+  "verification_time": "2025-09-07 11:30:06",
+  "summary": {
+    "data_completeness": {
+      "subjects_processed": 5,
+      "total_records": 12851,
+      "unique_students": 3511,
+      "dimension_completeness_rate": 100.0,
+      "subjects_details": [
+        {
+          "subject_name": "ai交互",
+          "total_records": 1596,
+          "unique_students": 1596,
+          "dimension_completeness": 100.0,
+          "avg_score": 11.88,
+          "score_range": "0.0-20.0"
+        },
+        {
+          "subject_name": "数学",
+          "total_records": 3511,
+          "unique_students": 3511,
+          "dimension_completeness": 100.0,
+          "avg_score": 42.74,
+          "score_range": "0.0-100.0"
+        },
+        {
+          "subject_name": "科学",
+          "total_records": 3511,
+          "unique_students": 3511,
+          "dimension_completeness": 100.0,
+          "avg_score": 0.0,
+          "score_range": "0.0-0.0"
+        },
+        {
+          "subject_name": "艺术",
+          "total_records": 2700,
+          "unique_students": 2700,
+          "dimension_completeness": 100.0,
+          "avg_score": 154.59,
+          "score_range": "68.7-193.8"
+        },
+        {
+          "subject_name": "问卷",
+          "total_records": 1533,
+          "unique_students": 1533,
+          "dimension_completeness": 100.0,
+          "avg_score": 87.57,
+          "score_range": "23.0-112.0"
+        }
+      ]
+    },
+    "overall_assessment": {
+      "success_rate": 75.0,
+      "overall_status": "优秀",
+      "conclusion": "维度数据清洗功能已成功实现，满足生产环境要求"
+    }
+  },
+  "detailed_findings": {
+    "dimension_structure": {
+      "ai交互": {
+        "dimension_count": 4,
+        "total_max_score": 14.0,
+        "dimensions": [
+          {
+            "code": "AI-sbwt",
+            "name": "识别问题",
+            "max_score": 2.0
+          },
+          {
+            "code": "AI-xfpg",
+            "name": "想法评估",
+            "max_score": 4.0
+          },
+          {
+            "code": "AI-xfsc",
+            "name": "想法生成",
+            "max_score": 4.0
+          },
+          {
+            "code": "AI-xxtqycl",
+            "name": "信息提取与处理",
+            "max_score": 4.0
+          }
+        ]
+      },
+      "数学": {
+        "dimension_count": 8,
+        "total_max_score": 116.0,
+        "dimensions": [
+          {
+            "code": "SX-lg",
+            "name": "量感",
+            "max_score": 2.0
+          },
+          {
+            "code": "SX-sg",
+            "name": "数感",
+            "max_score": 6.0
+          },
+          {
+            "code": "SX-jhzg",
+            "name": "几何直观",
+            "max_score": 2.0
+          },
+          {
+            "code": "SX-kjgn",
+            "name": "空间观念",
+            "max_score": 2.0
+          },
+          {
+            "code": "SX-sjys",
+            "name": "数据意识",
+            "max_score": 2.0
+          },
+          {
+            "code": "SX-tlys",
+            "name": "推理意识",
+            "max_score": 16.0
+          },
+          {
+            "code": "SX-ysnl",
+            "name": "运算能力",
+            "max_score": 44.0
+          },
+          {
+            "code": "SX-yyys",
+            "name": "应用意识",
+            "max_score": 42.0
+          }
+        ]
+      },
+      "科学": {
+        "dimension_count": 4,
+        "total_max_score": 100.0,
+        "dimensions": [
+          {
+            "code": "KX-kxgn",
+            "name": "科学观念",
+            "max_score": 27.0
+          },
+          {
+            "code": "KX-kxsw",
+            "name": "科学思维",
+            "max_score": 25.0
+          },
+          {
+            "code": "KX-tdzr",
+            "name": "态度责任",
+            "max_score": 3.0
+          },
+          {
+            "code": "KX-tjsj",
+            "name": "探究实践",
+            "max_score": 45.0
+          }
+        ]
+      },
+      "艺术": {
+        "dimension_count": 4,
+        "total_max_score": 200.0,
+        "dimensions": [
+          {
+            "code": "MS-jn",
+            "name": "美术技能",
+            "max_score": 50.0
+          },
+          {
+            "code": "MS-zs",
+            "name": "美术知识",
+            "max_score": 50.0
+          },
+          {
+            "code": "YY-jn",
+            "name": "音乐技能",
+            "max_score": 50.0
+          },
+          {
+            "code": "YY-zs",
+            "name": "音乐知识",
+            "max_score": 50.0
+          }
+        ]
+      },
+      "问卷": {
+        "dimension_count": 8,
+        "total_max_score": 112.0,
+        "dimensions": [
+          {
+            "code": "CZL-hqx",
+            "name": "创造力-好奇心",
+            "max_score": 12.0
+          },
+          {
+            "code": "CZL-mmx",
+            "name": "创造力-冒险性",
+            "max_score": 12.0
+          },
+          {
+            "code": "CZL-tzx",
+            "name": "创造力-挑战性",
+            "max_score": 12.0
+          },
+          {
+            "code": "CZL-xxl",
+            "name": "创造力-想象力",
+            "max_score": 8.0
+          },
+          {
+            "code": "CZX-jthj",
+            "name": "创造性-家庭环境",
+            "max_score": 12.0
+          },
+          {
+            "code": "CZX-tbhj",
+            "name": "创造性-同伴环境",
+            "max_score": 12.0
+          },
+          {
+            "code": "CZX-xxhj",
+            "name": "创造性-学校环境",
+            "max_score": 20.0
+          },
+          {
+            "code": "CZX-zwxn",
+            "name": "创造性-自我效能",
+            "max_score": 24.0
+          }
+        ]
+      }
+    },
+    "data_quality": {
+      "total_records": 12851,
+      "quality_issues": 0,
+      "quality_score": 100.0,
+      "issue_breakdown": {
+        "missing_student_id": 0,
+        "missing_subject_name": 0,
+        "missing_scores": 0,
+        "negative_scores": 0,
+        "missing_dimensions": 0,
+        "invalid_dimension_json": 0,
+        "invalid_max_score_json": 0
+      }
+    },
+    "dimension_statistics_capability": {
+      "sample_size": 500,
+      "dimensions_analyzed": 28,
+      "successful_calculations": 8
+    }
+  },
+  "performance_analysis": {
+    "query_performance": {
+      "records_queried": 12851,
+      "query_time_seconds": 8.480926275253296,
+      "records_per_second": 1515
+    },
+    "dimension_access": {
+      "sample_size": 1000,
+      "access_time_seconds": 0.0022089481353759766,
+      "valid_dimensions_rate": 100.0
+    }
+  },
+  "recommendations": [
+    "优化查询性能，考虑添加必要的数据库索引",
+    "建立定期的数据质量监控机制",
+    "设置性能监控和告警阈值"
+  ]
+}

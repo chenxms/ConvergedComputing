@@ -1,0 +1,24 @@
+{
+  "test_timestamp": "2025-09-05T21:23:15.608981",
+  "base_url": "http://localhost:8000",
+  "tests": [
+    {
+      "test_name": "test_regional_batch_performance",
+      "success": false,
+      "error": "'gbk' codec can't encode character '\\u2717' in position 4: illegal multibyte sequence",
+      "response_time": null
+    },
+    {
+      "test_name": "test_school_batch_with_id_performance",
+      "success": false,
+      "error": "'gbk' codec can't encode character '\\u2717' in position 4: illegal multibyte sequence",
+      "response_time": null
+    },
+    {
+      "test_name": "test_school_batch_validation_error",
+      "success": false,
+      "error": "'gbk' codec can't encode character '\\u2717' in position 4: illegal multibyte sequence",
+      "response_time": null
+    }
+  ]
+}

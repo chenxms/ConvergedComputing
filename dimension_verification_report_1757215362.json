@@ -1,0 +1,87 @@
+{
+  "batch_code": "G4-2025",
+  "timestamp": "2025-09-07 11:22:37",
+  "tests_passed": 9,
+  "tests_failed": 1,
+  "tests_details": [
+    {
+      "result": "PASS",
+      "test_name": "data_completeness",
+      "message": "维度数据完整率 100.0% >= 95%",
+      "passed": true
+    },
+    {
+      "result": "PASS",
+      "test_name": "data_consistency",
+      "message": "数据保留率 100.0% >= 90%",
+      "passed": true
+    },
+    {
+      "result": "ERROR",
+      "test_name": "dimension_calculation",
+      "message": "维度计算正确性测试失败: (pymysql.err.OperationalError) (1267, \"Illegal mix of collations (utf8mb4_unicode_ci,IMPLICIT) and (utf8mb4_0900_ai_ci,IMPLICIT) for operation '='\")\n[SQL: \n                SELECT scs.student_id, scs.subject_name, scs.total_score, \n                       scs.dimension_scores, scs.dimension_max_scores,\n                       ssd.subject_scores\n                FROM student_cleaned_scores scs\n                JOIN student_score_detail ssd ON scs.student_id = ssd.student_id \n                    AND scs.batch_code = ssd.batch_code \n                    AND scs.subject_name = ssd.subject_name\n                WHERE scs.batch_code = %(batch_code)s\n                    AND scs.dimension_scores IS NOT NULL \n                    AND scs.dimension_scores != '{}'\n                    AND ssd.subject_scores IS NOT NULL\n                    AND ssd.subject_scores != '{}'\n                ORDER BY RAND()\n                LIMIT 5\n            ]\n[parameters: {'batch_code': 'G4-2025'}]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)",
+      "passed": false
+    },
+    {
+      "result": "PASS",
+      "test_name": "query_performance",
+      "message": "查询性能提升 56.5%",
+      "passed": true
+    },
+    {
+      "result": "PASS",
+      "test_name": "data_access_simplification",
+      "message": "简化数据访问，12851 条记录可直接获取维度数据",
+      "passed": true
+    },
+    {
+      "result": "PASS",
+      "test_name": "calculation_service_compatibility",
+      "message": "计算服务可以正常获取清洗数据",
+      "passed": true
+    },
+    {
+      "result": "PASS",
+      "test_name": "statistics_calculation",
+      "message": "统计计算功能正常",
+      "passed": true
+    },
+    {
+      "result": "PASS",
+      "test_name": "dimension_statistics",
+      "message": "成功计算 5 个维度的统计指标",
+      "passed": true
+    },
+    {
+      "result": "PASS",
+      "test_name": "data_quality",
+      "message": "数据质量得分 100.0% >= 95%",
+      "passed": true
+    },
+    {
+      "result": "PASS",
+      "test_name": "json_validity",
+      "message": "JSON有效率 100.0% >= 99%",
+      "passed": true
+    },
+    {
+      "result": "ERROR",
+      "test_name": "critical_error",
+      "message": "验证过程中发生严重错误: 'gbk' codec can't encode character '\\u2713' in position 2: illegal multibyte sequence",
+      "passed": false
+    }
+  ],
+  "overall_status": "EXCELLENT",
+  "performance_metrics": {
+    "cleaned_query_time": 0.48957324028015137,
+    "original_query_time": 1.1264359951019287,
+    "performance_improvement": 56.537855465471786
+  },
+  "data_quality_metrics": {
+    "subjects_processed": 5,
+    "total_records": 12851,
+    "unique_students": 3511,
+    "complete_dimension_records": 12851,
+    "dimension_completeness_rate": 100.0
+  }
+}

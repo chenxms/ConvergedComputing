@@ -14,6 +14,10 @@ from ..database.enums import CalculationStatus, AggregationLevel
 from ..database.repositories import StatisticalAggregationRepository, TaskRepository
 from ..schemas.response_schemas import TaskResponse
 from ..services.calculation_service import CalculationService
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from data_cleaning_service import DataCleaningService
 
 logger = logging.getLogger(__name__)
 
@@ -84,8 +88,9 @@ class TaskManager:
                 if existing_task:
                     return self._convert_to_task_response(existing_task)
             
-            # 创建新任务
-            task_id = str(uuid.uuid4())
+            # 创建新任务 - 使用时间戳生成数字ID
+            import time
+            task_id = int(time.time() * 1000000) + batch.id  # 微秒时间戳 + batch_id确保唯一性
             task_data = {
                 "id": task_id,
                 "batch_id": batch.id,
@@ -99,22 +104,22 @@ class TaskManager:
                 "completed_at": None,
                 "error_message": None,
                 "stage_details": [
-                    {"stage": "data_loading", "status": "pending", "progress": 0.0},
-                    {"stage": "statistical_calculation", "status": "pending", "progress": 0.0},
-                    {"stage": "result_aggregation", "status": "pending", "progress": 0.0}
+                    {"stage": "data_loading", "status": "pending", "progress": 0.0, "description": "数据加载和验证"},
+                    {"stage": "statistical_calculation", "status": "pending", "progress": 0.0, "description": "统计计算和数据生成"},
+                    {"stage": "result_aggregation", "status": "pending", "progress": 0.0, "description": "结果汇聚和存储"}
                 ]
             }
             
             # 保存到数据库
-            db_task = Task(
-                id=task_data["id"],
-                batch_id=task_data["batch_id"],
-                status=task_data["status"],
-                progress=task_data["progress"],
-                started_at=task_data["started_at"]
-            )
+            task_create_data = {
+                "id": task_data["id"],
+                "batch_id": task_data["batch_id"],
+                "status": task_data["status"].value,  # 转换枚举为字符串值
+                "progress": task_data["progress"],
+                "started_at": task_data["started_at"]
+            }
             
-            self.task_repo.create(db_task.__dict__)
+            self.task_repo.create(task_create_data)
             
             # 更新批次状态
             self.aggregation_repo.update(batch.id, {
@@ -150,6 +155,100 @@ class TaskManager:
         except Exception as e:
             logger.error(f"Error starting calculation task: {str(e)}")
             raise
+
+    async def start_cleaning_task(
+        self,
+        batch_code: str,
+        background_tasks: BackgroundTasks = None
+    ) -> TaskResponse:
+        """启动数据清洗任务，返回任务信息（task_id用于前端轮询）。"""
+        try:
+            import time
+            task_id = int(time.time() * 1000000)
+            task_data = {
+                "id": task_id,
+                "batch_id": 0,
+                "batch_code": batch_code,
+                "status": TaskStatus.PENDING,
+                "priority": TaskPriority.NORMAL,
+                "progress": 0.0,
+                "started_at": datetime.now(),
+                "completed_at": None,
+                "error_message": None,
+                "stage_details": [
+                    {"stage": "precheck", "status": "pending", "progress": 0.0, "description": "预检查与准备"},
+                    {"stage": "cleaning", "status": "pending", "progress": 0.0, "description": "执行数据清洗"},
+                    {"stage": "verification", "status": "pending", "progress": 0.0, "description": "结果校验"}
+                ]
+            }
+
+            # 入库
+            self.task_repo.create({
+                "id": task_id,
+                "batch_id": task_data["batch_id"],
+                "status": task_data["status"].value,
+                "progress": task_data["progress"],
+                "started_at": task_data["started_at"]
+            })
+
+            # 缓存
+            self._running_tasks[task_id] = task_data
+            self._task_progress[task_id] = {
+                "overall_progress": 0.0,
+                "stage_details": [
+                    {"stage": "precheck", "status": "pending", "progress": 0.0},
+                    {"stage": "cleaning", "status": "pending", "progress": 0.0},
+                    {"stage": "verification", "status": "pending", "progress": 0.0}
+                ],
+                "last_updated": datetime.now()
+            }
+
+            # 启动后台执行
+            if background_tasks:
+                background_tasks.add_task(self._execute_cleaning_task_sync, task_id, batch_code)
+            else:
+                threading.Thread(target=self._execute_cleaning_task_sync, args=(task_id, batch_code), daemon=True).start()
+
+            # 统计
+            self._system_stats["total_tasks"] += 1
+            self._system_stats["running_tasks"] += 1
+
+            return self._convert_to_task_response(task_data)
+
+        except Exception as e:
+            logger.error(f"Error starting cleaning task: {str(e)}")
+            raise
+
+    def _execute_cleaning_task_sync(self, task_id: str, batch_code: str) -> None:
+        asyncio.run(self._execute_cleaning_task(task_id, batch_code))
+
+    async def _execute_cleaning_task(self, task_id: str, batch_code: str) -> None:
+        try:
+            task_info = self._running_tasks.get(task_id)
+            if not task_info:
+                return
+
+            # 运行中
+            task_info["status"] = TaskStatus.RUNNING
+            self._update_task_progress(task_id, 5.0, "precheck", "processing")
+
+            # 执行清洗
+            svc = DataCleaningService(self.db)
+            await self._simulate_progress(task_id, 5, 15, "precheck")
+            self._update_task_progress(task_id, 20.0, "cleaning", "processing")
+            await svc.clean_batch_scores(batch_code)
+            await self._simulate_progress(task_id, 20, 85, "cleaning")
+
+            # 简要校验
+            from sqlalchemy import text
+            row = self.db.execute(text("SELECT COUNT(*) FROM student_cleaned_scores WHERE batch_code=:b"), {"b": batch_code}).fetchone()
+            _ = int(row[0]) if row and row[0] is not None else 0
+            self._update_task_progress(task_id, 95.0, "verification", "processing")
+
+            await self._complete_task_successfully(task_id)
+
+        except Exception as e:
+            await self._complete_task_with_error(task_id, str(e))
     
     async def cancel_task(self, task_id: str) -> bool:
         """取消任务"""
@@ -423,14 +522,28 @@ class TaskManager:
             start_time = datetime.now()
             
             try:
-                # 调用计算服务
-                result = await self.calculation_service.calculate_statistics(
-                    batch_code=batch.batch_code,
-                    aggregation_level=batch.aggregation_level,
-                    school_id=batch.school_id
-                )
+                # 调用计算服务，传入进度回调
+                def progress_callback(progress: float, message: str):
+                    # 将计算进度映射到 33-90% 的任务进度范围
+                    task_progress = 33 + (progress / 100.0) * 57  # 33% + 57% = 90%
+                    self._update_task_progress(task_id, task_progress, "statistical_calculation", "processing")
+                    logger.debug(f"Task {task_id}: {message} ({task_progress:.1f}%)")
                 
-                await self._simulate_progress(task_id, 33, 66, "statistical_calculation")
+                if batch.aggregation_level == AggregationLevel.REGIONAL:
+                    # 区域级计算（增强版本，自动生成学校数据）
+                    result = await self.calculation_service.calculate_batch_statistics(
+                        batch_code=batch.batch_code,
+                        config=None,
+                        progress_callback=progress_callback
+                    )
+                else:
+                    # 学校级计算
+                    result = await self.calculation_service.calculate_school_statistics(
+                        batch_code=batch.batch_code,
+                        school_id=batch.school_id
+                    )
+                    # 学校级计算不需要进度回调，直接更新到 90%
+                    self._update_task_progress(task_id, 90, "statistical_calculation", "completed")
                 
             except Exception as calc_error:
                 await self._complete_task_with_error(task_id, f"计算失败: {str(calc_error)}")
@@ -445,13 +558,22 @@ class TaskManager:
             # 更新批次统计数据
             calculation_duration = (datetime.now() - start_time).total_seconds()
             
+            # 根据计算类型更新不同的数据结构
+            if batch.aggregation_level == AggregationLevel.REGIONAL:
+                # 区域级计算返回的是增强结果，包含区域和学校数据
+                statistics_data = result.get('regional_statistics', result)
+                logger.info(f"Task {task_id}: 区域级计算完成，同时生成了 {result.get('school_statistics_summary', {}).get('successful_schools', 0)} 个学校数据")
+            else:
+                # 学校级计算返回的是单个学校数据
+                statistics_data = result.get('statistics', result)
+            
             self.aggregation_repo.update(batch.id, {
-                "statistics_data": result,
+                "statistics_data": statistics_data,
                 "calculation_status": CalculationStatus.COMPLETED,
                 "calculation_duration": calculation_duration
             })
             
-            await self._simulate_progress(task_id, 66, 100, "result_aggregation")
+            await self._simulate_progress(task_id, 90, 100, "result_aggregation")
             
             # 完成任务
             await self._complete_task_successfully(task_id)

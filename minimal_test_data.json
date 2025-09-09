@@ -1,0 +1,25 @@
+{
+  "batch_code": "SIMPLE_TEST_001",
+  "aggregation_level": "regional", 
+  "statistics_data": {
+    "batch_info": {
+      "batch_code": "SIMPLE_TEST_001",
+      "total_students": 100,
+      "total_schools": 2
+    },
+    "academic_subjects": [
+      {
+        "subject_id": 1,
+        "subject_name": "语文",
+        "statistics": {
+          "total_score": 800,
+          "average_score": 650,
+          "difficulty_coefficient": 0.812,
+          "discrimination": 0.45
+        }
+      }
+    ]
+  },
+  "total_students": 100,
+  "total_schools": 2
+}

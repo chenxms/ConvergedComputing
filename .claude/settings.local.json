@@ -8,7 +8,12 @@
       "Bash(curl:*)",
       "Bash(unzip:*)",
       "Bash(./bin/gh.exe --version)",
-      "WebFetch(domain:claude.ai)"
+      "WebFetch(domain:claude.ai)",
+      "Bash(cmd:*)",
+      "Bash(powershell:*)",
+      "Bash(find:*)",
+      "Bash(tar:*)",
+      "Read(//c/Users/chenx/Downloads/**)"
     ],
     "deny": [],
     "ask": []

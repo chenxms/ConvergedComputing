@@ -1,0 +1,21 @@
+{
+  "validation_time": "2025-09-08T23:55:12.210070",
+  "batches": {
+    "G4-2025": [
+      "Schema版本不是v1.2",
+      "缺少subjects字段",
+      "数据精度问题: 1个超过2位小数"
+    ],
+    "G7-2025": [
+      "无汇聚数据"
+    ],
+    "G8-2025": [
+      "REGIONAL层级total_students为0",
+      "REGIONAL层级total_schools为0",
+      "SCHOOL层级total_students为0",
+      "Metrics缺少: ['difficulty', 'discrimination']"
+    ]
+  },
+  "total_issues": 8,
+  "status": "FAIL"
+}

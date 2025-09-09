@@ -109,4 +109,6 @@ Agents integrate seamlessly with the PM command system:
 - Sub-agents → Work in parallel in the worktree
 - Results → Consolidated back to main thread
 
+使用中文输出
+
 This creates a hierarchy that maximizes parallelism while preserving context at every level.
