@@ -50,3 +50,19 @@ venv.bak/
 # Logs
 *.log
 logs/
+# BMAD (local only)
+.bmad-core/
+.bmad-*/
+
+# Local build artifacts and archives
+*.tar
+*.tar.gz
+*.zip
+offline_deployment/
+deployment_package_*/
+deployment_single_port_*/
+deployment_package_production/
+deployment_package_optimized/
+converged-computing-*.zip
+converged-computing_*.tar.gz
+
