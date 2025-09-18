@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>v1.2 API 集成演示</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #1890ff;
+            margin-bottom: 8px;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input, .form-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            background: #1890ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #40a9ff;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1890ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fff2f0;
+            border: 1px solid #ffccc7;
+            color: #f5222d;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            background: #f6ffed;
+            border: 1px solid #b7eb8f;
+            color: #52c41a;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .data-info {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            text-align: center;
+            padding: 16px;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+
+        .info-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1890ff;
+            display: block;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .subject-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-header h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .type-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .type-badge.exam {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .type-badge.questionnaire {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        .main-metric {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .main-metric .value {
+            font-size: 32px;
+            font-weight: 600;
+            color: #1890ff;
+            display: block;
+        }
+
+        .main-metric .label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .sub-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .rank-info {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e8e8e8;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .rank-bar {
+            height: 4px;
+            background: #52c41a;
+            border-radius: 2px;
+            margin-top: 4px;
+        }
+
+        .chart-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .chart {
+            height: 400px;
+            margin-top: 16px;
+        }
+
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .ranking-table th,
+        .ranking-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .ranking-table th {
+            background: #fafafa;
+            font-weight: 600;
+        }
+
+        .ranking-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .subjects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main-metric .value {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>v1.2 统计分析API 集成演示</h1>
+            <p>展示如何集成和使用统一的subjects数据结构，支持考试成绩和问卷调查的完整统计分析</p>
+        </div>
+
+        <div class="controls">
+            <div class="form-group">
+                <label for="batchCode">批次代码</label>
+                <input type="text" id="batchCode" value="G4-2025" placeholder="如: G4-2025">
+            </div>
+            
+            <div class="form-group">
+                <label for="dataType">数据层级</label>
+                <select id="dataType">
+                    <option value="regional">区域数据</option>
+                    <option value="school">学校数据</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="schoolCodeGroup" style="display: none;">
+                <label for="schoolCode">学校代码</label>
+                <input type="text" id="schoolCode" value="S001" placeholder="如: S001">
+            </div>
+            
+            <button class="btn" onclick="fetchData()">获取数据</button>
+            <button class="btn" onclick="loadExample()">加载示例</button>
+        </div>
+
+        <div id="loadingIndicator" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>正在获取统计数据...</p>
+        </div>
+
+        <div id="errorMessage" class="error" style="display: none;"></div>
+        <div id="successMessage" class="success" style="display: none;"></div>
+
+        <div id="dataDisplay" style="display: none;">
+            <div class="data-info">
+                <h2>数据概览</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-value" id="schemaVersion">--</span>
+                        <div class="info-label">数据版本</div>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-value" id="aggregationLevel">--</span>
+                        <div class="info-label">聚合层级</div>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-value" id="examCount">--</span>
+                        <div class="info-label">考试科目</div>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-value" id="questionnaireCount">--</span>
+                        <div class="info-label">问卷调查</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="subjectsDisplay"></div>
+            
+            <div class="chart-section" id="chartSection" style="display: none;">
+                <h2>数据可视化</h2>
+                <div id="radarChart" class="chart"></div>
+            </div>
+            
+            <div class="chart-section" id="rankingSection" style="display: none;">
+                <h2>学校排名</h2>
+                <table class="ranking-table" id="rankingTable">
+                    <thead>
+                        <tr>
+                            <th>排名</th>
+                            <th>学校名称</th>
+                            <th>平均分</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rankingTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API配置
+        const API_BASE_URL = 'http://localhost:8000';
+        let currentData = null;
+
+        // 切换数据层级时的处理
+        document.getElementById('dataType').addEventListener('change', function() {
+            const schoolCodeGroup = document.getElementById('schoolCodeGroup');
+            if (this.value === 'school') {
+                schoolCodeGroup.style.display = 'block';
+            } else {
+                schoolCodeGroup.style.display = 'none';
+            }
+        });
+
+        // 显示加载状态
+        function showLoading() {
+            document.getElementById('loadingIndicator').style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('dataDisplay').style.display = 'none';
+        }
+
+        // 显示错误信息
+        function showError(message) {
+            document.getElementById('loadingIndicator').style.display = 'none';
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('dataDisplay').style.display = 'none';
+        }
+
+        // 显示成功信息
+        function showSuccess(message) {
+            document.getElementById('successMessage').textContent = message;
+            document.getElementById('successMessage').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('successMessage').style.display = 'none';
+            }, 3000);
+        }
+
+        // 格式化数值
+        function formatNumber(value, precision = 2) {
+            if (typeof value !== 'number' || isNaN(value)) return '--';
+            return value.toFixed(precision);
+        }
+
+        // 获取排名颜色
+        function getRankColor(rank, total) {
+            const percentile = (total - rank + 1) / total;
+            if (percentile >= 0.8) return '#52c41a';
+            if (percentile >= 0.6) return '#1890ff';
+            if (percentile >= 0.4) return '#faad14';
+            return '#f5222d';
+        }
+
+        // 获取API数据
+        async function fetchData() {
+            const batchCode = document.getElementById('batchCode').value.trim();
+            const dataType = document.getElementById('dataType').value;
+            const schoolCode = document.getElementById('schoolCode').value.trim();
+
+            if (!batchCode) {
+                showError('请输入批次代码');
+                return;
+            }
+
+            if (dataType === 'school' && !schoolCode) {
+                showError('请输入学校代码');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const url = dataType === 'school' 
+                    ? `${API_BASE_URL}/api/v12/batch/${batchCode}/school/${schoolCode}`
+                    : `${API_BASE_URL}/api/v12/batch/${batchCode}/regional`;
+
+                const response = await fetch(url);
+                const result = await response.json();
+
+                if (result.success) {
+                    currentData = result.data;
+                    displayData(currentData);
+                    showSuccess(`成功获取${dataType === 'school' ? '学校' : '区域'}数据`);
+                } else {
+                    throw new Error(result.message || '请求失败');
+                }
+            } catch (error) {
+                showError(`数据获取失败: ${error.message}`);
+            } finally {
+                document.getElementById('loadingIndicator').style.display = 'none';
+            }
+        }
+
+        // 加载示例数据
+        async function loadExample() {
+            showLoading();
+            
+            try {
+                // 模拟加载示例数据
+                const response = await fetch('./api-response-examples.json');
+                const examples = await response.json();
+                
+                const dataType = document.getElementById('dataType').value;
+                const exampleData = dataType === 'school' 
+                    ? examples.school_data_example.data
+                    : examples.regional_data_example.data;
+                
+                currentData = exampleData;
+                displayData(currentData);
+                showSuccess(`已加载${dataType === 'school' ? '学校' : '区域'}示例数据`);
+            } catch (error) {
+                // 如果无法加载示例文件，使用硬编码示例
+                const exampleData = {
+                    schema_version: "v1.2",
+                    batch_code: "G4-2025",
+                    aggregation_level: "REGIONAL",
+                    subjects: [
+                        {
+                            subject_name: "数学",
+                            type: "exam",
+                            metrics: {
+                                avg: 82.15,
+                                stddev: 11.02,
+                                max: 100.00,
+                                min: 35.50,
+                                difficulty: 0.82
+                            },
+                            school_rankings: [
+                                {
+                                    school_code: "S001",
+                                    school_name: "第一中学",
+                                    avg: 88.32,
+                                    rank: 1
+                                },
+                                {
+                                    school_code: "S002",
+                                    school_name: "第二中学",
+                                    avg: 86.75,
+                                    rank: 2
+                                }
+                            ],
+                            dimensions: [
+                                {
+                                    code: "ALG",
+                                    name: "代数",
+                                    max_score: 50.00,
+                                    avg: 41.23,
+                                    score_rate: 82.46
+                                }
+                            ]
+                        }
+                    ]
+                };
+                
+                currentData = exampleData;
+                displayData(currentData);
+                showSuccess('已加载内置示例数据');
+            } finally {
+                document.getElementById('loadingIndicator').style.display = 'none';
+            }
+        }
+
+        // 显示数据
+        function displayData(data) {
+            // 更新基本信息
+            document.getElementById('schemaVersion').textContent = data.schema_version;
+            document.getElementById('aggregationLevel').textContent = 
+                data.aggregation_level === 'REGIONAL' ? '区域层' : '学校层';
+            
+            const examSubjects = data.subjects.filter(s => s.type === 'exam');
+            const questionnaireSubjects = data.subjects.filter(s => s.type === 'questionnaire');
+            
+            document.getElementById('examCount').textContent = examSubjects.length;
+            document.getElementById('questionnaireCount').textContent = questionnaireSubjects.length;
+
+            // 显示科目卡片
+            displaySubjects(data.subjects);
+            
+            // 显示图表
+            if (examSubjects.length > 0) {
+                displayRadarChart(examSubjects);
+                document.getElementById('chartSection').style.display = 'block';
+            } else {
+                document.getElementById('chartSection').style.display = 'none';
+            }
+            
+            // 显示排名表（区域层且有排名数据时）
+            if (data.aggregation_level === 'REGIONAL' && data.subjects[0]?.school_rankings) {
+                displayRankingTable(data.subjects[0].school_rankings);
+                document.getElementById('rankingSection').style.display = 'block';
+            } else {
+                document.getElementById('rankingSection').style.display = 'none';
+            }
+
+            document.getElementById('dataDisplay').style.display = 'block';
+        }
+
+        // 显示科目卡片
+        function displaySubjects(subjects) {
+            const container = document.getElementById('subjectsDisplay');
+            
+            const html = subjects.map(subject => {
+                const rankInfo = subject.region_rank && subject.total_schools 
+                    ? `<div class="rank-info">
+                         区域排名: 第${subject.region_rank}名 / ${subject.total_schools}校
+                         <div class="rank-bar" style="width: ${((subject.total_schools - subject.region_rank + 1) / subject.total_schools) * 100}%; background: ${getRankColor(subject.region_rank, subject.total_schools)};"></div>
+                       </div>`
+                    : '';
+
+                return `
+                    <div class="subject-card">
+                        <div class="card-header">
+                            <h3>${subject.subject_name}</h3>
+                            <span class="type-badge ${subject.type}">
+                                ${subject.type === 'exam' ? '考试' : '问卷'}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="main-metric">
+                                <span class="value">${formatNumber(subject.metrics.avg)}</span>
+                                <span class="label">平均分</span>
+                            </div>
+                            <div class="sub-metrics">
+                                <div>难度系数: ${formatNumber(subject.metrics.difficulty)}</div>
+                                <div>标准差: ${formatNumber(subject.metrics.stddev)}</div>
+                            </div>
+                            ${rankInfo}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="chart-section">
+                    <h2>科目详情</h2>
+                    <div class="subjects-grid">
+                        ${html}
+                    </div>
+                </div>
+            `;
+        }
+
+        // 显示雷达图
+        function displayRadarChart(examSubjects) {
+            const chartDom = document.getElementById('radarChart');
+            const myChart = echarts.init(chartDom);
+            
+            const option = {
+                title: {
+                    text: '各科目成绩雷达图',
+                    left: 'center'
+                },
+                tooltip: {},
+                radar: {
+                    indicator: examSubjects.map(subject => ({
+                        name: subject.subject_name,
+                        max: 100
+                    }))
+                },
+                series: [{
+                    name: '成绩分析',
+                    type: 'radar',
+                    data: [
+                        {
+                            value: examSubjects.map(s => s.metrics.avg),
+                            name: '平均分',
+                            areaStyle: {
+                                opacity: 0.3
+                            }
+                        }
+                    ]
+                }]
+            };
+            
+            myChart.setOption(option);
+        }
+
+        // 显示排名表格
+        function displayRankingTable(rankings) {
+            const tbody = document.getElementById('rankingTableBody');
+            
+            const html = rankings.slice(0, 10).map(school => `
+                <tr>
+                    <td style="color: ${getRankColor(school.rank, rankings.length)}; font-weight: 600;">
+                        ${school.rank}
+                    </td>
+                    <td>${school.school_name}</td>
+                    <td>${formatNumber(school.avg)}</td>
+                </tr>
+            `).join('');
+            
+            tbody.innerHTML = html;
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('v1.2 API 演示页面已加载');
+            console.log('点击"加载示例"按钮查看示例数据');
+        });
+    </script>
+</body>
+</html>

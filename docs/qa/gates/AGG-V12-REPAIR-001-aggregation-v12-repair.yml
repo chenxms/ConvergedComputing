@@ -1,0 +1,32 @@
+schema: 1
+story: "AGG-V12-REPAIR-001"
+story_title: "汇聚指标修复用户故事 v1.2"
+gate: "PASS" # PASS|CONCERNS|FAIL|WAIVED
+status_reason: "实现覆盖主要 AC，结构清晰且有验证文档；存在可监控的低至中等级风险（鉴权、索引与容量）。"
+reviewer: "Quinn (Test Architect)"
+updated: "09/12/2025 16:24:35.ToString('s')Z"
+
+waiver: { active: false }
+
+top_issues:
+  - id: "PERF-OPTION-DIST"
+    severity: medium
+    finding: "选项分布表体量与查询开销需持续观测，部分 SQL CAST/COLLATE 可能影响索引命中。"
+    suggested_action: "补充/验证必要组合索引与查询计划，分批/异步 populate，监控慢查询与容量。"
+  - id: "SEC-ADMIN-GUARD"
+    severity: low
+    finding: "populate/管理类 API 需明确 RBAC 与审计，避免误操作或滥用。"
+    suggested_action: "仅开放给管理员/任务账号；记录审计日志与限速；在 CI 做最小权限校验。"
+  - id: "QA-AC-TRACE"
+    severity: low
+    finding: "确保输出仅包含 exam/questionnaire 类型且与 ACTIVE 学校/BDD 优先策略严格一致。"
+    suggested_action: "保留样本快照用例做回归；将 SQL/JSON 结构校验脚本纳入 CI。"
+
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 1, low: 2 }
+  recommendations:
+    must_fix: []
+    monitor:
+      - "持续监测 questionnaire_option_distribution 的容量/索引命中/慢查询。"
+      - "将验证脚本纳入 CI 并设为发布闸门，保留回归样本。"
+      - "梳理管理类 API 的 RBAC/审计与限速策略。"

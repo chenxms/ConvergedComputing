@@ -1,0 +1,721 @@
+PS D:\myproject\后端\ConvergedComputing> docker-compose run --rm app python scripts/rewrite_regional_v12.py G7-2025
+INFO:app.database.cache:Redis client connected successfully
+INFO:app.calculation.calculators.strategy_registry:正在初始化计算系统...
+INFO:app.calculation.calculators.strategy_registry:已注册计算策略: basic_statistics (BasicStatisticsStrategy)
+INFO:app.calculation.calculators.strategy_registry:已注册计算策略: percentiles (EducationalPercentileStrategy)
+INFO:app.calculation.calculators.strategy_registry:已注册计算策略: educational_metrics (EducationalMetricsStrategy)
+INFO:app.calculation.calculators.strategy_registry:已注册计算策略: discrimination (DiscriminationStrategy)
+INFO:app.calculation.calculators.strategy_registry:已注册计算策略: grade_distribution (GradeLevelDistributionCalculator)
+INFO:app.calculation.calculators.strategy_registry:已注册计算策略: dimension_statistics (DimensionStatisticsStrategy)
+INFO:app.calculation.calculators.strategy_registry:已注册计算策略: scale_transformation (ScaleTransformationStrategy)
+INFO:app.calculation.calculators.strategy_registry:已注册计算策略: frequency_analysis (FrequencyAnalysisStrategy)
+INFO:app.calculation.calculators.strategy_registry:已注册计算策略: dimension_aggregation (DimensionAggregationStrategy)
+INFO:app.calculation.calculators.strategy_registry:已注册计算策略: survey_quality (SurveyQualityStrategy)
+INFO:app.calculation.calculators.strategy_registry:默认计算策略注册完成（包括问卷处理策略）
+INFO:app.calculation.engine:已初始化全局计算引擎
+INFO:app.calculation.engine:已注册计算策略: basic_statistics
+INFO:app.calculation.engine:已注册计算策略: percentiles
+INFO:app.calculation.engine:已注册计算策略: educational_metrics
+INFO:app.calculation.engine:已注册计算策略: discrimination
+INFO:app.calculation.engine:已注册计算策略: grade_distribution
+INFO:app.calculation.engine:已注册计算策略: dimension_statistics
+INFO:app.calculation.engine:已注册计算策略: scale_transformation
+INFO:app.calculation.engine:已注册计算策略: frequency_analysis
+INFO:app.calculation.engine:已注册计算策略: dimension_aggregation
+INFO:app.calculation.engine:已注册计算策略: survey_quality
+INFO:app.calculation.calculators.strategy_registry:已将 10 个策略注册到计算引擎
+INFO:app.calculation.calculators.strategy_registry:计算系统初始化完成，共注册 10 个策略: ['basic_statistics', 'percentiles', 'educational_metrics', 'discrimination', 'grade_distribution', 'dimension_statistics', 'scale_transformation', 'frequency_analysis', 'dimension_aggregation', 'survey_quality']
+[REGIONAL] 计算增强统计（G7-2025）...
+INFO:app.services.calculation_service:获取到 96241 条学生分数记录，包含 10 个科目
+INFO:app.services.calculation_service:数据源类型: {'cleaned': 96241}
+INFO:app.services.calculation_service:开始整合批次 G7-2025 的多科目统计结果
+INFO:app.services.calculation_service:批次 G7-2025 包含 10 个科目
+INFO:app.services.calculation_service:批量获取满分完成: 批次=G7-2025, 科目数=10, 维度数=293
+INFO:app.services.calculation_service:学业科目 AI交互 开始计算，数据量: 1137, 配置: {'max_score': 23.0, 'grade_level': '4th_grade', 'percentiles': [10, 25, 50, 75, 90], 'required_columns': ['score']}
+INFO:app.services.calculation_service:科目 AI交互 数据样本: score范围[1.0, 19.5], 平均9.2
+INFO:app.services.calculation_service:科目 AI交互 教育指标计算完成: grade_level=4th_grade, max_score=23.0
+INFO:app.services.calculation_service:科目 AI交互 教育指标结果: {'average_score_rate': 0.3989139994646476, 'grade_distribution': {'excellent_rate': 0.0, 'good_rate': 0.04133685136323659, 'pass_rate': 0.08355321020228672, 'fail_rate': 0.8751099384344767, 'excellent_count': 0, 'good_count': 47, 'pass_count': 95, 'fail_count': 995}, 'pass_rate': 0.1248900615655233, 'excellent_rate': 0.0, 'difficulty_coefficient': 0.3989139994646476, '_meta': {'algorithm_info': {'name': 'EducationalMetrics', 'version': '1.0', 'description': '教育指标和等级分布计算', 'grading_standard': 'primary_vs_middle_school'}, 'data_size': 1137, 'calculation_time': 0.0010547637939453125, 'validation_warnings': []}}
+INFO:app.services.calculation_service:科目 AI交互 找到 1137 个学生的维度数据
+INFO:app.services.calculation_service:科目 AI交互 发现 6 个维度: ['AI-xfsc-lcx', 'AI-xfsc-lhx', 'AI-wtsb', 'AI-xxtqycl', 'AI-xfsc-dcx', 'AI-xfpg']
+INFO:app.services.calculation_service:维度 AI-xfsc-lcx 统计计算完成，学生数: 1137
+INFO:app.services.calculation_service:维度 AI-xfsc-lhx 统计计算完成，学生数: 1137
+INFO:app.services.calculation_service:维度 AI-wtsb 统计计算完成，学生数: 1137
+INFO:app.services.calculation_service:维度 AI-xxtqycl 统计计算完成，学生数: 1137
+INFO:app.services.calculation_service:维度 AI-xfsc-dcx 统计计算完成，学生数: 1137
+INFO:app.services.calculation_service:维度 AI-xfpg 统计计算完成，学生数: 1137
+INFO:app.services.calculation_service:科目 AI交互 维度统计完成，处理了 6 个维度
+INFO:app.services.calculation_service:学业科目 AI交互 统计计算完成，学生数: 1137
+INFO:app.services.calculation_service:学业科目 历史 开始计算，数据量: 13159, 配置: {'max_score': 100.0, 'grade_level': '4th_grade', 'percentiles': [10, 25, 50, 75, 90], 'required_columns': ['score']}
+INFO:app.services.calculation_service:科目 历史 数据样本: score范围[2.5, 100.0], 平均65.0
+INFO:app.services.calculation_service:科目 历史 教育指标计算完成: grade_level=4th_grade, max_score=100.0
+INFO:app.services.calculation_service:科目 历史 教育指标结果: {'average_score_rate': 0.6501702257010412, 'grade_distribution': {'excellent_rate': 0.13298882893836916, 'good_rate': 0.3549661828406414, 'pass_rate': 0.18405653925070295, 'fail_rate': 0.3279884489702865, 'excellent_count': 1750, 'good_count': 4671, 'pass_count': 2422, 'fail_count': 4316}, 'pass_rate': 0.6720115510297135, 'excellent_rate': 0.13298882893836916, 'difficulty_coefficient': 0.6501702257010412, '_meta': {'algorithm_info': {'name': 'EducationalMetrics', 'version': '1.0', 'description': '教育指标和等级分布计算', 'grading_standard': 'primary_vs_middle_school'}, 'data_size': 13159, 'calculation_time': 0.003813028335571289, 'validation_warnings': []}}
+INFO:app.services.calculation_service:科目 历史 找到 13159 个学生的维度数据
+INFO:app.services.calculation_service:科目 历史 发现 5 个维度: ['LS-lsjs', 'LS-wwsg', 'LS-slzs', 'LS-skgn', 'LS-jgqh']
+INFO:app.services.calculation_service:维度 LS-lsjs 统计计算完成，学生数: 13159
+INFO:app.services.calculation_service:维度 LS-wwsg 统计计算完成，学生数: 13159
+INFO:app.services.calculation_service:维度 LS-slzs 统计计算完成，学生数: 13159
+INFO:app.services.calculation_service:维度 LS-skgn 统计计算完成，学生数: 13159
+INFO:app.services.calculation_service:维度 LS-jgqh 统计计算完成，学生数: 13159
+INFO:app.services.calculation_service:科目 历史 维度统计完成，处理了 5 个维度
+INFO:app.services.calculation_service:学业科目 历史 统计计算完成，学生数: 13159
+INFO:app.services.calculation_service:学业科目 地理 开始计算，数据量: 13158, 配置: {'max_score': 100.0, 'grade_level': '4th_grade', 'percentiles': [10, 25, 50, 75, 90], 'required_columns': ['score']}
+INFO:app.services.calculation_service:科目 地理 数据样本: score范围[2.0, 99.5], 平均60.6
+INFO:app.services.calculation_service:科目 地理 教育指标计算完成: grade_level=4th_grade, max_score=100.0
+INFO:app.services.calculation_service:科目 地理 教育指标结果: {'average_score_rate': 0.6062992096063231, 'grade_distribution': {'excellent_rate': 0.10685514515883873, 'good_rate': 0.269265845873233, 'pass_rate': 0.1804985560115519, 'fail_rate': 0.44338045295637635, 'excellent_count': 1406, 'good_count': 3543, 'pass_count': 2375, 'fail_count': 5834}, 'pass_rate': 0.5566195470436236, 'excellent_rate': 0.10685514515883873, 'difficulty_coefficient': 0.6062992096063231, '_meta': {'algorithm_info': {'name': 'EducationalMetrics', 'version': '1.0', 'description': '教育指标和等级分布计算', 'grading_standard': 'primary_vs_middle_school'}, 'data_size': 13158, 'calculation_time': 0.0030035972595214844, 'validation_warnings': []}}
+INFO:app.services.calculation_service:科目 地理 找到 13158 个学生的维度数据
+INFO:app.services.calculation_service:科目 地理 发现 3 个维度: ['DL-zhsw', 'DL-qyrz', 'DL-rdxtg']
+INFO:app.services.calculation_service:维度 DL-zhsw 统计计算完成，学生数: 13158
+INFO:app.services.calculation_service:维度 DL-qyrz 统计计算完成，学生数: 13158
+INFO:app.services.calculation_service:维度 DL-rdxtg 统计计算完成，学生数: 13158
+INFO:app.services.calculation_service:科目 地理 维度统计完成，处理了 3 个维度
+INFO:app.services.calculation_service:学业科目 地理 统计计算完成，学生数: 13158
+INFO:app.services.calculation_service:学业科目 政治 开始计算，数据量: 13161, 配置: {'max_score': 100.0, 'grade_level': '4th_grade', 'percentiles': [10, 25, 50, 75, 90], 'required_columns': ['score']}
+INFO:app.services.calculation_service:科目 政治 数据样本: score范围[3.0, 98.5], 平均70.6
+INFO:app.services.calculation_service:科目 政治 教育指标计算完成: grade_level=4th_grade, max_score=100.0
+INFO:app.services.calculation_service:科目 政治 教育指标结果: {'average_score_rate': 0.7061518881543956, 'grade_distribution': {'excellent_rate': 0.20393587113441228, 'good_rate': 0.37086847503989057, 'pass_rate': 0.18152116100600257, 'fail_rate': 0.24367449281969455, 'excellent_count': 2684, 'good_count': 4881, 'pass_count': 2389, 'fail_count': 3207}, 'pass_rate': 0.7563255071803054, 'excellent_rate': 0.20393587113441228, 'difficulty_coefficient': 0.7061518881543956, '_meta': {'algorithm_info': {'name': 'EducationalMetrics', 'version': '1.0', 'description': '教育指标和等级分布计算', 'grading_standard': 'primary_vs_middle_school'}, 'data_size': 13161, 'calculation_time': 0.00450444221496582, 'validation_warnings': []}}
+INFO:app.services.calculation_service:科目 政治 找到 13161 个学生的维度数据
+INFO:app.services.calculation_service:科目 政治 发现 5 个维度: ['ZZ-zzrt', 'ZZ-zrys', 'ZZ-jqrg', 'ZZ-fzgn', 'ZZ-ddxy']
+INFO:app.services.calculation_service:维度 ZZ-zzrt 统计计算完成，学生数: 13161
+INFO:app.services.calculation_service:维度 ZZ-zrys 统计计算完成，学生数: 13161
+INFO:app.services.calculation_service:维度 ZZ-jqrg 统计计算完成，学生数: 13161
+INFO:app.services.calculation_service:维度 ZZ-fzgn 统计计算完成，学生数: 13161
+INFO:app.services.calculation_service:维度 ZZ-ddxy 统计计算完成，学生数: 13161
+INFO:app.services.calculation_service:科目 政治 维度统计完成，处理了 5 个维度
+INFO:app.services.calculation_service:学业科目 政治 统计计算完成，学生数: 13161
+INFO:app.services.calculation_service:学业科目 数学 开始计算，数据量: 13144, 配置: {'max_score': 150.0, 'grade_level': '4th_grade', 'percentiles': [10, 25, 50, 75, 90], 'required_columns': ['score']}
+INFO:app.services.calculation_service:科目 数学 数据样本: score范围[0.5, 149.5], 平均87.4
+INFO:app.services.calculation_service:科目 数学 教育指标计算完成: grade_level=4th_grade, max_score=150.0
+INFO:app.services.calculation_service:科目 数学 教育指标结果: {'average_score_rate': 0.5824183404341651, 'grade_distribution': {'excellent_rate': 0.08817711503347535, 'good_rate': 0.2900182592818016, 'pass_rate': 0.17582166768107121, 'fail_rate': 0.44598295800365184, 'excellent_count': 1159, 'good_count': 3812, 'pass_count': 2311, 'fail_count': 5862}, 'pass_rate': 0.5540170419963482, 'excellent_rate': 0.08817711503347535, 'difficulty_coefficient': 0.5824183404341651, '_meta': {'algorithm_info': {'name': 'EducationalMetrics', 'version': '1.0', 'description': '教育指标和等级分布计算', 'grading_standard': 'primary_vs_middle_school'}, 'data_size': 13144, 'calculation_time': 0.0032148361206054688, 'validation_warnings': []}}
+INFO:app.services.calculation_service:科目 数学 找到 13144 个学生的维度数据
+INFO:app.services.calculation_service:科目 数学 发现 9 个维度: ['SX-jhzg', 'SX-cxys', 'SX-kjgn', 'SX-cxnl', 'SX-mxgn', 'SX-yyys', 'SX-sjgn', 'SX-ysnl', 'SX-tlnl']
+INFO:app.services.calculation_service:维度 SX-jhzg 统计计算完成，学生数: 13144
+INFO:app.services.calculation_service:维度 SX-cxys 统计计算完成，学生数: 13144
+INFO:app.services.calculation_service:维度 SX-kjgn 统计计算完成，学生数: 13144
+INFO:app.services.calculation_service:维度 SX-cxnl 统计计算完成，学生数: 13144
+INFO:app.services.calculation_service:维度 SX-mxgn 统计计算完成，学生数: 13144
+INFO:app.services.calculation_service:维度 SX-yyys 统计计算完成，学生数: 13144
+INFO:app.services.calculation_service:维度 SX-sjgn 统计计算完成，学生数: 13144
+INFO:app.services.calculation_service:维度 SX-ysnl 统计计算完成，学生数: 13144
+INFO:app.services.calculation_service:维度 SX-tlnl 统计计算完成，学生数: 13144
+INFO:app.services.calculation_service:科目 数学 维度统计完成，处理了 9 个维度
+INFO:app.services.calculation_service:学业科目 数学 统计计算完成，学生数: 13144
+INFO:app.services.calculation_service:学业科目 生物 开始计算，数据量: 13157, 配置: {'max_score': 100.0, 'grade_level': '4th_grade', 'percentiles': [10, 25, 50, 75, 90], 'required_columns': ['score']}
+INFO:app.services.calculation_service:科目 生物 数据样本: score范围[0.5, 100.0], 平均60.7
+INFO:app.services.calculation_service:科目 生物 教育指标计算完成: grade_level=4th_grade, max_score=100.0
+INFO:app.services.calculation_service:科目 生物 教育指标结果: {'average_score_rate': 0.6068020825416128, 'grade_distribution': {'excellent_rate': 0.14053355628182718, 'good_rate': 0.23470395986927112, 'pass_rate': 0.15953484836968915, 'fail_rate': 0.4652276354792126, 'excellent_count': 1849, 'good_count': 3088, 'pass_count': 2099, 'fail_count': 6121}, 'pass_rate': 0.5347723645207875, 'excellent_rate': 0.14053355628182718, 'difficulty_coefficient': 0.6068020825416128, '_meta': {'algorithm_info': {'name': 'EducationalMetrics', 'version': '1.0', 'description': '教育指标和等级分布计算', 'grading_standard': 'primary_vs_middle_school'}, 'data_size': 13157, 'calculation_time': 0.002543210983276367, 'validation_warnings': []}}
+INFO:app.services.calculation_service:科目 生物 找到 13157 个学生的维度数据
+INFO:app.services.calculation_service:科目 生物 发现 4 个维度: ['SW-smgn', 'SW-kxtj', 'SW-shzr', 'SW-kxsw']
+INFO:app.services.calculation_service:维度 SW-smgn 统计计算完成，学生数: 13157
+INFO:app.services.calculation_service:维度 SW-kxtj 统计计算完成，学生数: 13157
+INFO:app.services.calculation_service:维度 SW-shzr 统计计算完成，学生数: 13157
+INFO:app.services.calculation_service:维度 SW-kxsw 统计计算完成，学生数: 13157
+INFO:app.services.calculation_service:科目 生物 维度统计完成，处理了 4 个维度
+INFO:app.services.calculation_service:学业科目 生物 统计计算完成，学生数: 13157
+INFO:app.services.calculation_service:学业科目 艺术 开始计算，数据量: 1945, 配置: {'max_score': 200.0, 'grade_level': '4th_grade', 'percentiles': [10, 25, 50, 75, 90], 'required_columns': ['score']}
+INFO:app.services.calculation_service:科目 艺术 数据样本: score范围[41.0, 179.6], 平均126.4
+INFO:app.services.calculation_service:科目 艺术 教育指标计算完成: grade_level=4th_grade, max_score=200.0
+INFO:app.services.calculation_service:科目 艺术 教育指标结果: {'average_score_rate': 0.6319483290331529, 'grade_distribution': {'excellent_rate': 0.017480719794344474, 'good_rate': 0.24061696658097687, 'pass_rate': 0.3526992287917738, 'fail_rate': 0.3892030848329049, 'excellent_count': 34, 'good_count': 468, 'pass_count': 686, 'fail_count': 757}, 'pass_rate': 0.6107969151670951, 'excellent_rate': 0.017480719794344474, 'difficulty_coefficient': 0.6319483290331529, '_meta': {'algorithm_info': {'name': 'EducationalMetrics', 'version': '1.0', 'description': '教育指标和等级分布计算', 'grading_standard': 'primary_vs_middle_school'}, 'data_size': 1945, 'calculation_time': 0.0008816719055175781, 'validation_warnings': []}}
+INFO:app.services.calculation_service:科目 艺术 找到 1945 个学生的维度数据
+INFO:app.services.calculation_service:科目 艺术 发现 4 个维度: ['YY-jn', 'MS-jn', 'YY-zs', 'MS-zs']
+INFO:app.services.calculation_service:维度 YY-jn 统计计算完成，学生数: 1945
+INFO:app.services.calculation_service:维度 MS-jn 统计计算完成，学生数: 1945
+INFO:app.services.calculation_service:维度 YY-zs 统计计算完成，学生数: 1945
+INFO:app.services.calculation_service:维度 MS-zs 统计计算完成，学生数: 1945
+INFO:app.services.calculation_service:科目 艺术 维度统计完成，处理了 4 个维度
+INFO:app.services.calculation_service:学业科目 艺术 统计计算完成，学生数: 1945
+INFO:app.services.calculation_service:学业科目 英语 开始计算，数据量: 13152, 配置: {'max_score': 150.0, 'grade_level': '4th_grade', 'percentiles': [10, 25, 50, 75, 90], 'required_columns': ['score']}
+INFO:app.services.calculation_service:科目 英语 数据样本: score范围[3.0, 149.5], 平均83.5
+INFO:app.services.calculation_service:科目 英语 教育指标计算完成: grade_level=4th_grade, max_score=150.0
+INFO:app.services.calculation_service:科目 英语 教育指标结果: {'average_score_rate': 0.5568222830494728, 'grade_distribution': {'excellent_rate': 0.17997262773722628, 'good_rate': 0.16590632603406327, 'pass_rate': 0.10287408759124088, 'fail_rate': 0.5512469586374696, 'excellent_count': 2367, 'good_count': 2182, 'pass_count': 1353, 'fail_count': 7250}, 'pass_rate': 0.4487530413625304, 'excellent_rate': 0.17997262773722628, 'difficulty_coefficient': 0.5568222830494728, '_meta': {'algorithm_info': {'name': 'EducationalMetrics', 'version': '1.0', 'description': '教育指标和等级分布计算', 'grading_standard': 'primary_vs_middle_school'}, 'data_size': 13152, 'calculation_time': 0.004115581512451172, 'validation_warnings': []}}
+INFO:app.services.calculation_service:科目 英语 找到 13152 个学生的维度数据
+INFO:app.services.calculation_service:科目 英语 发现 4 个维度: ['YY-xxnl', 'YY-yynl', 'YY-whys', 'YY-swpz']
+INFO:app.services.calculation_service:维度 YY-xxnl 统计计算完成，学生数: 13152
+INFO:app.services.calculation_service:维度 YY-yynl 统计计算完成，学生数: 13152
+INFO:app.services.calculation_service:维度 YY-whys 统计计算完成，学生数: 13152
+INFO:app.services.calculation_service:维度 YY-swpz 统计计算完成，学生数: 13152
+INFO:app.services.calculation_service:科目 英语 维度统计完成，处理了 4 个维度
+INFO:app.services.calculation_service:学业科目 英语 统计计算完成，学生数: 13152
+INFO:app.services.calculation_service:学业科目 语文 开始计算，数据量: 13154, 配置: {'max_score': 150.0, 'grade_level': '4th_grade', 'percentiles': [10, 25, 50, 75, 90], 'required_columns': ['score']}
+INFO:app.services.calculation_service:科目 语文 数据样本: score范围[0.8, 138.5], 平均106.5
+INFO:app.services.calculation_service:科目 语文 教育指标计算完成: grade_level=4th_grade, max_score=150.0
+INFO:app.services.calculation_service:科目 语文 教育指标结果: {'average_score_rate': 0.7097108610815468, 'grade_distribution': {'excellent_rate': 0.04401702904059602, 'good_rate': 0.5903147331610157, 'pass_rate': 0.215827885053976, 'fail_rate': 0.14984035274441235, 'excellent_count': 579, 'good_count': 7765, 'pass_count': 2839, 'fail_count': 1971}, 'pass_rate': 0.8501596472555877, 'excellent_rate': 0.04401702904059602, 'difficulty_coefficient': 0.7097108610815468, '_meta': {'algorithm_info': {'name': 'EducationalMetrics', 'version': '1.0', 'description': '教育指标和等级分布计算', 'grading_standard': 'primary_vs_middle_school'}, 'data_size': 13154, 'calculation_time': 0.003118753433227539, 'validation_warnings': []}}
+INFO:app.services.calculation_service:科目 语文 找到 13154 个学生的维度数据
+INFO:app.services.calculation_service:科目 语文 发现 4 个维度: ['YW-yyyy', 'YW-swnl', 'YW-smcz', 'YW-whzx']
+INFO:app.services.calculation_service:维度 YW-yyyy 统计计算完成，学生数: 13154
+INFO:app.services.calculation_service:维度 YW-swnl 统计计算完成，学生数: 13154
+INFO:app.services.calculation_service:维度 YW-smcz 统计计算完成，学生数: 13154
+INFO:app.services.calculation_service:维度 YW-whzx 统计计算完成，学生数: 13154
+INFO:app.services.calculation_service:科目 语文 维度统计完成，处理了 4 个维度
+INFO:app.services.calculation_service:学业科目 语文 统计计算完成，学生数: 13154
+INFO:app.services.calculation_service:开始计算问卷科目 问卷 的统计数据
+INFO:app.services.calculation_service:问卷科目 问卷 学校上下文统计: 学生数=1074, 范围=[25.0, 276.0], 平均=187.5
+INFO:app.services.calculation_service:问卷科目 问卷 统计计算完成，学生数: 1074
+INFO:app.services.calculation_service:多科目统计整合完成，处理了 9 个科目
+[REGIONAL] 构建 v1.2 subjects（含增强指标）...
+[WARNING] 集合化维度满分计算失败，将使用空结果：(pymysql.err.OperationalError) (1054, "Unknown column 'dimension_max_score' in 'field list'")
+[SQL:
+                    WITH dim_list AS (
+                        SELECT DISTINCT dimension_code FROM batch_dimension_definition
+                         WHERE batch_code=%(batch)s AND subject_name=%(subject)s
+                        UNION
+                        SELECT DISTINCT dimension_code FROM question_dimension_mapping
+                         WHERE batch_code=%(batch)s AND subject_name=%(subject)s
+                    ),
+                    -- 1) BDD直接满分
+                    bdd_scores AS (
+                        SELECT dimension_code, dimension_max_score AS max_score, 1 AS priority
+                        FROM batch_dimension_definition
+                        WHERE batch_code=%(batch)s AND subject_name=%(subject)s AND dimension_max_score IS NOT NULL
+                    ),
+                    -- 2) JSON平均满分（集合化，避免逐维度循环）
+                    json_scores AS (
+                        SELECT dl.dimension_code,
+                               ROUND(AVG(CAST(JSON_UNQUOTE(JSON_EXTRACT(CAST(scs.dimension_max_scores AS JSON),
+                                     CONCAT('$."', dl.dimension_code, '".max_score'))) AS DECIMAL(10,4))), 2) AS max_score,
+                               2 AS priority
+                        FROM student_cleaned_scores scs
+                        JOIN school_master_data smd ON smd.batch_code=scs.batch_code AND smd.school_id=scs.school_code AND smd.status='ACTIVE'
+                        JOIN dim_list dl
+                        WHERE scs.batch_code=%(batch)s AND scs.subject_name=%(subject)s AND scs.subject_type IN ('exam','questionnaire')
+                          AND JSON_EXTRACT(CAST(scs.dimension_max_scores AS JSON), CONCAT('$."', dl.dimension_code, '".max_score')) IS NOT NULL
+                        GROUP BY dl.dimension_code
+                    ),
+                    -- 3) SQC+QDM汇总求和（去除COLLATE/CAST）
+                    sqc_scores AS (
+                        SELECT qdm.dimension_code, SUM(sqc.max_score) AS max_score, 3 AS priority
+                        FROM subject_question_config sqc
+                        JOIN question_dimension_mapping qdm ON qdm.question_id=sqc.question_id AND qdm.batch_code=sqc.batch_code
+                        WHERE sqc.batch_code=%(batch)s AND qdm.subject_name=%(subject)s
+                        GROUP BY qdm.dimension_code
+                    ),
+                    -- 合并结果，按优先级选择最优值
+                    all_scores AS (
+                        SELECT dimension_code, max_score, priority FROM bdd_scores
+                        UNION ALL
+                        SELECT dimension_code, max_score, priority FROM json_scores
+                        UNION ALL
+                        SELECT dimension_code, max_score, priority FROM sqc_scores
+                    ),
+                    ranked_scores AS (
+                        SELECT dimension_code, max_score,
+                               ROW_NUMBER() OVER (PARTITION BY dimension_code ORDER BY priority) AS rn
+                        FROM all_scores
+                        WHERE max_score IS NOT NULL
+                    )
+                    SELECT dimension_code, max_score
+                    FROM ranked_scores
+                    WHERE rn = 1
+                ]
+[parameters: {'batch': 'G7-2025', 'subject': 'AI交互'}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[WARNING] 集合化维度满分计算失败，将使用空结果：(pymysql.err.OperationalError) (1054, "Unknown column 'dimension_max_score' in 'field list'")
+[SQL:
+                    WITH dim_list AS (
+                        SELECT DISTINCT dimension_code FROM batch_dimension_definition
+                         WHERE batch_code=%(batch)s AND subject_name=%(subject)s
+                        UNION
+                        SELECT DISTINCT dimension_code FROM question_dimension_mapping
+                         WHERE batch_code=%(batch)s AND subject_name=%(subject)s
+                    ),
+                    -- 1) BDD直接满分
+                    bdd_scores AS (
+                        SELECT dimension_code, dimension_max_score AS max_score, 1 AS priority
+                        FROM batch_dimension_definition
+                        WHERE batch_code=%(batch)s AND subject_name=%(subject)s AND dimension_max_score IS NOT NULL
+                    ),
+                    -- 2) JSON平均满分（集合化，避免逐维度循环）
+                    json_scores AS (
+                        SELECT dl.dimension_code,
+                               ROUND(AVG(CAST(JSON_UNQUOTE(JSON_EXTRACT(CAST(scs.dimension_max_scores AS JSON),
+                                     CONCAT('$."', dl.dimension_code, '".max_score'))) AS DECIMAL(10,4))), 2) AS max_score,
+                               2 AS priority
+                        FROM student_cleaned_scores scs
+                        JOIN school_master_data smd ON smd.batch_code=scs.batch_code AND smd.school_id=scs.school_code AND smd.status='ACTIVE'
+                        JOIN dim_list dl
+                        WHERE scs.batch_code=%(batch)s AND scs.subject_name=%(subject)s AND scs.subject_type IN ('exam','questionnaire')
+                          AND JSON_EXTRACT(CAST(scs.dimension_max_scores AS JSON), CONCAT('$."', dl.dimension_code, '".max_score')) IS NOT NULL
+                        GROUP BY dl.dimension_code
+                    ),
+                    -- 3) SQC+QDM汇总求和（去除COLLATE/CAST）
+                    sqc_scores AS (
+                        SELECT qdm.dimension_code, SUM(sqc.max_score) AS max_score, 3 AS priority
+                        FROM subject_question_config sqc
+                        JOIN question_dimension_mapping qdm ON qdm.question_id=sqc.question_id AND qdm.batch_code=sqc.batch_code
+                        WHERE sqc.batch_code=%(batch)s AND qdm.subject_name=%(subject)s
+                        GROUP BY qdm.dimension_code
+                    ),
+                    -- 合并结果，按优先级选择最优值
+                    all_scores AS (
+                        SELECT dimension_code, max_score, priority FROM bdd_scores
+                        UNION ALL
+                        SELECT dimension_code, max_score, priority FROM json_scores
+                        UNION ALL
+                        SELECT dimension_code, max_score, priority FROM sqc_scores
+                    ),
+                    ranked_scores AS (
+                        SELECT dimension_code, max_score,
+                               ROW_NUMBER() OVER (PARTITION BY dimension_code ORDER BY priority) AS rn
+                        FROM all_scores
+                        WHERE max_score IS NOT NULL
+                    )
+                    SELECT dimension_code, max_score
+                    FROM ranked_scores
+                    WHERE rn = 1
+                ]
+[parameters: {'batch': 'G7-2025', 'subject': '历史'}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[WARNING] 集合化维度满分计算失败，将使用空结果：(pymysql.err.OperationalError) (1054, "Unknown column 'dimension_max_score' in 'field list'")
+[SQL:
+                    WITH dim_list AS (
+                        SELECT DISTINCT dimension_code FROM batch_dimension_definition
+                         WHERE batch_code=%(batch)s AND subject_name=%(subject)s
+                        UNION
+                        SELECT DISTINCT dimension_code FROM question_dimension_mapping
+                         WHERE batch_code=%(batch)s AND subject_name=%(subject)s
+                    ),
+                    -- 1) BDD直接满分
+                    bdd_scores AS (
+                        SELECT dimension_code, dimension_max_score AS max_score, 1 AS priority
+                        FROM batch_dimension_definition
+                        WHERE batch_code=%(batch)s AND subject_name=%(subject)s AND dimension_max_score IS NOT NULL
+                    ),
+                    -- 2) JSON平均满分（集合化，避免逐维度循环）
+                    json_scores AS (
+                        SELECT dl.dimension_code,
+                               ROUND(AVG(CAST(JSON_UNQUOTE(JSON_EXTRACT(CAST(scs.dimension_max_scores AS JSON),
+                                     CONCAT('$."', dl.dimension_code, '".max_score'))) AS DECIMAL(10,4))), 2) AS max_score,
+                               2 AS priority
+                        FROM student_cleaned_scores scs
+                        JOIN school_master_data smd ON smd.batch_code=scs.batch_code AND smd.school_id=scs.school_code AND smd.status='ACTIVE'
+                        JOIN dim_list dl
+                        WHERE scs.batch_code=%(batch)s AND scs.subject_name=%(subject)s AND scs.subject_type IN ('exam','questionnaire')
+                          AND JSON_EXTRACT(CAST(scs.dimension_max_scores AS JSON), CONCAT('$."', dl.dimension_code, '".max_score')) IS NOT NULL
+                        GROUP BY dl.dimension_code
+                    ),
+                    -- 3) SQC+QDM汇总求和（去除COLLATE/CAST）
+                    sqc_scores AS (
+                        SELECT qdm.dimension_code, SUM(sqc.max_score) AS max_score, 3 AS priority
+                        FROM subject_question_config sqc
+                        JOIN question_dimension_mapping qdm ON qdm.question_id=sqc.question_id AND qdm.batch_code=sqc.batch_code
+                        WHERE sqc.batch_code=%(batch)s AND qdm.subject_name=%(subject)s
+                        GROUP BY qdm.dimension_code
+                    ),
+                    -- 合并结果，按优先级选择最优值
+                    all_scores AS (
+                        SELECT dimension_code, max_score, priority FROM bdd_scores
+                        UNION ALL
+                        SELECT dimension_code, max_score, priority FROM json_scores
+                        UNION ALL
+                        SELECT dimension_code, max_score, priority FROM sqc_scores
+                    ),
+                    ranked_scores AS (
+                        SELECT dimension_code, max_score,
+                               ROW_NUMBER() OVER (PARTITION BY dimension_code ORDER BY priority) AS rn
+                        FROM all_scores
+                        WHERE max_score IS NOT NULL
+                    )
+                    SELECT dimension_code, max_score
+                    FROM ranked_scores
+                    WHERE rn = 1
+                ]
+[parameters: {'batch': 'G7-2025', 'subject': '地理'}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[WARNING] 集合化维度满分计算失败，将使用空结果：(pymysql.err.OperationalError) (1054, "Unknown column 'dimension_max_score' in 'field list'")
+[SQL:
+                    WITH dim_list AS (
+                        SELECT DISTINCT dimension_code FROM batch_dimension_definition
+                         WHERE batch_code=%(batch)s AND subject_name=%(subject)s
+                        UNION
+                        SELECT DISTINCT dimension_code FROM question_dimension_mapping
+                         WHERE batch_code=%(batch)s AND subject_name=%(subject)s
+                    ),
+                    -- 1) BDD直接满分
+                    bdd_scores AS (
+                        SELECT dimension_code, dimension_max_score AS max_score, 1 AS priority
+                        FROM batch_dimension_definition
+                        WHERE batch_code=%(batch)s AND subject_name=%(subject)s AND dimension_max_score IS NOT NULL
+                    ),
+                    -- 2) JSON平均满分（集合化，避免逐维度循环）
+                    json_scores AS (
+                        SELECT dl.dimension_code,
+                               ROUND(AVG(CAST(JSON_UNQUOTE(JSON_EXTRACT(CAST(scs.dimension_max_scores AS JSON),
+                                     CONCAT('$."', dl.dimension_code, '".max_score'))) AS DECIMAL(10,4))), 2) AS max_score,
+                               2 AS priority
+                        FROM student_cleaned_scores scs
+                        JOIN school_master_data smd ON smd.batch_code=scs.batch_code AND smd.school_id=scs.school_code AND smd.status='ACTIVE'
+                        JOIN dim_list dl
+                        WHERE scs.batch_code=%(batch)s AND scs.subject_name=%(subject)s AND scs.subject_type IN ('exam','questionnaire')
+                          AND JSON_EXTRACT(CAST(scs.dimension_max_scores AS JSON), CONCAT('$."', dl.dimension_code, '".max_score')) IS NOT NULL
+                        GROUP BY dl.dimension_code
+                    ),
+                    -- 3) SQC+QDM汇总求和（去除COLLATE/CAST）
+                    sqc_scores AS (
+                        SELECT qdm.dimension_code, SUM(sqc.max_score) AS max_score, 3 AS priority
+                        FROM subject_question_config sqc
+                        JOIN question_dimension_mapping qdm ON qdm.question_id=sqc.question_id AND qdm.batch_code=sqc.batch_code
+                        WHERE sqc.batch_code=%(batch)s AND qdm.subject_name=%(subject)s
+                        GROUP BY qdm.dimension_code
+                    ),
+                    -- 合并结果，按优先级选择最优值
+                    all_scores AS (
+                        SELECT dimension_code, max_score, priority FROM bdd_scores
+                        UNION ALL
+                        SELECT dimension_code, max_score, priority FROM json_scores
+                        UNION ALL
+                        SELECT dimension_code, max_score, priority FROM sqc_scores
+                    ),
+                    ranked_scores AS (
+                        SELECT dimension_code, max_score,
+                               ROW_NUMBER() OVER (PARTITION BY dimension_code ORDER BY priority) AS rn
+                        FROM all_scores
+                        WHERE max_score IS NOT NULL
+                    )
+                    SELECT dimension_code, max_score
+                    FROM ranked_scores
+                    WHERE rn = 1
+                ]
+[parameters: {'batch': 'G7-2025', 'subject': '政治'}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[WARNING] 集合化维度满分计算失败，将使用空结果：(pymysql.err.OperationalError) (1054, "Unknown column 'dimension_max_score' in 'field list'")
+[SQL:
+                    WITH dim_list AS (
+                        SELECT DISTINCT dimension_code FROM batch_dimension_definition
+                         WHERE batch_code=%(batch)s AND subject_name=%(subject)s
+                        UNION
+                        SELECT DISTINCT dimension_code FROM question_dimension_mapping
+                         WHERE batch_code=%(batch)s AND subject_name=%(subject)s
+                    ),
+                    -- 1) BDD直接满分
+                    bdd_scores AS (
+                        SELECT dimension_code, dimension_max_score AS max_score, 1 AS priority
+                        FROM batch_dimension_definition
+                        WHERE batch_code=%(batch)s AND subject_name=%(subject)s AND dimension_max_score IS NOT NULL
+                    ),
+                    -- 2) JSON平均满分（集合化，避免逐维度循环）
+                    json_scores AS (
+                        SELECT dl.dimension_code,
+                               ROUND(AVG(CAST(JSON_UNQUOTE(JSON_EXTRACT(CAST(scs.dimension_max_scores AS JSON),
+                                     CONCAT('$."', dl.dimension_code, '".max_score'))) AS DECIMAL(10,4))), 2) AS max_score,
+                               2 AS priority
+                        FROM student_cleaned_scores scs
+                        JOIN school_master_data smd ON smd.batch_code=scs.batch_code AND smd.school_id=scs.school_code AND smd.status='ACTIVE'
+                        JOIN dim_list dl
+                        WHERE scs.batch_code=%(batch)s AND scs.subject_name=%(subject)s AND scs.subject_type IN ('exam','questionnaire')
+                          AND JSON_EXTRACT(CAST(scs.dimension_max_scores AS JSON), CONCAT('$."', dl.dimension_code, '".max_score')) IS NOT NULL
+                        GROUP BY dl.dimension_code
+                    ),
+                    -- 3) SQC+QDM汇总求和（去除COLLATE/CAST）
+                    sqc_scores AS (
+                        SELECT qdm.dimension_code, SUM(sqc.max_score) AS max_score, 3 AS priority
+                        FROM subject_question_config sqc
+                        JOIN question_dimension_mapping qdm ON qdm.question_id=sqc.question_id AND qdm.batch_code=sqc.batch_code
+                        WHERE sqc.batch_code=%(batch)s AND qdm.subject_name=%(subject)s
+                        GROUP BY qdm.dimension_code
+                    ),
+                    -- 合并结果，按优先级选择最优值
+                    all_scores AS (
+                        SELECT dimension_code, max_score, priority FROM bdd_scores
+                        UNION ALL
+                        SELECT dimension_code, max_score, priority FROM json_scores
+                        UNION ALL
+                        SELECT dimension_code, max_score, priority FROM sqc_scores
+                    ),
+                    ranked_scores AS (
+                        SELECT dimension_code, max_score,
+                               ROW_NUMBER() OVER (PARTITION BY dimension_code ORDER BY priority) AS rn
+                        FROM all_scores
+                        WHERE max_score IS NOT NULL
+                    )
+                    SELECT dimension_code, max_score
+                    FROM ranked_scores
+                    WHERE rn = 1
+                ]
+[parameters: {'batch': 'G7-2025', 'subject': '数学'}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[WARNING] 集合化维度满分计算失败，将使用空结果：(pymysql.err.OperationalError) (1054, "Unknown column 'dimension_max_score' in 'field list'")
+[SQL:
+                    WITH dim_list AS (
+                        SELECT DISTINCT dimension_code FROM batch_dimension_definition
+                         WHERE batch_code=%(batch)s AND subject_name=%(subject)s
+                        UNION
+                        SELECT DISTINCT dimension_code FROM question_dimension_mapping
+                         WHERE batch_code=%(batch)s AND subject_name=%(subject)s
+                    ),
+                    -- 1) BDD直接满分
+                    bdd_scores AS (
+                        SELECT dimension_code, dimension_max_score AS max_score, 1 AS priority
+                        FROM batch_dimension_definition
+                        WHERE batch_code=%(batch)s AND subject_name=%(subject)s AND dimension_max_score IS NOT NULL
+                    ),
+                    -- 2) JSON平均满分（集合化，避免逐维度循环）
+                    json_scores AS (
+                        SELECT dl.dimension_code,
+                               ROUND(AVG(CAST(JSON_UNQUOTE(JSON_EXTRACT(CAST(scs.dimension_max_scores AS JSON),
+                                     CONCAT('$."', dl.dimension_code, '".max_score'))) AS DECIMAL(10,4))), 2) AS max_score,
+                               2 AS priority
+                        FROM student_cleaned_scores scs
+                        JOIN school_master_data smd ON smd.batch_code=scs.batch_code AND smd.school_id=scs.school_code AND smd.status='ACTIVE'
+                        JOIN dim_list dl
+                        WHERE scs.batch_code=%(batch)s AND scs.subject_name=%(subject)s AND scs.subject_type IN ('exam','questionnaire')
+                          AND JSON_EXTRACT(CAST(scs.dimension_max_scores AS JSON), CONCAT('$."', dl.dimension_code, '".max_score')) IS NOT NULL
+                        GROUP BY dl.dimension_code
+                    ),
+                    -- 3) SQC+QDM汇总求和（去除COLLATE/CAST）
+                    sqc_scores AS (
+                        SELECT qdm.dimension_code, SUM(sqc.max_score) AS max_score, 3 AS priority
+                        FROM subject_question_config sqc
+                        JOIN question_dimension_mapping qdm ON qdm.question_id=sqc.question_id AND qdm.batch_code=sqc.batch_code
+                        WHERE sqc.batch_code=%(batch)s AND qdm.subject_name=%(subject)s
+                        GROUP BY qdm.dimension_code
+                    ),
+                    -- 合并结果，按优先级选择最优值
+                    all_scores AS (
+                        SELECT dimension_code, max_score, priority FROM bdd_scores
+                        UNION ALL
+                        SELECT dimension_code, max_score, priority FROM json_scores
+                        UNION ALL
+                        SELECT dimension_code, max_score, priority FROM sqc_scores
+                    ),
+                    ranked_scores AS (
+                        SELECT dimension_code, max_score,
+                               ROW_NUMBER() OVER (PARTITION BY dimension_code ORDER BY priority) AS rn
+                        FROM all_scores
+                        WHERE max_score IS NOT NULL
+                    )
+                    SELECT dimension_code, max_score
+                    FROM ranked_scores
+                    WHERE rn = 1
+                ]
+[parameters: {'batch': 'G7-2025', 'subject': '生物'}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[WARNING] 集合化维度满分计算失败，将使用空结果：(pymysql.err.OperationalError) (1054, "Unknown column 'dimension_max_score' in 'field list'")
+[SQL:
+                    WITH dim_list AS (
+                        SELECT DISTINCT dimension_code FROM batch_dimension_definition
+                         WHERE batch_code=%(batch)s AND subject_name=%(subject)s
+                        UNION
+                        SELECT DISTINCT dimension_code FROM question_dimension_mapping
+                         WHERE batch_code=%(batch)s AND subject_name=%(subject)s
+                    ),
+                    -- 1) BDD直接满分
+                    bdd_scores AS (
+                        SELECT dimension_code, dimension_max_score AS max_score, 1 AS priority
+                        FROM batch_dimension_definition
+                        WHERE batch_code=%(batch)s AND subject_name=%(subject)s AND dimension_max_score IS NOT NULL
+                    ),
+                    -- 2) JSON平均满分（集合化，避免逐维度循环）
+                    json_scores AS (
+                        SELECT dl.dimension_code,
+                               ROUND(AVG(CAST(JSON_UNQUOTE(JSON_EXTRACT(CAST(scs.dimension_max_scores AS JSON),
+                                     CONCAT('$."', dl.dimension_code, '".max_score'))) AS DECIMAL(10,4))), 2) AS max_score,
+                               2 AS priority
+                        FROM student_cleaned_scores scs
+                        JOIN school_master_data smd ON smd.batch_code=scs.batch_code AND smd.school_id=scs.school_code AND smd.status='ACTIVE'
+                        JOIN dim_list dl
+                        WHERE scs.batch_code=%(batch)s AND scs.subject_name=%(subject)s AND scs.subject_type IN ('exam','questionnaire')
+                          AND JSON_EXTRACT(CAST(scs.dimension_max_scores AS JSON), CONCAT('$."', dl.dimension_code, '".max_score')) IS NOT NULL
+                        GROUP BY dl.dimension_code
+                    ),
+                    -- 3) SQC+QDM汇总求和（去除COLLATE/CAST）
+                    sqc_scores AS (
+                        SELECT qdm.dimension_code, SUM(sqc.max_score) AS max_score, 3 AS priority
+                        FROM subject_question_config sqc
+                        JOIN question_dimension_mapping qdm ON qdm.question_id=sqc.question_id AND qdm.batch_code=sqc.batch_code
+                        WHERE sqc.batch_code=%(batch)s AND qdm.subject_name=%(subject)s
+                        GROUP BY qdm.dimension_code
+                    ),
+                    -- 合并结果，按优先级选择最优值
+                    all_scores AS (
+                        SELECT dimension_code, max_score, priority FROM bdd_scores
+                        UNION ALL
+                        SELECT dimension_code, max_score, priority FROM json_scores
+                        UNION ALL
+                        SELECT dimension_code, max_score, priority FROM sqc_scores
+                    ),
+                    ranked_scores AS (
+                        SELECT dimension_code, max_score,
+                               ROW_NUMBER() OVER (PARTITION BY dimension_code ORDER BY priority) AS rn
+                        FROM all_scores
+                        WHERE max_score IS NOT NULL
+                    )
+                    SELECT dimension_code, max_score
+                    FROM ranked_scores
+                    WHERE rn = 1
+                ]
+[parameters: {'batch': 'G7-2025', 'subject': '艺术'}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[WARNING] 集合化维度满分计算失败，将使用空结果：(pymysql.err.OperationalError) (1054, "Unknown column 'dimension_max_score' in 'field list'")
+[SQL:
+                    WITH dim_list AS (
+                        SELECT DISTINCT dimension_code FROM batch_dimension_definition
+                         WHERE batch_code=%(batch)s AND subject_name=%(subject)s
+                        UNION
+                        SELECT DISTINCT dimension_code FROM question_dimension_mapping
+                         WHERE batch_code=%(batch)s AND subject_name=%(subject)s
+                    ),
+                    -- 1) BDD直接满分
+                    bdd_scores AS (
+                        SELECT dimension_code, dimension_max_score AS max_score, 1 AS priority
+                        FROM batch_dimension_definition
+                        WHERE batch_code=%(batch)s AND subject_name=%(subject)s AND dimension_max_score IS NOT NULL
+                    ),
+                    -- 2) JSON平均满分（集合化，避免逐维度循环）
+                    json_scores AS (
+                        SELECT dl.dimension_code,
+                               ROUND(AVG(CAST(JSON_UNQUOTE(JSON_EXTRACT(CAST(scs.dimension_max_scores AS JSON),
+                                     CONCAT('$."', dl.dimension_code, '".max_score'))) AS DECIMAL(10,4))), 2) AS max_score,
+                               2 AS priority
+                        FROM student_cleaned_scores scs
+                        JOIN school_master_data smd ON smd.batch_code=scs.batch_code AND smd.school_id=scs.school_code AND smd.status='ACTIVE'
+                        JOIN dim_list dl
+                        WHERE scs.batch_code=%(batch)s AND scs.subject_name=%(subject)s AND scs.subject_type IN ('exam','questionnaire')
+                          AND JSON_EXTRACT(CAST(scs.dimension_max_scores AS JSON), CONCAT('$."', dl.dimension_code, '".max_score')) IS NOT NULL
+                        GROUP BY dl.dimension_code
+                    ),
+                    -- 3) SQC+QDM汇总求和（去除COLLATE/CAST）
+                    sqc_scores AS (
+                        SELECT qdm.dimension_code, SUM(sqc.max_score) AS max_score, 3 AS priority
+                        FROM subject_question_config sqc
+                        JOIN question_dimension_mapping qdm ON qdm.question_id=sqc.question_id AND qdm.batch_code=sqc.batch_code
+                        WHERE sqc.batch_code=%(batch)s AND qdm.subject_name=%(subject)s
+                        GROUP BY qdm.dimension_code
+                    ),
+                    -- 合并结果，按优先级选择最优值
+                    all_scores AS (
+                        SELECT dimension_code, max_score, priority FROM bdd_scores
+                        UNION ALL
+                        SELECT dimension_code, max_score, priority FROM json_scores
+                        UNION ALL
+                        SELECT dimension_code, max_score, priority FROM sqc_scores
+                    ),
+                    ranked_scores AS (
+                        SELECT dimension_code, max_score,
+                               ROW_NUMBER() OVER (PARTITION BY dimension_code ORDER BY priority) AS rn
+                        FROM all_scores
+                        WHERE max_score IS NOT NULL
+                    )
+                    SELECT dimension_code, max_score
+                    FROM ranked_scores
+                    WHERE rn = 1
+                ]
+[parameters: {'batch': 'G7-2025', 'subject': '英语'}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[WARNING] 集合化维度满分计算失败，将使用空结果：(pymysql.err.OperationalError) (1054, "Unknown column 'dimension_max_score' in 'field list'")
+[SQL:
+                    WITH dim_list AS (
+                        SELECT DISTINCT dimension_code FROM batch_dimension_definition
+                         WHERE batch_code=%(batch)s AND subject_name=%(subject)s
+                        UNION
+                        SELECT DISTINCT dimension_code FROM question_dimension_mapping
+                         WHERE batch_code=%(batch)s AND subject_name=%(subject)s
+                    ),
+                    -- 1) BDD直接满分
+                    bdd_scores AS (
+                        SELECT dimension_code, dimension_max_score AS max_score, 1 AS priority
+                        FROM batch_dimension_definition
+                        WHERE batch_code=%(batch)s AND subject_name=%(subject)s AND dimension_max_score IS NOT NULL
+                    ),
+                    -- 2) JSON平均满分（集合化，避免逐维度循环）
+                    json_scores AS (
+                        SELECT dl.dimension_code,
+                               ROUND(AVG(CAST(JSON_UNQUOTE(JSON_EXTRACT(CAST(scs.dimension_max_scores AS JSON),
+                                     CONCAT('$."', dl.dimension_code, '".max_score'))) AS DECIMAL(10,4))), 2) AS max_score,
+                               2 AS priority
+                        FROM student_cleaned_scores scs
+                        JOIN school_master_data smd ON smd.batch_code=scs.batch_code AND smd.school_id=scs.school_code AND smd.status='ACTIVE'
+                        JOIN dim_list dl
+                        WHERE scs.batch_code=%(batch)s AND scs.subject_name=%(subject)s AND scs.subject_type IN ('exam','questionnaire')
+                          AND JSON_EXTRACT(CAST(scs.dimension_max_scores AS JSON), CONCAT('$."', dl.dimension_code, '".max_score')) IS NOT NULL
+                        GROUP BY dl.dimension_code
+                    ),
+                    -- 3) SQC+QDM汇总求和（去除COLLATE/CAST）
+                    sqc_scores AS (
+                        SELECT qdm.dimension_code, SUM(sqc.max_score) AS max_score, 3 AS priority
+                        FROM subject_question_config sqc
+                        JOIN question_dimension_mapping qdm ON qdm.question_id=sqc.question_id AND qdm.batch_code=sqc.batch_code
+                        WHERE sqc.batch_code=%(batch)s AND qdm.subject_name=%(subject)s
+                        GROUP BY qdm.dimension_code
+                    ),
+                    -- 合并结果，按优先级选择最优值
+                    all_scores AS (
+                        SELECT dimension_code, max_score, priority FROM bdd_scores
+                        UNION ALL
+                        SELECT dimension_code, max_score, priority FROM json_scores
+                        UNION ALL
+                        SELECT dimension_code, max_score, priority FROM sqc_scores
+                    ),
+                    ranked_scores AS (
+                        SELECT dimension_code, max_score,
+                               ROW_NUMBER() OVER (PARTITION BY dimension_code ORDER BY priority) AS rn
+                        FROM all_scores
+                        WHERE max_score IS NOT NULL
+                    )
+                    SELECT dimension_code, max_score
+                    FROM ranked_scores
+                    WHERE rn = 1
+                ]
+[parameters: {'batch': 'G7-2025', 'subject': '语文'}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[WARNING] 集合化维度满分计算失败，将使用空结果：(pymysql.err.OperationalError) (1054, "Unknown column 'dimension_max_score' in 'field list'")
+[SQL:
+                    WITH dim_list AS (
+                        SELECT DISTINCT dimension_code FROM batch_dimension_definition
+                         WHERE batch_code=%(batch)s AND subject_name=%(subject)s
+                        UNION
+                        SELECT DISTINCT dimension_code FROM question_dimension_mapping
+                         WHERE batch_code=%(batch)s AND subject_name=%(subject)s
+                    ),
+                    -- 1) BDD直接满分
+                    bdd_scores AS (
+                        SELECT dimension_code, dimension_max_score AS max_score, 1 AS priority
+                        FROM batch_dimension_definition
+                        WHERE batch_code=%(batch)s AND subject_name=%(subject)s AND dimension_max_score IS NOT NULL
+                    ),
+                    -- 2) JSON平均满分（集合化，避免逐维度循环）
+                    json_scores AS (
+                        SELECT dl.dimension_code,
+                               ROUND(AVG(CAST(JSON_UNQUOTE(JSON_EXTRACT(CAST(scs.dimension_max_scores AS JSON),
+                                     CONCAT('$."', dl.dimension_code, '".max_score'))) AS DECIMAL(10,4))), 2) AS max_score,
+                               2 AS priority
+                        FROM student_cleaned_scores scs
+                        JOIN school_master_data smd ON smd.batch_code=scs.batch_code AND smd.school_id=scs.school_code AND smd.status='ACTIVE'
+                        JOIN dim_list dl
+                        WHERE scs.batch_code=%(batch)s AND scs.subject_name=%(subject)s AND scs.subject_type IN ('exam','questionnaire')
+                          AND JSON_EXTRACT(CAST(scs.dimension_max_scores AS JSON), CONCAT('$."', dl.dimension_code, '".max_score')) IS NOT NULL
+                        GROUP BY dl.dimension_code
+                    ),
+                    -- 3) SQC+QDM汇总求和（去除COLLATE/CAST）
+                    sqc_scores AS (
+                        SELECT qdm.dimension_code, SUM(sqc.max_score) AS max_score, 3 AS priority
+                        FROM subject_question_config sqc
+                        JOIN question_dimension_mapping qdm ON qdm.question_id=sqc.question_id AND qdm.batch_code=sqc.batch_code
+                        WHERE sqc.batch_code=%(batch)s AND qdm.subject_name=%(subject)s
+                        GROUP BY qdm.dimension_code
+                    ),
+                    -- 合并结果，按优先级选择最优值
+                    all_scores AS (
+                        SELECT dimension_code, max_score, priority FROM bdd_scores
+                        UNION ALL
+                        SELECT dimension_code, max_score, priority FROM json_scores
+                        UNION ALL
+                        SELECT dimension_code, max_score, priority FROM sqc_scores
+                    ),
+                    ranked_scores AS (
+                        SELECT dimension_code, max_score,
+                               ROW_NUMBER() OVER (PARTITION BY dimension_code ORDER BY priority) AS rn
+                        FROM all_scores
+                        WHERE max_score IS NOT NULL
+                    )
+                    SELECT dimension_code, max_score
+                    FROM ranked_scores
+                    WHERE rn = 1
+                ]
+[parameters: {'batch': 'G7-2025', 'subject': '问卷'}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[REGIONAL] 写入数据库（UPSERT）...
+WARNING:app.database.repositories:upsert_statistics retry 1/8 due to DB lock (code=1205); sleeping 0.54s
+WARNING:app.database.repositories:upsert_statistics retry 2/8 due to DB lock (code=1205); sleeping 1.07s
+WARNING:app.database.repositories:upsert_statistics retry 3/8 due to DB lock (code=1205); sleeping 2.15s
+WARNING:app.database.repositories:upsert_statistics retry 4/8 due to DB lock (code=1205); sleeping 3.23s
+WARNING:app.database.repositories:upsert_statistics retry 5/8 due to DB lock (code=1205); sleeping 5.38s
+[REGIONAL] 完成 ✅

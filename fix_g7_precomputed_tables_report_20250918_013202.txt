@@ -1,0 +1,42 @@
+================================================================================
+G7-2025预聚合表修复报告 - 2025-09-18 01:32:02
+================================================================================
+
+[失败] 批次 G7-2025 预聚合表修复失败
+
+错误信息: 预聚合表修复失败: (pymysql.err.ProgrammingError) (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'rank INT DEFAULT NULL COMMENT '排名',\n                    total_schools INT DE' at line 16")
+[SQL: 
+                CREATE TABLE IF NOT EXISTS subject_school_rankings (
+                    id BIGINT NOT NULL AUTO_INCREMENT,
+                    batch_code VARCHAR(50) NOT NULL COMMENT '批次代码',
+                    subject_name VARCHAR(100) NOT NULL COMMENT '科目名称',
+                    subject_type VARCHAR(32) NOT NULL COMMENT '科目类型',
+                    school_code VARCHAR(50) NOT NULL COMMENT '学校代码',
+                    school_name VARCHAR(200) DEFAULT NULL COMMENT '学校名称',
+                    student_count INT NOT NULL COMMENT '学生数量',
+                    avg_score DECIMAL(10, 4) DEFAULT NULL COMMENT '平均分',
+                    std_score DECIMAL(10, 4) DEFAULT NULL COMMENT '标准差',
+                    max_score_achieved DECIMAL(10, 4) DEFAULT NULL COMMENT '最高得分',
+                    min_score DECIMAL(10, 4) DEFAULT NULL COMMENT '最低得分',
+                    max_score DECIMAL(10, 4) DEFAULT NULL COMMENT '满分',
+                    score_rate DECIMAL(10, 4) DEFAULT NULL COMMENT '得分率(%%)',
+                    difficulty_coefficient DECIMAL(10, 4) DEFAULT NULL COMMENT '难度系数',
+                    rank INT DEFAULT NULL COMMENT '排名',
+                    total_schools INT DEFAULT NULL COMMENT '总学校数',
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                    PRIMARY KEY (id),
+                    UNIQUE KEY uk_subject_school_rankings (batch_code, subject_name, school_code),
+                    KEY idx_subject_school_rankings_lookup (batch_code, subject_name, school_code)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='科目学校排名缓存表'
+            ]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+[故障排除] 建议:
+  1. 检查数据库连接是否正常
+  2. 确认G7-2025基础数据是否存在
+  3. 检查student_cleaned_scores表是否有数据
+  4. 验证school_master_data表是否正确配置
+  5. 查看详细错误日志: fix_g7_precomputed_tables.log
+
+================================================================================

@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/aggregation_v12_schema.json",
+  "title": "Aggregation API v1.2 Schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": "v1.2" },
+    "batch_code": { "type": "string" },
+    "aggregation_level": { "enum": ["REGIONAL", "SCHOOL"] },
+    "school_id": { "type": "string" },
+    "school_name": { "type": "string" },
+    "subjects": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Subject" },
+      "minItems": 0
+    }
+  },
+  "required": ["schema_version", "batch_code", "aggregation_level", "subjects"],
+  "allOf": [
+    {
+      "if": { "properties": { "aggregation_level": { "const": "SCHOOL" } } },
+      "then": { "required": ["school_id"] }
+    }
+  ],
+  "$defs": {
+    "Subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "subject_name": { "type": "string" },
+        "type": { "enum": ["exam", "questionnaire"] },
+        "metrics": {
+          "oneOf": [
+            { "$ref": "#/$defs/MetricsExam" },
+            { "$ref": "#/$defs/MetricsQuestionnaire" }
+          ]
+        },
+        "dimensions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/DimensionItem" }
+        },
+        "school_rankings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/SchoolRankingItem" }
+        },
+        "questions": {
+          "$comment": "Deprecated: 顶层题目分布已改为独立表，仅为兼容旧前端时可临时保留。",
+          "type": "array",
+          "items": { "$ref": "#/$defs/QuestionDistribution" }
+        }
+      },
+      "required": ["subject_name", "type", "metrics"]
+    },
+    "MetricsExam": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "avg": { "type": "number" },
+        "rank": { "type": "integer", "minimum": 1 },
+        "stddev": { "type": "number", "minimum": 0 },
+        "difficulty": { "type": "number", "minimum": 0, "maximum": 1 },
+        "discrimination": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "p10": { "type": "number" },
+        "p50": { "type": "number" },
+        "p90": { "type": "number" },
+        "max": { "type": "number" },
+        "min": { "type": "number" },
+        "rate_excellent": { "type": "number", "minimum": 0, "maximum": 100 },
+        "rate_good": { "type": "number", "minimum": 0, "maximum": 100 },
+        "rate_pass": { "type": "number", "minimum": 0, "maximum": 100 },
+        "rate_fail": { "type": "number", "minimum": 0, "maximum": 100 },
+        "subject_full_score": { "type": "number" }
+      },
+      "required": ["avg", "rank", "stddev", "difficulty", "max", "min"]
+    },
+    "MetricsQuestionnaire": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "avg": { "type": "number" },
+        "score_rate": { "type": "number", "minimum": 0, "maximum": 100 },
+        "rank": { "type": "integer", "minimum": 1 }
+      },
+      "required": ["avg", "score_rate", "rank"]
+    },
+    "DimensionItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "code": { "type": "string" },
+        "name": { "type": "string" },
+        "avg": { "type": "number" },
+        "score_rate": { "type": "number", "minimum": 0, "maximum": 100 },
+        "rank": { "type": "integer", "minimum": 1 }
+      },
+      "required": ["code", "name"],
+      "anyOf": [
+        { "required": ["avg"] },
+        { "required": ["score_rate"] }
+      ]
+    },
+    "SchoolRankingItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "school_id": { "type": "string" },
+        "school_name": { "type": "string" },
+        "avg": { "type": "number" },
+        "rank": { "type": "integer", "minimum": 1 }
+      },
+      "required": ["school_id", "school_name", "avg", "rank"]
+    },
+    "QuestionDistribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "question_id": { "type": "string" },
+        "option_distribution": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/OptionItem" }
+        }
+      },
+      "required": ["question_id", "option_distribution"]
+    },
+    "OptionItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "option_level": { "type": "integer" },
+        "option_label": { "type": ["string", "null"] },
+        "pct": { "type": "number", "minimum": 0, "maximum": 100 }
+      },
+      "required": ["option_level", "pct"]
+    }
+  }
+}
+

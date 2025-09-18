@@ -1,0 +1,255 @@
+{
+  "version": "1.0.0",
+  "description": "基于G4数据问题经验教训制定的数据治理配置",
+  "quality_rules": {
+    "NULL_SCHOOL_NAMES": {
+      "rule_id": "NULL_SCHOOL_NAMES",
+      "name": "NULL学校名称检查",
+      "description": "检查各表中是否存在NULL或空的学校名称，这会导致前端显示错误",
+      "severity": "CRITICAL",
+      "action": "BLOCK",
+      "threshold_value": 0.0,
+      "threshold_operator": "gt",
+      "check_sql": "\n                    SELECT \n                        'student_cleaned_scores' as table_name,\n                        COUNT(*) as null_count\n                    FROM student_cleaned_scores \n                    WHERE batch_code = %(batch_code)s\n                    AND (school_name IS NULL OR school_name = '' OR TRIM(school_name) = '')\n                    \n                    UNION ALL\n                    \n                    SELECT \n                        'school_master_data' as table_name,\n                        COUNT(*) as null_count\n                    FROM school_master_data \n                    WHERE batch_code = %(batch_code)s \n                    AND (standard_school_name IS NULL OR standard_school_name = '' OR TRIM(standard_school_name) = '')\n                ",
+      "fix_sql": null,
+      "recommendations": [
+        "立即停止处理！NULL学校名称会导致前端显示错误",
+        "从原始数据源获取正确的学校名称",
+        "更新school_master_data中的标准化名称",
+        "重新运行数据清洗流程",
+        "添加数据库约束防止NULL值"
+      ]
+    },
+    "ORPHANED_SCHOOLS": {
+      "rule_id": "ORPHANED_SCHOOLS",
+      "name": "孤立学校检查",
+      "description": "检查在student_cleaned_scores中存在但不在school_master_data中的学校",
+      "severity": "CRITICAL",
+      "action": "BLOCK",
+      "threshold_value": 0.0,
+      "threshold_operator": "gt",
+      "check_sql": "\n                    SELECT COUNT(DISTINCT scs.school_code) as orphaned_count\n                    FROM student_cleaned_scores scs\n                    LEFT JOIN school_master_data smd \n                        ON smd.batch_code = scs.batch_code\n                        AND smd.school_id = scs.school_code\n                        AND smd.status = 'ACTIVE'\n                    WHERE scs.batch_code = %(batch_code)s\n                        AND smd.school_id IS NULL\n                ",
+      "fix_sql": null,
+      "recommendations": [
+        "立即停止处理！孤立学校会导致汇聚错误",
+        "将缺失的学校添加到school_master_data",
+        "或从student_cleaned_scores中删除无效数据",
+        "检查数据导入流程",
+        "验证学校编码映射的正确性"
+      ]
+    },
+    "INVALID_SCHOOL_ID_FORMAT": {
+      "rule_id": "INVALID_SCHOOL_ID_FORMAT",
+      "name": "学校ID格式检查",
+      "description": "检查学校ID是否符合4位数字格式且在有效范围内(5044-5099)",
+      "severity": "HIGH",
+      "action": "WARN",
+      "threshold_value": 0.0,
+      "threshold_operator": "gt",
+      "check_sql": "\n                    SELECT COUNT(*) as invalid_count\n                    FROM school_master_data \n                    WHERE batch_code = %(batch_code)s\n                        AND status = 'ACTIVE'\n                        AND (\n                            LENGTH(school_id) != 4 \n                            OR school_id NOT REGEXP '^[0-9]{4}$'\n                            OR CAST(school_id AS UNSIGNED) < 5044 \n                            OR CAST(school_id AS UNSIGNED) > 5099\n                        )\n                ",
+      "fix_sql": null,
+      "recommendations": [
+        "修正学校ID格式为4位数字",
+        "确保学校ID在5044-5099范围内",
+        "检查学校编码规则",
+        "重新导入正确的学校数据"
+      ]
+    },
+    "SCHOOL_COUNT_DEVIATION": {
+      "rule_id": "SCHOOL_COUNT_DEVIATION",
+      "name": "学校数量偏差检查",
+      "description": "检查当前批次学校数量与历史平均值的偏差",
+      "severity": "MEDIUM",
+      "action": "WARN",
+      "threshold_value": 5.0,
+      "threshold_operator": "gt",
+      "check_sql": null,
+      "fix_sql": null,
+      "recommendations": [
+        "检查是否有学校数据缺失",
+        "验证批次范围是否正确",
+        "确认是否有新增或减少的学校",
+        "与历史批次进行对比分析"
+      ]
+    },
+    "LOW_STUDENT_SCHOOLS": {
+      "rule_id": "LOW_STUDENT_SCHOOLS",
+      "name": "学生数据分布检查",
+      "description": "检查学生数过少的学校",
+      "severity": "MEDIUM",
+      "action": "WARN",
+      "threshold_value": 10.0,
+      "threshold_operator": "lt",
+      "check_sql": "\n                    SELECT COUNT(*) as low_student_schools\n                    FROM (\n                        SELECT \n                            school_code,\n                            COUNT(*) as student_count\n                        FROM student_cleaned_scores \n                        WHERE batch_code = %(batch_code)s\n                        GROUP BY school_code\n                        HAVING student_count < %(threshold)s\n                    ) as school_stats\n                ",
+      "fix_sql": null,
+      "recommendations": [
+        "检查学生数过少的学校是否正常",
+        "验证学校规模是否合理",
+        "确认数据完整性",
+        "考虑是否需要排除小规模学校"
+      ]
+    },
+    "NAME_INCONSISTENCY": {
+      "rule_id": "NAME_INCONSISTENCY",
+      "name": "跨表学校名称一致性检查",
+      "description": "检查不同表中学校名称的一致性",
+      "severity": "MEDIUM",
+      "action": "WARN",
+      "threshold_value": 0.0,
+      "threshold_operator": "gt",
+      "check_sql": "\n                    SELECT COUNT(*) as inconsistent_count\n                    FROM student_cleaned_scores scs\n                    INNER JOIN school_master_data smd \n                        ON smd.batch_code = scs.batch_code\n                        AND smd.school_id = scs.school_code\n                        AND smd.status = 'ACTIVE'\n                    WHERE scs.batch_code = %(batch_code)s\n                    AND scs.school_name != smd.standard_school_name\n                ",
+      "fix_sql": null,
+      "recommendations": [
+        "统一使用school_master_data中的标准名称",
+        "更新student_cleaned_scores中的学校名称",
+        "检查数据清洗规则",
+        "标准化学校名称格式"
+      ]
+    },
+    "AGGREGATION_COMPLETENESS": {
+      "rule_id": "AGGREGATION_COMPLETENESS",
+      "name": "汇聚完整性检查",
+      "description": "检查是否所有学校都完成了统计汇聚",
+      "severity": "HIGH",
+      "action": "WARN",
+      "threshold_value": 100.0,
+      "threshold_operator": "lt",
+      "check_sql": "\n                    SELECT \n                        (COUNT(DISTINCT sa.school_id) / COUNT(DISTINCT smd.school_id) * 100) as completeness_rate\n                    FROM school_master_data smd\n                    LEFT JOIN statistical_aggregations sa \n                        ON sa.batch_code = smd.batch_code\n                        AND sa.school_id = smd.school_id\n                    WHERE smd.batch_code = %(batch_code)s\n                        AND smd.status = 'ACTIVE'\n                ",
+      "fix_sql": null,
+      "recommendations": [
+        "检查汇聚过程是否完整",
+        "重新运行未完成的学校汇聚",
+        "验证汇聚逻辑是否正确",
+        "检查是否有处理失败的学校"
+      ]
+    },
+    "INVALID_JSON_FORMAT": {
+      "rule_id": "INVALID_JSON_FORMAT",
+      "name": "JSON格式验证",
+      "description": "检查统计结果JSON格式的有效性",
+      "severity": "HIGH",
+      "action": "WARN",
+      "threshold_value": 0.0,
+      "threshold_operator": "gt",
+      "check_sql": null,
+      "fix_sql": null,
+      "recommendations": [
+        "修复无效的JSON格式",
+        "重新生成统计结果",
+        "检查序列化过程",
+        "验证数据类型转换"
+      ]
+    },
+    "POST_PROCESSING_NULL_NAMES": {
+      "rule_id": "POST_PROCESSING_NULL_NAMES",
+      "name": "处理后NULL名称检查",
+      "description": "检查处理完成后是否仍有NULL学校名称",
+      "severity": "CRITICAL",
+      "action": "BLOCK",
+      "threshold_value": 0.0,
+      "threshold_operator": "gt",
+      "check_sql": "\n                    SELECT COUNT(*) as null_count\n                    FROM statistical_aggregations \n                    WHERE batch_code = %(batch_code)s\n                    AND (school_name IS NULL OR school_name = '' OR TRIM(school_name) = '')\n                ",
+      "fix_sql": null,
+      "recommendations": [
+        "处理失败！输出结果中仍有NULL学校名称",
+        "检查数据处理管道",
+        "重新运行完整的处理流程",
+        "修复数据源问题"
+      ]
+    }
+  },
+  "processing_stages": {
+    "DATA_PREPARATION": {
+      "stage_id": "DATA_PREPARATION",
+      "name": "数据准备阶段",
+      "description": "准备和验证原始数据",
+      "required_tables": [
+        "school_master_data",
+        "student_score_detail"
+      ],
+      "quality_rules": [
+        "NULL_SCHOOL_NAMES",
+        "INVALID_SCHOOL_ID_FORMAT",
+        "SCHOOL_COUNT_DEVIATION"
+      ],
+      "blocking_rules": [
+        "NULL_SCHOOL_NAMES"
+      ],
+      "dependencies": []
+    },
+    "DATA_CLEANING": {
+      "stage_id": "DATA_CLEANING",
+      "name": "数据清洗阶段",
+      "description": "清洗和标准化学生数据",
+      "required_tables": [
+        "student_cleaned_scores"
+      ],
+      "quality_rules": [
+        "ORPHANED_SCHOOLS",
+        "LOW_STUDENT_SCHOOLS",
+        "NAME_INCONSISTENCY"
+      ],
+      "blocking_rules": [
+        "ORPHANED_SCHOOLS"
+      ],
+      "dependencies": [
+        "DATA_PREPARATION"
+      ]
+    },
+    "DATA_AGGREGATION": {
+      "stage_id": "DATA_AGGREGATION",
+      "name": "数据汇聚阶段",
+      "description": "进行统计计算和数据汇聚",
+      "required_tables": [
+        "statistical_aggregations"
+      ],
+      "quality_rules": [
+        "AGGREGATION_COMPLETENESS"
+      ],
+      "blocking_rules": [],
+      "dependencies": [
+        "DATA_CLEANING"
+      ]
+    },
+    "RESULT_SERIALIZATION": {
+      "stage_id": "RESULT_SERIALIZATION",
+      "name": "结果序列化阶段",
+      "description": "生成JSON格式的统计结果",
+      "required_tables": [
+        "statistical_aggregations"
+      ],
+      "quality_rules": [
+        "INVALID_JSON_FORMAT",
+        "POST_PROCESSING_NULL_NAMES"
+      ],
+      "blocking_rules": [
+        "POST_PROCESSING_NULL_NAMES"
+      ],
+      "dependencies": [
+        "DATA_AGGREGATION"
+      ]
+    }
+  },
+  "global_settings": {
+    "school_id_pattern": "^[0-9]{4}$",
+    "school_id_range": [
+      5044,
+      5099
+    ],
+    "min_student_per_school": 10,
+    "max_school_count_deviation_percent": 5.0,
+    "min_data_completeness_rate": 95.0,
+    "processing_timeout_minutes": 30,
+    "retry_count": 3,
+    "backup_before_fix": true
+  },
+  "alert_settings": {
+    "email_enabled": false,
+    "email_recipients": [],
+    "sms_enabled": false,
+    "sms_recipients": [],
+    "log_level": "INFO",
+    "alert_threshold": "HIGH",
+    "notification_cooldown_minutes": 60
+  }
+}

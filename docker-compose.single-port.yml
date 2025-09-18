@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # 单一主应用服务（包含所有API）
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: converged-computing-app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"  # 直接使用8000端口，避免混淆
+    command: ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+    environment:
+      # 数据库配置
+      DATABASE_URL: ${DATABASE_URL:-mysql+pymysql://root:mysql_Lujing2022@117.72.14.166:23506/appraisal_test?charset=utf8mb4}
+
+      # 应用配置
+      PYTHONPATH: /app
+      APP_ENV: ${APP_ENV:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+
+      # 性能配置
+      WORKERS: ${WORKERS:-4}
+      MAX_CONNECTIONS: ${MAX_CONNECTIONS:-100}
+      POOL_SIZE: ${POOL_SIZE:-20}
+      POOL_RECYCLE: ${POOL_RECYCLE:-3600}
+
+      # 批处理配置
+      BATCH_SIZE: ${BATCH_SIZE:-10}
+      BATCH_TIMEOUT: ${BATCH_TIMEOUT:-300}
+
+    volumes:
+      # 日志目录
+      - ./logs:/app/logs
+      # 临时文件目录
+      - ./temp:/app/temp
+      # 文档目录（只读）
+      - ./docs:/app/docs:ro
+      # 验证报告输出
+      - ./reports:/app/reports
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    # 资源限制
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+
+networks:
+  default:
+    name: converged-network

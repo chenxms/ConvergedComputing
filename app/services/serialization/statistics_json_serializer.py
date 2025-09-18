@@ -87,6 +87,7 @@ class StatisticsJsonSerializer:
             subjects = builder.build_regional_subjects(batch_code)
             regional_json = {
                 'schema_version': 'v1.2',
+                'data_version': 'v1.2',
                 'batch_code': batch_code,
                 'aggregation_level': 'REGIONAL',
                 'subjects': subjects,
@@ -96,7 +97,10 @@ class StatisticsJsonSerializer:
             self.aggregation_repo.upsert_statistics({
                 'batch_code': batch_code,
                 'aggregation_level': AggregationLevel.REGIONAL,
+                'school_id': 'REGION',
+                'school_name': '区域汇总',
                 'statistics_data': processed,
+                'data_version': 'v1.2',
                 'calculation_status': CalculationStatus.COMPLETED
             })
             return processed
@@ -140,6 +144,7 @@ class StatisticsJsonSerializer:
             subjects = builder.build_school_subjects(batch_code, school_id)
             school_json = {
                 'schema_version': 'v1.2',
+                'data_version': 'v1.2',
                 'batch_code': batch_code,
                 'aggregation_level': 'SCHOOL',
                 'school_code': school_id,
@@ -155,6 +160,7 @@ class StatisticsJsonSerializer:
                 'school_id': school_id,
                 'school_name': None,
                 'statistics_data': processed,
+                'data_version': 'v1.2',
                 'calculation_status': CalculationStatus.COMPLETED
             })
 

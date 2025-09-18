@@ -24,15 +24,22 @@
 
 from __future__ import annotations
 import sys
+import os
 from typing import Dict, Any, List, Tuple, Optional
 from sqlalchemy import text
+
+# Ensure repo root on sys.path for direct script execution
+_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if _ROOT not in sys.path:
+    sys.path.insert(0, _ROOT)
 
 from app.database.connection import get_db
 
 
 GENERIC_LABELS = {
     3: {1: '不满意', 2: '一般', 3: '满意'},
-    4: {1: '不满意', 2: '一般', 3: '满意', 4: '非常满意'},
+    # 4级无中立项：使用“非常不满意、不满意、满意、非常满意”
+    4: {1: '非常不满意', 2: '不满意', 3: '满意', 4: '非常满意'},
     5: {1: '非常不满意', 2: '不满意', 3: '一般', 4: '满意', 5: '非常满意'},
     7: {1: '非常不满意', 2: '不满意', 3: '较不满意', 4: '一般', 5: '较满意', 6: '满意', 7: '非常满意'},
 }
@@ -46,6 +53,7 @@ def list_questionnaire_subjects(batch_code: str, subject_name: Optional[str] = N
         WHERE batch_code=:batch AND subject_type='questionnaire'
         """
     )
+    print(f"[labels] 列举问卷科目 batch={batch_code} subject={subject_name or '*'}", flush=True)
     with next(get_db()) as db:
         rows = db.execute(sql, {"batch": batch_code}).fetchall()
     subs = [r[0] for r in rows]
@@ -66,6 +74,7 @@ def pick_scale(batch_code: str, subject_name: str) -> Optional[Tuple[str, str]]:
         LIMIT 1
         """
     )
+    print(f"[labels] 识别量表 batch={batch_code} subject={subject_name}", flush=True)
     with next(get_db()) as db:
         row = db.execute(sql, {"batch": batch_code, "subject": subject_name}).fetchone()
     if not row:
@@ -82,6 +91,7 @@ def existing_option_levels(inst: str, scale: str) -> Dict[int, str]:
         ORDER BY option_level
         """
     )
+    print(f"[labels] 读取字典 inst={inst} scale={scale}", flush=True)
     with next(get_db()) as db:
         rows = db.execute(sql, {"inst": inst, "scale": scale}).fetchall()
     return {int(r[0]): r[1] for r in rows}
@@ -98,6 +108,7 @@ def infer_labels_from_details(batch_code: str, subject_name: str) -> Dict[int, s
         """
     )
     best: Dict[int, Tuple[str, int]] = {}
+    print(f"[labels] 从明细推断标签 batch={batch_code} subject={subject_name}", flush=True)
     with next(get_db()) as db:
         rows = db.execute(sql, {"batch": batch_code, "subject": subject_name}).fetchall()
     for lvl, label, cnt in rows:
@@ -145,6 +156,8 @@ def insert_labels(inst: str, scale: str, labels: Dict[int, str]) -> int:
     if not labels:
         return 0
     inserted = 0
+    if labels:
+        print(f"[labels] 写入缺失项 count={len(labels)}", flush=True)
     with next(get_db()) as db:
         for lvl, label in labels.items():
             db.execute(
@@ -220,7 +233,8 @@ def main(argv: List[str]) -> int:
         print(f"No questionnaire subjects found for batch {batch}")
         return 0
     out: List[Dict[str, Any]] = []
-    for s in subjects:
+    for idx, s in enumerate(subjects, start=1):
+        print(f"[labels] 处理 {idx}/{len(subjects)}: {s}", flush=True)
         out.append(complete_for_subject(batch, s))
     # 打印结果（JSON-like）
     import json

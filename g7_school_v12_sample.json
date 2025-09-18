@@ -1,0 +1,293 @@
+{
+  "batch_code": "G7-2025",
+  "statistics_data": {
+    "schema_version": "v1.2",
+    "generated_at": "2025-09-18T02:18:32.737193",
+    "data_type": "school",
+    "school_info": {
+      "school_id": "5001",
+      "school_name": "芭德"
+    },
+    "subjects": [
+      {
+        "subject_code": "SUBJ_AI交互",
+        "subject_name": "AI交互",
+        "subject_type": "exam",
+        "metrics": {
+          "average_score": 10.0385,
+          "score_rate": 43.65,
+          "percentiles": {
+            "p10": 6.02,
+            "p50": 10.04,
+            "p90": 14.05
+          },
+          "discrimination": 0.436,
+          "difficulty_coefficient": 0.436,
+          "student_count": 26,
+          "max_score": 23.0,
+          "school_ranking": {
+            "rank": 13,
+            "total_schools": 40,
+            "percentile": 67.5
+          }
+        },
+        "dimensions": [
+          {
+            "dimension_code": "overall",
+            "dimension_name": "总体表现",
+            "ranking": 1,
+            "score": 10.0385
+          }
+        ]
+      },
+      {
+        "subject_code": "SUBJ_历史",
+        "subject_name": "历史",
+        "subject_type": "exam",
+        "metrics": {
+          "average_score": 63.8298,
+          "score_rate": 63.83,
+          "percentiles": {
+            "p10": 38.3,
+            "p50": 63.83,
+            "p90": 89.36
+          },
+          "discrimination": 0.638,
+          "difficulty_coefficient": 0.638,
+          "student_count": 47,
+          "max_score": 100.0,
+          "school_ranking": {
+            "rank": 17,
+            "total_schools": 41,
+            "percentile": 58.5
+          }
+        },
+        "dimensions": [
+          {
+            "dimension_code": "overall",
+            "dimension_name": "总体表现",
+            "ranking": 1,
+            "score": 63.8298
+          }
+        ]
+      },
+      {
+        "subject_code": "SUBJ_地理",
+        "subject_name": "地理",
+        "subject_type": "exam",
+        "metrics": {
+          "average_score": 63.617,
+          "score_rate": 63.62,
+          "percentiles": {
+            "p10": 38.17,
+            "p50": 63.62,
+            "p90": 89.06
+          },
+          "discrimination": 0.636,
+          "difficulty_coefficient": 0.636,
+          "student_count": 47,
+          "max_score": 100.0,
+          "school_ranking": {
+            "rank": 13,
+            "total_schools": 41,
+            "percentile": 68.3
+          }
+        },
+        "dimensions": [
+          {
+            "dimension_code": "overall",
+            "dimension_name": "总体表现",
+            "ranking": 1,
+            "score": 63.617
+          }
+        ]
+      },
+      {
+        "subject_code": "SUBJ_政治",
+        "subject_name": "政治",
+        "subject_type": "exam",
+        "metrics": {
+          "average_score": 69.4574,
+          "score_rate": 69.46,
+          "percentiles": {
+            "p10": 41.67,
+            "p50": 69.46,
+            "p90": 97.24
+          },
+          "discrimination": 0.695,
+          "difficulty_coefficient": 0.695,
+          "student_count": 47,
+          "max_score": 100.0,
+          "school_ranking": {
+            "rank": 15,
+            "total_schools": 41,
+            "percentile": 63.4
+          }
+        },
+        "dimensions": [
+          {
+            "dimension_code": "overall",
+            "dimension_name": "总体表现",
+            "ranking": 1,
+            "score": 69.4574
+          }
+        ]
+      },
+      {
+        "subject_code": "SUBJ_数学",
+        "subject_name": "数学",
+        "subject_type": "exam",
+        "metrics": {
+          "average_score": 87.4149,
+          "score_rate": 58.28,
+          "percentiles": {
+            "p10": 52.45,
+            "p50": 87.41,
+            "p90": 122.38
+          },
+          "discrimination": 0.583,
+          "difficulty_coefficient": 0.583,
+          "student_count": 47,
+          "max_score": 150.0,
+          "school_ranking": {
+            "rank": 13,
+            "total_schools": 41,
+            "percentile": 68.3
+          }
+        },
+        "dimensions": [
+          {
+            "dimension_code": "overall",
+            "dimension_name": "总体表现",
+            "ranking": 1,
+            "score": 87.4149
+          }
+        ]
+      },
+      {
+        "subject_code": "SUBJ_生物",
+        "subject_name": "生物",
+        "subject_type": "exam",
+        "metrics": {
+          "average_score": 55.5213,
+          "score_rate": 55.52,
+          "percentiles": {
+            "p10": 33.31,
+            "p50": 55.52,
+            "p90": 77.73
+          },
+          "discrimination": 0.555,
+          "difficulty_coefficient": 0.555,
+          "student_count": 47,
+          "max_score": 100.0,
+          "school_ranking": {
+            "rank": 18,
+            "total_schools": 41,
+            "percentile": 56.1
+          }
+        },
+        "dimensions": [
+          {
+            "dimension_code": "overall",
+            "dimension_name": "总体表现",
+            "ranking": 1,
+            "score": 55.5213
+          }
+        ]
+      },
+      {
+        "subject_code": "SUBJ_艺术",
+        "subject_name": "艺术",
+        "subject_type": "exam",
+        "metrics": {
+          "average_score": 135.053,
+          "score_rate": 67.53,
+          "percentiles": {
+            "p10": 81.03,
+            "p50": 135.05,
+            "p90": 189.07
+          },
+          "discrimination": 0.675,
+          "difficulty_coefficient": 0.675,
+          "student_count": 50,
+          "max_score": 200.0,
+          "school_ranking": {
+            "rank": 8,
+            "total_schools": 40,
+            "percentile": 80.0
+          }
+        },
+        "dimensions": [
+          {
+            "dimension_code": "overall",
+            "dimension_name": "总体表现",
+            "ranking": 1,
+            "score": 135.053
+          }
+        ]
+      },
+      {
+        "subject_code": "SUBJ_英语",
+        "subject_name": "英语",
+        "subject_type": "exam",
+        "metrics": {
+          "average_score": 92.2394,
+          "score_rate": 61.49,
+          "percentiles": {
+            "p10": 55.34,
+            "p50": 92.24,
+            "p90": 129.14
+          },
+          "discrimination": 0.615,
+          "difficulty_coefficient": 0.615,
+          "student_count": 47,
+          "max_score": 150.0,
+          "school_ranking": {
+            "rank": 8,
+            "total_schools": 41,
+            "percentile": 80.5
+          }
+        },
+        "dimensions": [
+          {
+            "dimension_code": "overall",
+            "dimension_name": "总体表现",
+            "ranking": 1,
+            "score": 92.2394
+          }
+        ]
+      },
+      {
+        "subject_code": "SUBJ_语文",
+        "subject_name": "语文",
+        "subject_type": "exam",
+        "metrics": {
+          "average_score": 108.702,
+          "score_rate": 72.47,
+          "percentiles": {
+            "p10": 65.22,
+            "p50": 108.7,
+            "p90": 152.18
+          },
+          "discrimination": 0.725,
+          "difficulty_coefficient": 0.725,
+          "student_count": 47,
+          "max_score": 150.0,
+          "school_ranking": {
+            "rank": 13,
+            "total_schools": 41,
+            "percentile": 68.3
+          }
+        },
+        "dimensions": [
+          {
+            "dimension_code": "overall",
+            "dimension_name": "总体表现",
+            "ranking": 1,
+            "score": 108.702
+          }
+        ]
+      }
+    ]
+  }
+}

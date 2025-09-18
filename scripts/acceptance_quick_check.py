@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""
-快速验收交叉检查脚本（只读）：
+"""快速验收交叉检查脚本（只读）。
+
 - 覆盖范围统计（statistical_aggregations）
 - 结构与命名检查（subjects、school_rankings、region_rank、dimensions[].rank、问卷结构）
 - 精度与百分比检查（抽查关键字段是否超过两位小数，pct 是否在 0–100 且分组合计≈100）
 - 排名结果抽样对比（按 SQL 计算 vs JSON：科目层学校排名 Top 10）
 
-注意：脚本仅读取数据库，不做任何写入。
+注意：脚本仅读取数据库，不做任何写入，批次需通过命令行显式指定。
 """
 
 from __future__ import annotations
+import argparse
 import json
 import math
 import sys
+import os
 from collections import defaultdict
 from decimal import Decimal
 from typing import Any, Dict, List, Tuple
@@ -26,8 +28,6 @@ DEFAULT_DB_URL = (
     "mysql+pymysql://root:mysql_Lujing2022@117.72.14.166:23506/"
     "appraisal_test?charset=utf8mb4"
 )
-
-TARGET_BATCHES = ["G4-2025", "G7-2025", "G8-2025"]
 
 
 def more_than_2dp(x: Any) -> bool:
@@ -372,24 +372,27 @@ def compare_school_rankings(conn, batch: str, subject_name: str, region: Dict[st
     }
 
 
-def main(db_url: str) -> int:
+def main(db_url: str, target_batches: List[str]) -> int:
+    if not target_batches:
+        raise ValueError("未提供需要检查的批次，使用 --batch 参数或设置 TARGET_BATCHES 环境变量。")
+
+    primary_batch = target_batches[0]
     engine = get_engine(db_url)
     with engine.connect() as conn:
-        coverage = fetch_coverage(conn, TARGET_BATCHES)
+        coverage = fetch_coverage(conn, target_batches)
 
-        # 仅对 G4-2025 做深入校验（其余批次可能未入库）
-        g4_region = load_agg(conn, "G4-2025", "REGIONAL")
-        g4_schools = load_agg(conn, "G4-2025", "SCHOOL")
-        region_row = g4_region[0] if g4_region else {}
+        region_rows = load_agg(conn, primary_batch, "REGIONAL")
+        school_rows = load_agg(conn, primary_batch, "SCHOOL")
+        region_row = region_rows[0] if region_rows else {}
 
-        structure_summary = summarize_structure(region_row, g4_schools)
-        precision_issues = collect_precision_issues(region_row, g4_schools)
+        structure_summary = summarize_structure(region_row, school_rows)
+        precision_issues = collect_precision_issues(region_row, school_rows)
 
         # 抽样排名对比：选取区域 JSON 中第一个科目
         subjects = fetch_subjects_from_region(region_row)
         ranking_compare = {}
         if subjects:
-            ranking_compare = compare_school_rankings(conn, "G4-2025", subjects[0], region_row)
+            ranking_compare = compare_school_rankings(conn, primary_batch, subjects[0], region_row)
 
         # 预览首个科目的 metrics，便于诊断精度问题
         metrics_preview = {}
@@ -401,15 +404,50 @@ def main(db_url: str) -> int:
 
         result = {
             "coverage": coverage,
-            "g4_structure": structure_summary,
-            "g4_precision_issues": precision_issues,
-            "g4_ranking_compare_sample": ranking_compare,
-            "g4_metrics_preview": metrics_preview,
+            "primary_batch": primary_batch,
+            "structure": structure_summary,
+            "precision_issues": precision_issues,
+            "ranking_compare_sample": ranking_compare,
+            "metrics_preview": metrics_preview,
         }
         print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="批量数据验收检查（只读）")
+    parser.add_argument(
+        "--batch",
+        dest="batches",
+        action="append",
+        help="待检查的批次代码，可重复使用指定多个",
+    )
+    parser.add_argument(
+        "--database-url",
+        dest="database_url",
+        default=None,
+        help="覆盖默认数据库连接，默认读取环境变量 DATABASE_URL",
+    )
+    return parser.parse_args()
+
+
+def resolve_batches(raw_batches: List[str] | None) -> List[str]:
+    if raw_batches:
+        return [b.strip() for b in raw_batches if b and b.strip()]
+
+    env_value = os.getenv("TARGET_BATCHES")
+    if env_value:
+        return [b.strip() for b in env_value.split(",") if b.strip()]
+
+    return []
+
+
 if __name__ == "__main__":
-    url = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_DB_URL
-    raise SystemExit(main(url))
+    args = parse_args()
+    db_url = (
+        args.database_url
+        or os.getenv("DATABASE_URL")
+        or (sys.argv[1] if len(sys.argv) > 1 else DEFAULT_DB_URL)
+    )
+    batches = resolve_batches(args.batches)
+    raise SystemExit(main(db_url, batches))

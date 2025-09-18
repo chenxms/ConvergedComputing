@@ -102,7 +102,7 @@ ConvergedComputing/
 
 ```bash
 # 手动运行批处理
-docker-compose run --rm batch-processor python process_g7_g8_v2.py G7-2025
+docker-compose run --rm batch-processor python process_g7_g8_v2.py <BATCH_CODE>
 
 # 重处理所有批次
 docker-compose run --rm batch-processor python reprocess_all_batches_final.py

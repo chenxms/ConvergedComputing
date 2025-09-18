@@ -407,10 +407,10 @@ class DimensionCalculator:
         
         # 等级分布计算
         if self._is_primary_grade(grade_level):
-            # 小学标准
-            excellent_mask = scores >= (max_score * 0.90)
-            good_mask = (scores >= (max_score * 0.80)) & (scores < (max_score * 0.90))
-            pass_mask = (scores >= (max_score * 0.60)) & (scores < (max_score * 0.80))
+            # 小学标准：优秀≥85%，良好70-84%
+            excellent_mask = scores >= (max_score * 0.85)
+            good_mask = (scores >= (max_score * 0.70)) & (scores < (max_score * 0.85))
+            pass_mask = (scores >= (max_score * 0.60)) & (scores < (max_score * 0.70))
             fail_mask = scores < (max_score * 0.60)
             
             grade_distribution = {
@@ -420,9 +420,9 @@ class DimensionCalculator:
                 'fail': {'count': int(fail_mask.sum()), 'percentage': float(fail_mask.mean())}
             }
         else:
-            # 初中标准
-            a_mask = scores >= (max_score * 0.85)
-            b_mask = (scores >= (max_score * 0.70)) & (scores < (max_score * 0.85))
+            # 初中标准：A≥80%，B70-79%
+            a_mask = scores >= (max_score * 0.80)
+            b_mask = (scores >= (max_score * 0.70)) & (scores < (max_score * 0.80))
             c_mask = (scores >= (max_score * 0.60)) & (scores < (max_score * 0.70))
             d_mask = scores < (max_score * 0.60)
             
@@ -434,7 +434,13 @@ class DimensionCalculator:
             }
         
         pass_rate = float((scores >= (max_score * 0.60)).mean())
-        excellent_rate = float((scores >= (max_score * 0.85)).mean())
+        # 优秀率按对应年级的最高等级阈值计算
+        if self._is_primary_grade(grade_level):
+            excellent_threshold = 0.85
+        else:
+            excellent_threshold = 0.80
+
+        excellent_rate = float((scores >= (max_score * excellent_threshold)).mean())
         
         return {
             'difficulty_coefficient': difficulty_coefficient,

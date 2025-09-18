@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""批量数据汇聚执行器。
+
+脚本不再对固定批次执行汇聚，必须通过命令行参数显式传入批次，
+避免无意识地触发诸如 G7-2025 之类的敏感批次。
 """
-批量数据汇聚执行器
-对G4-2025、G7-2025、G8-2025三个批次执行完整数据汇聚
-"""
-import sys
+import argparse
 import os
+import sys
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 import asyncio
 from datetime import datetime
 from sqlalchemy import create_engine
@@ -16,15 +20,25 @@ from app.database.repositories import DataAdapterRepository
 
 class BatchAggregationRunner:
     """批量汇聚执行器"""
-    
-    def __init__(self):
-        # 创建数据库连接
-        self.DATABASE_URL = "mysql+pymysql://root:mysql_Lujing2022@117.72.14.166:23506/appraisal_test?charset=utf8mb4"
+
+    def __init__(self, target_batches, database_url=None):
+        if not target_batches:
+            raise ValueError("target_batches must not be empty")
+
+        default_url = "mysql+pymysql://root:mysql_Lujing2022@117.72.14.166:23506/appraisal_test?charset=utf8mb4"
+        self.DATABASE_URL = database_url or os.getenv("DATABASE_URL", default_url)
         self.engine = create_engine(self.DATABASE_URL)
         self.Session = sessionmaker(bind=self.engine)
-        
-        # 目标批次
-        self.target_batches = ['G4-2025', 'G7-2025', 'G8-2025']
+
+        # 去重并保留批次顺序
+        seen = set()
+        ordered_batches = []
+        for code in target_batches:
+            if code not in seen:
+                seen.add(code)
+                ordered_batches.append(code)
+
+        self.target_batches = ordered_batches
         self.results = {}
     
     async def check_batch_readiness(self, batch_code: str) -> dict:
@@ -273,10 +287,29 @@ class BatchAggregationRunner:
         else:
             print(f"\n[PARTIAL] 部分批次汇聚成功，请检查失败原因")
 
-async def main():
+async def main(target_batches, database_url=None):
     """主函数"""
-    runner = BatchAggregationRunner()
+    runner = BatchAggregationRunner(target_batches, database_url=database_url)
     await runner.run_batch_aggregation()
 
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="批量执行指定批次的统计汇聚")
+    parser.add_argument(
+        "batches",
+        metavar="BATCH_CODE",
+        nargs="+",
+        help="需要汇聚的批次代码，例如 G4-2025",
+    )
+    parser.add_argument(
+        "--database-url",
+        dest="database_url",
+        default=None,
+        help="可选，覆盖默认的数据库连接字符串",
+    )
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    args = parse_args()
+    asyncio.run(main(args.batches, database_url=args.database_url))

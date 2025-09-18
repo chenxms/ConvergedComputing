@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>问卷维度-题目选项占比（单图分组柱）Demo</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/element-ui@2.15.14/lib/theme-chalk/index.css" />
+  <style>
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; }
+    .page { padding: 16px; }
+    .header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    #chart { width: 100%; height: 560px; background: #fff; border: 1px solid #ebeef5; border-radius: 4px; }
+    .footer { margin-top: 12px; color: #909399; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div id="app" class="page">
+    <div class="header">
+      <el-select v-model="selectedDimension" placeholder="请选择维度" style="width: 280px" @change="renderChart">
+        <el-option v-for="dim in dimensions" :key="dim.code" :label="dim.name" :value="dim.code"></el-option>
+      </el-select>
+      <el-button type="primary" size="mini" @click="exportPng">导出当前图为PNG</el-button>
+    </div>
+    <div id="chart"></div>
+    <div class="footer">演示数据仅用于验证“一个维度一个图表（堆叠柱）”的可视化效果。</div>
+  </div>
+
+  <!-- Vue 2.6.12 -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+  <!-- Element UI 2.15.x -->
+  <script src="https://cdn.jsdelivr.net/npm/element-ui@2.15.14/lib/index.js"></script>
+  <!-- ECharts 5.4.0 -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
+
+  <script>
+    // 颜色：从消极到积极的语义顺序（5级李克特）
+    const LIKERT5_COLORS = ['#f56c6c', '#e6a23c', '#f4e06d', '#95d475', '#67c23a'];
+
+    // 模拟数据：两个维度，各自包含若干题目与5级选项占比（总和约=100）
+    const MOCK_DATA = [
+      {
+        dimension_code: 'ATT', dimension_name: '学习态度',
+        questions: [
+          { question_id: 'Q1', question_text: '我对学习保持积极态度', options: [
+            { option_level: 1, option_label: '非常不同意', percentage: 5 },
+            { option_level: 2, option_label: '不同意',     percentage: 8 },
+            { option_level: 3, option_label: '一般',       percentage: 22 },
+            { option_level: 4, option_label: '同意',       percentage: 38 },
+            { option_level: 5, option_label: '非常同意',   percentage: 27 },
+          ]},
+          { question_id: 'Q2', question_text: '我能按时完成作业', options: [
+            { option_level: 1, option_label: '非常不同意', percentage: 4 },
+            { option_level: 2, option_label: '不同意',     percentage: 9 },
+            { option_level: 3, option_label: '一般',       percentage: 26 },
+            { option_level: 4, option_label: '同意',       percentage: 36 },
+            { option_level: 5, option_label: '非常同意',   percentage: 25 },
+          ]},
+          { question_id: 'Q3', question_text: '我会主动预习新知识', options: [
+            { option_level: 1, option_label: '非常不同意', percentage: 6 },
+            { option_level: 2, option_label: '不同意',     percentage: 10 },
+            { option_level: 3, option_label: '一般',       percentage: 28 },
+            { option_level: 4, option_label: '同意',       percentage: 34 },
+            { option_level: 5, option_label: '非常同意',   percentage: 22 },
+          ]},
+          { question_id: 'Q4', question_text: '我能合理安排学习时间', options: [
+            { option_level: 1, option_label: '非常不同意', percentage: 8 },
+            { option_level: 2, option_label: '不同意',     percentage: 12 },
+            { option_level: 3, option_label: '一般',       percentage: 30 },
+            { option_level: 4, option_label: '同意',       percentage: 32 },
+            { option_level: 5, option_label: '非常同意',   percentage: 18 },
+          ]},
+        ]
+      },
+      {
+        dimension_code: 'ENV', dimension_name: '学习环境',
+        questions: [
+          { question_id: 'Q5', question_text: '家里有安静的学习空间', options: [
+            { option_level: 1, option_label: '非常不同意', percentage: 12 },
+            { option_level: 2, option_label: '不同意',     percentage: 15 },
+            { option_level: 3, option_label: '一般',       percentage: 33 },
+            { option_level: 4, option_label: '同意',       percentage: 25 },
+            { option_level: 5, option_label: '非常同意',   percentage: 15 },
+          ]},
+          { question_id: 'Q6', question_text: '学习资源获取方便', options: [
+            { option_level: 1, option_label: '非常不同意', percentage: 10 },
+            { option_level: 2, option_label: '不同意',     percentage: 16 },
+            { option_level: 3, option_label: '一般',       percentage: 31 },
+            { option_level: 4, option_label: '同意',       percentage: 28 },
+            { option_level: 5, option_label: '非常同意',   percentage: 15 },
+          ]},
+        ]
+      }
+    ];
+
+    function buildStackedDataset(dimension) {
+      // 统一选项标签顺序（按 option_level 排序）
+      const optionLabels = ['非常不同意','不同意','一般','同意','非常同意'];
+      const labelByLevel = { 1: '非常不同意', 2: '不同意', 3: '一般', 4: '同意', 5: '非常同意' };
+
+      const source = [ ['题目', ...optionLabels] ];
+      (dimension.questions || []).forEach(q => {
+        const map = {};
+        (q.options || []).forEach(o => {
+          const label = o.option_label || labelByLevel[o.option_level] || `选项${o.option_level}`;
+          // 假设后端已是 0-100；若是 0-1 可在此 *100
+          map[label] = o.percentage != null ? +o.percentage : 0;
+        });
+        // 仅使用题目ID作为X轴类目
+        const row = [ String(q.question_id) ];
+        optionLabels.forEach(lbl => row.push(map[lbl] || 0));
+        source.push(row);
+      });
+      return { source, optionLabels };
+    }
+
+    function truncateText(t, n) {
+      return t && t.length > n ? t.slice(0, n) + '…' : t;
+    }
+
+    new Vue({
+      el: '#app',
+      data() {
+        return {
+          chart: null,
+          dimensions: MOCK_DATA.map(d => ({ code: d.dimension_code, name: d.dimension_name })),
+          selectedDimension: MOCK_DATA[0].dimension_code,
+          dataByDim: MOCK_DATA.reduce((acc, cur) => { acc[cur.dimension_code] = cur; return acc; }, {})
+        };
+      },
+      mounted() {
+        this.chart = echarts.init(document.getElementById('chart'));
+        window.addEventListener('resize', this.handleResize);
+        this.renderChart();
+      },
+      beforeDestroy() {
+        window.removeEventListener('resize', this.handleResize);
+        if (this.chart) this.chart.dispose();
+      },
+      methods: {
+        handleResize() { if (this.chart) this.chart.resize(); },
+        exportPng() {
+          if (!this.chart) return;
+          const url = this.chart.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#fff' });
+          const a = document.createElement('a');
+          a.href = url; a.download = '维度题目选项分布.png'; a.click();
+        },
+        renderChart() {
+          const dim = this.dataByDim[this.selectedDimension];
+          if (!dim) return;
+          const { source, optionLabels } = buildStackedDataset(dim);
+
+          const option = {
+            backgroundColor: '#fff',
+            title: { text: `${dim.dimension_name} — 题目选项占比（分组）`, left: 'center', textStyle: { fontSize: 14 } },
+            color: LIKERT5_COLORS,
+            legend: { type: 'scroll', top: 28 },
+            tooltip: {
+              trigger: 'axis', axisPointer: { type: 'shadow' },
+              formatter: params => {
+                const name = params[0] && params[0].name ? params[0].name : '';
+                const lines = params
+                  .filter(p => p.seriesType === 'bar')
+                  .map(p => `${p.marker}${p.seriesName}: ${p.value != null ? p.value : 0}%`);
+                // 显示合计接近 100%
+                const total = params.reduce((s, p) => s + (p.value || 0), 0);
+                lines.push(`合计: ${Math.round(total)}%`);
+                return `${name}<br/>${lines.join('<br/>')}`;
+              }
+            },
+            grid: { left: 12, right: 14, top: 70, bottom: 58, containLabel: true },
+            dataset: { source, sourceHeader: true },
+            xAxis: {
+              type: 'category',
+              axisLabel: {
+                interval: 0,
+                rotate: source.length > 9 ? 30 : 0,
+                formatter: v => v
+              }
+            },
+            yAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}%' } },
+            dataZoom: [
+              { type: 'inside', start: 0, end: 100 },
+              { type: 'slider', start: 0, end: 100, height: 14 }
+            ],
+            series: optionLabels.map(() => ({
+              type: 'bar', barMaxWidth: 36,
+              barGap: '10%', barCategoryGap: '30%',
+              label: {
+                show: true, position: 'top', fontSize: 10,
+                formatter: p => (p.value && p.value >= 6 ? p.value + '%' : '')
+              },
+              emphasis: { focus: 'series' }
+            }))
+          };
+
+          this.chart.setOption(option, true);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

@@ -37,11 +37,14 @@ cp -r app ${OUTPUT_DIR}/
 find ${OUTPUT_DIR}/app -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 find ${OUTPUT_DIR}/app -type f -name "*.pyc" -delete 2>/dev/null || true
 
-# 2. 复制必要的脚本文件
+# 2. 复制必要的脚本和服务文件
 mkdir -p ${OUTPUT_DIR}/scripts
 cp scripts/rewrite_subjects_v12.py ${OUTPUT_DIR}/scripts/ 2>/dev/null || true
 cp scripts/acceptance_quick_check.py ${OUTPUT_DIR}/scripts/ 2>/dev/null || true
 cp scripts/complete_questionnaire_labels.py ${OUTPUT_DIR}/scripts/ 2>/dev/null || true
+
+# 3. 复制关键服务文件（修复缺失的data_cleaning_service）
+cp data_cleaning_service.py ${OUTPUT_DIR}/ 2>/dev/null || true
 
 # 3. 复制文档目录（包含数据规范）
 cp -r docs ${OUTPUT_DIR}/ 2>/dev/null || true

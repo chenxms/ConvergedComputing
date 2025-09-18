@@ -1,0 +1,69 @@
+================================================================================
+G7-2025预聚合表修复报告 - 2025-09-18 01:32:29
+================================================================================
+
+[失败] 批次 G7-2025 预聚合表修复失败
+
+错误信息: 预聚合表修复失败: (pymysql.err.ProgrammingError) (1064, "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'rank, total_schools,\n                    created_at, updated_at\n                ' at line 6")
+[SQL: 
+                INSERT INTO subject_school_rankings (
+                    batch_code, subject_name, subject_type,
+                    school_code, school_name, student_count,
+                    avg_score, std_score, max_score_achieved, min_score, max_score,
+                    score_rate, difficulty_coefficient,
+                    rank, total_schools,
+                    created_at, updated_at
+                )
+                SELECT
+                    base.batch_code,
+                    base.subject_name,
+                    base.subject_type,
+                    base.school_code,
+                    base.school_name,
+                    base.student_count,
+                    ROUND(base.avg_score, 4) AS avg_score,
+                    ROUND(base.std_score, 4) AS std_score,
+                    ROUND(base.max_score_achieved, 4) AS max_score_achieved,
+                    ROUND(base.min_score, 4) AS min_score,
+                    ROUND(base.max_score, 4) AS max_score,
+                    ROUND(base.score_ratio * 100, 4) AS score_rate,
+                    ROUND(base.score_ratio, 4) AS difficulty_coefficient,
+                    DENSE_RANK() OVER (PARTITION BY base.subject_name ORDER BY base.avg_score DESC, base.school_code ASC) AS ranking,
+                    COUNT(*) OVER (PARTITION BY base.subject_name) AS total_schools,
+                    NOW() AS created_at,
+                    NOW() AS updated_at
+                FROM (
+                    SELECT
+                        scs.batch_code,
+                        scs.subject_name,
+                        scs.subject_type,
+                        scs.school_code,
+                        COALESCE(smd.standard_school_name, scs.school_code) AS school_name,
+                        COUNT(*) AS student_count,
+                        AVG(scs.total_score) AS avg_score,
+                        STDDEV_POP(scs.total_score) AS std_score,
+                        MAX(scs.total_score) AS max_score_achieved,
+                        MIN(scs.total_score) AS min_score,
+                        MAX(scs.max_score) AS max_score,
+                        AVG(CASE WHEN scs.max_score > 0 THEN scs.total_score / scs.max_score ELSE 0 END) AS score_ratio
+                    FROM student_cleaned_scores scs
+                    JOIN school_master_data smd
+                      ON smd.batch_code COLLATE utf8mb4_unicode_ci = scs.batch_code COLLATE utf8mb4_unicode_ci
+                     AND smd.school_id COLLATE utf8mb4_unicode_ci = scs.school_code COLLATE utf8mb4_unicode_ci
+                     AND smd.status = 'ACTIVE'
+                    WHERE scs.batch_code = %(batch)s
+                    GROUP BY
+                        scs.batch_code, scs.subject_name, scs.subject_type, scs.school_code, smd.standard_school_name
+                ) AS base
+            ]
+[parameters: {'batch': 'G7-2025'}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+[故障排除] 建议:
+  1. 检查数据库连接是否正常
+  2. 确认G7-2025基础数据是否存在
+  3. 检查student_cleaned_scores表是否有数据
+  4. 验证school_master_data表是否正确配置
+  5. 查看详细错误日志: fix_g7_precomputed_tables.log
+
+================================================================================

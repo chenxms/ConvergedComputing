@@ -1,0 +1,17 @@
+# 开发环境依赖
+# 首先安装生产依赖
+-r requirements-prod.txt
+
+# 测试框架
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.2  # 用于测试API
+
+# 代码质量工具
+black==23.11.0  # 代码格式化
+isort==5.13.2   # import排序
+flake8==6.1.0   # 代码检查
+mypy==1.7.1     # 类型检查
+
+# 额外的工具（从原始requirements.txt中）
+requests==2.31.0  # 可能用于测试外部API调用

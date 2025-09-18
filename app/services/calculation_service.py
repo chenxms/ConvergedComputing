@@ -3,15 +3,17 @@ import json
 import logging
 import pandas as pd
 import time
+from collections import defaultdict
 from typing import Dict, Any, List, Optional
 from sqlalchemy.orm import Session
 
-from ..database.models import AggregationLevel, CalculationStatus
+from ..database.models import AggregationLevel, CalculationStatus, BatchDimensionDefinition
 from .subjects_builder import SubjectsBuilder
 from ..utils.precision import round2_json
 from ..database.repositories import StatisticalAggregationRepository, DataAdapterRepository
 from ..calculation.calculators import initialize_calculation_system
 from ..calculation.engine import CalculationEngine
+from sqlalchemy import text
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +26,283 @@ class CalculationService:
         self.repository = StatisticalAggregationRepository(db_session)
         self.data_adapter = DataAdapterRepository(db_session)
         self.engine = initialize_calculation_system()
+        # 维度名称缓存 {batch_code: {subject_name: {dimension_code: dimension_name}}}
+        self._dimension_name_cache = {}
+        # 满分缓存 {batch_code: {subject_name: max_score, dimensions: {dimension_code: max_score}}}
+        self._max_score_cache = {}
+        # 维度统计缓存 {batch_code: {subject_name: dimension_stats}}
+        self._dimension_statistics_cache = {}
+    
+    def _get_dimension_name(self, batch_code: str, subject_name: str, dimension_code: str) -> str:
+        """获取维度中文名称，带缓存机制"""
+        # 检查缓存
+        if (batch_code in self._dimension_name_cache and 
+            subject_name in self._dimension_name_cache[batch_code] and
+            dimension_code in self._dimension_name_cache[batch_code][subject_name]):
+            return self._dimension_name_cache[batch_code][subject_name][dimension_code]
+        
+        # 查询数据库
+        try:
+            dimension_def = self.db_session.query(BatchDimensionDefinition).filter(
+                BatchDimensionDefinition.batch_code == batch_code,
+                BatchDimensionDefinition.subject_name == subject_name,
+                BatchDimensionDefinition.dimension_code == dimension_code
+            ).first()
+            
+            dimension_name = dimension_def.dimension_name if dimension_def else dimension_code
+            
+            # 更新缓存
+            if batch_code not in self._dimension_name_cache:
+                self._dimension_name_cache[batch_code] = {}
+            if subject_name not in self._dimension_name_cache[batch_code]:
+                self._dimension_name_cache[batch_code][subject_name] = {}
+            self._dimension_name_cache[batch_code][subject_name][dimension_code] = dimension_name
+            
+            return dimension_name
+            
+        except Exception as e:
+            logger.warning(f"获取维度名称失败: batch_code={batch_code}, subject_name={subject_name}, dimension_code={dimension_code}, error={e}")
+            return dimension_code
+    
+    def _batch_load_dimension_names(self, batch_code: str, subject_name: str) -> Dict[str, str]:
+        """批量加载维度名称（优化性能）"""
+        try:
+            dimension_defs = self.db_session.query(BatchDimensionDefinition).filter(
+                BatchDimensionDefinition.batch_code == batch_code,
+                BatchDimensionDefinition.subject_name == subject_name
+            ).all()
+            
+            dimension_mapping = {}
+            for def_record in dimension_defs:
+                dimension_mapping[def_record.dimension_code] = def_record.dimension_name
+            
+            # 更新缓存
+            if batch_code not in self._dimension_name_cache:
+                self._dimension_name_cache[batch_code] = {}
+            if subject_name not in self._dimension_name_cache[batch_code]:
+                self._dimension_name_cache[batch_code][subject_name] = {}
+            
+            self._dimension_name_cache[batch_code][subject_name].update(dimension_mapping)
+            
+            return dimension_mapping
+            
+        except Exception as e:
+            logger.warning(f"批量加载维度名称失败: batch_code={batch_code}, subject_name={subject_name}, error={e}")
+            return {}
+    
+    def _get_subject_max_score(self, batch_code: str, subject_name: str) -> float:
+        """????????? subject_question_config??? grade_aggregation_main."""
+        cache = self._max_score_cache.setdefault(batch_code, {})
+        if subject_name in cache:
+            return cache[subject_name]
+
+        try:
+            query = text(
+                """
+                SELECT SUM(max_score) AS total_max_score
+                FROM subject_question_config
+                WHERE batch_code = :batch_code AND subject_name = :subject_name
+                """
+            )
+            row = self.db_session.execute(
+                query,
+                {'batch_code': batch_code, 'subject_name': subject_name},
+            ).fetchone()
+            max_score = float(row[0]) if row and row[0] is not None else None
+
+            if max_score is None:
+                fallback_row = self.db_session.execute(
+                    text(
+                        """
+                        SELECT subjects
+                        FROM grade_aggregation_main
+                        WHERE batch_code = :batch_code
+                        ORDER BY id DESC
+                        LIMIT 1
+                        """
+                    ),
+                    {'batch_code': batch_code},
+                ).fetchone()
+                if fallback_row and fallback_row[0]:
+                    import json as _json
+
+                    payload = fallback_row[0]
+                    subjects_array = _json.loads(payload) if isinstance(payload, str) else (payload or [])
+                    if isinstance(subjects_array, list):
+                        for item in subjects_array:
+                            try:
+                                if isinstance(item, dict):
+                                    name_candidate = (
+                                        item.get('subject_name')
+                                        or item.get('subjectName')
+                                        or item.get('name')
+                                        or item.get('code')
+                                        or item.get('subjectCode')
+                                    )
+                                    if str(name_candidate) == str(subject_name):
+                                        score_candidate = (
+                                            item.get('max_score')
+                                            or item.get('maxScore')
+                                            or item.get('full_score')
+                                            or item.get('fullScore')
+                                            or item.get('total_score')
+                                            or item.get('totalScore')
+                                        )
+                                        if score_candidate is not None:
+                                            max_score = float(score_candidate)
+                                        break
+                                elif isinstance(item, str) and item == subject_name:
+                                    max_score = 100.0
+                                    break
+                            except Exception:
+                                continue
+
+            if max_score is None:
+                max_score = 100.0
+
+            cache[subject_name] = max_score
+            logger.debug("?? %s ??: %s", subject_name, max_score)
+            return max_score
+
+        except Exception as e:
+            logger.warning(
+                "????????: batch_code=%s, subject_name=%s, error=%s", batch_code, subject_name, e
+            )
+            return 100.0
+
+
+    def _get_dimension_max_score(self, batch_code: str, subject_name: str, dimension_code: str) -> float:
+        """获取维度满分，统一从subject_question_config表计算"""
+        # 检查缓存
+        if (batch_code in self._max_score_cache and 
+            'dimensions' in self._max_score_cache[batch_code] and
+            subject_name in self._max_score_cache[batch_code]['dimensions'] and
+            dimension_code in self._max_score_cache[batch_code]['dimensions'][subject_name]):
+            return self._max_score_cache[batch_code]['dimensions'][subject_name][dimension_code]
+        
+        try:
+            # 查询维度满分
+            query = text("""
+                SELECT SUM(sqc.max_score) as dimension_max_score
+                FROM subject_question_config sqc
+                LEFT JOIN question_dimension_mapping qdm ON sqc.question_id = qdm.question_id
+                WHERE sqc.batch_code = :batch_code 
+                    AND sqc.subject_name = :subject_name
+                    AND (qdm.dimension_code = :dimension_code OR sqc.instrument_id = :dimension_code)
+            """)
+            
+            result = self.db_session.execute(query, {
+                'batch_code': batch_code,
+                'subject_name': subject_name,
+                'dimension_code': dimension_code
+            }).fetchone()
+            
+            max_score = float(result[0]) if result and result[0] else 0.0
+            
+            # 如果没有找到维度映射，尝试直接从题目配置获取
+            if max_score == 0.0:
+                query_fallback = text("""
+                    SELECT SUM(max_score) as dimension_max_score
+                    FROM subject_question_config
+                    WHERE batch_code = :batch_code 
+                        AND subject_name = :subject_name
+                        AND (question_id LIKE CONCAT(:dimension_code, '%') OR instrument_id = :dimension_code)
+                """)
+                
+                result_fallback = self.db_session.execute(query_fallback, {
+                    'batch_code': batch_code,
+                    'subject_name': subject_name,
+                    'dimension_code': dimension_code
+                }).fetchone()
+                
+                max_score = float(result_fallback[0]) if result_fallback and result_fallback[0] else 0.0
+            
+            # 更新缓存
+            if batch_code not in self._max_score_cache:
+                self._max_score_cache[batch_code] = {'dimensions': {}}
+            if 'dimensions' not in self._max_score_cache[batch_code]:
+                self._max_score_cache[batch_code]['dimensions'] = {}
+            if subject_name not in self._max_score_cache[batch_code]['dimensions']:
+                self._max_score_cache[batch_code]['dimensions'][subject_name] = {}
+            
+            self._max_score_cache[batch_code]['dimensions'][subject_name][dimension_code] = max_score
+            
+            logger.debug(f"获取维度满分: {subject_name}/{dimension_code} = {max_score}")
+            return max_score
+            
+        except Exception as e:
+            logger.warning(f"获取维度满分失败: batch_code={batch_code}, subject_name={subject_name}, dimension_code={dimension_code}, error={e}")
+            return 0.0  # 维度满分失败时返回0
+    
+
+    def _batch_get_max_scores(self, batch_code: str) -> Dict[str, Any]:
+        """批量获取批次所有满分信息（性能优化）"""
+        try:
+            # 批量获取科目满分
+            subject_query = text("""
+                SELECT subject_name, SUM(max_score) as total_max_score
+                FROM subject_question_config
+                WHERE batch_code = :batch_code
+                GROUP BY subject_name
+                ORDER BY subject_name
+            """)
+            
+            subject_results = self.db_session.execute(subject_query, {'batch_code': batch_code}).fetchall()
+            
+            # 批量获取维度满分
+            dimension_query = text("""
+                SELECT 
+                    sqc.subject_name,
+                    COALESCE(qdm.dimension_code, sqc.instrument_id) as dimension_code,
+                    SUM(sqc.max_score) as dimension_max_score
+                FROM subject_question_config sqc
+                LEFT JOIN question_dimension_mapping qdm ON sqc.question_id = qdm.question_id
+                WHERE sqc.batch_code = :batch_code
+                    AND (qdm.dimension_code IS NOT NULL OR sqc.instrument_id IS NOT NULL)
+                GROUP BY sqc.subject_name, COALESCE(qdm.dimension_code, sqc.instrument_id)
+                ORDER BY sqc.subject_name, dimension_code
+            """)
+            
+            dimension_results = self.db_session.execute(dimension_query, {'batch_code': batch_code}).fetchall()
+            
+            # 构建缓存数据
+            max_scores = {
+                'subjects': {},
+                'dimensions': {}
+            }
+            
+            # 处理科目满分
+            for row in subject_results:
+                subject_name = row.subject_name
+                max_score = float(row.total_max_score) if row.total_max_score else 100.0
+                max_scores['subjects'][subject_name] = max_score
+            
+            # 处理维度满分
+            for row in dimension_results:
+                subject_name = row.subject_name
+                dimension_code = row.dimension_code
+                max_score = float(row.dimension_max_score) if row.dimension_max_score else 0.0
+                
+                if subject_name not in max_scores['dimensions']:
+                    max_scores['dimensions'][subject_name] = {}
+                max_scores['dimensions'][subject_name][dimension_code] = max_score
+            
+            # 更新缓存
+            if batch_code not in self._max_score_cache:
+                self._max_score_cache[batch_code] = {}
+            
+            self._max_score_cache[batch_code].update(max_scores['subjects'])
+            
+            if 'dimensions' not in self._max_score_cache[batch_code]:
+                self._max_score_cache[batch_code]['dimensions'] = {}
+            self._max_score_cache[batch_code]['dimensions'].update(max_scores['dimensions'])
+            
+            logger.info(f"批量获取满分完成: 批次={batch_code}, 科目数={len(max_scores['subjects'])}, 维度数={sum(len(dims) for dims in max_scores['dimensions'].values())}")
+            return max_scores
+            
+        except Exception as e:
+            logger.error(f"批量获取满分失败: batch_code={batch_code}, error={e}")
+            return {'subjects': {}, 'dimensions': {}}
         
     async def calculate_batch_statistics(self, batch_code: str, config: Dict[str, Any] = None, 
                                        progress_callback: callable = None) -> Dict[str, Any]:
@@ -123,145 +402,118 @@ class CalculationService:
         """计算学校级统计数据"""
         logger.info(f"开始计算批次 {batch_code} 学校 {school_id} 的统计数据")
         start_time = time.time()
-        
+
         try:
             # 1. 获取学校学生分数数据
-            data = await self._fetch_school_scores(batch_code, school_id)
-            if data.empty:
-                raise ValueError(f"学校 {school_id} 在批次 {batch_code} 中没有找到学生分数数据")
-            
-            # 2. 获取配置信息
-            calculation_config = config or await self._get_calculation_config(batch_code)
-            
-            # 3. 字段映射 (将total_score重命名为score以匹配计算引擎)
-            if 'total_score' in data.columns:
-                data = data.rename(columns={'total_score': 'score'})
-            
-            # 4. 执行计算（复用区域级计算逻辑）
-            results = {}
-            
-            basic_stats = self.engine.calculate('basic_statistics', data, calculation_config)
-            results['basic_statistics'] = basic_stats
-            
-            educational_metrics = self.engine.calculate('educational_metrics', data, calculation_config)
-            results['educational_metrics'] = educational_metrics
-            
-            percentiles = self.engine.calculate('percentiles', data, calculation_config)
-            results['percentiles'] = percentiles
-            
-            # 区分度（如果学生数足够）
-            if len(data) >= 10:
-                discrimination = self.engine.calculate('discrimination', data, calculation_config)
-                results['discrimination'] = discrimination
-            else:
-                logger.warning(f"学校 {school_id} 学生数不足({len(data)})，跳过区分度计算")
-            
-            # 4. 整合结果为标准JSON格式
-            consolidated_results = {
-                "basic_stats": results.get('basic_statistics', {}),
-                "educational_metrics": results.get('educational_metrics', {}),
-                "percentiles": results.get('percentiles', {}),
-                "grade_distribution": results.get('grade_distribution', {}),
-                "discrimination": results.get('discrimination', {})
-            }
-            
-            # 5. 保存到数据库
+            school_scores = await self._fetch_school_scores(batch_code, school_id)
+            if school_scores.empty:
+                raise ValueError(f"学校 {school_id} 在批次 {batch_code} 中未找到学生分数数据")
+
+            # 2. 将 total_score 映射为 score 以复用批次级统一流程
+            if 'total_score' in school_scores.columns:
+                school_scores = school_scores.rename(columns={'total_score': 'score'})
+
+            # 3. 复用批次级多科目整合逻辑，对单校数据生成增强指标
+            consolidated_results = await self._consolidate_multi_subject_results(
+                batch_code,
+                school_scores,
+                validation_result=None,
+            )
+
+            # 4. 写入数据库
             duration = time.time() - start_time
             school_name = await self._get_school_name(school_id)
-            
+            total_students = int(school_scores['student_id'].nunique()) if 'student_id' in school_scores else len(school_scores)
+
             await self._save_school_statistics(
                 batch_code=batch_code,
                 school_id=school_id,
                 school_name=school_name,
                 statistics_data=consolidated_results,
-                total_students=len(data),
+                total_students=total_students,
                 calculation_duration=duration
             )
-            
-            logger.info(f"学校 {school_id} 统计计算完成，耗时 {duration:.2f}s，处理学生数: {len(data)}")
-            
+
+            logger.info(f"学校 {school_id} 统计计算完成，用时 {duration:.2f}s，处理学生数: {total_students}")
+
             return {
                 'batch_code': batch_code,
                 'school_id': school_id,
                 'school_name': school_name,
                 'statistics': consolidated_results,
                 'calculation_duration': duration,
-                'total_students': len(data)
+                'total_students': total_students
             }
-            
+
         except Exception as e:
             logger.error(f"学校 {school_id} 统计计算失败: {str(e)}")
             raise
-    
-    async def calculate_batch_all_schools(self, batch_code: str, config: Dict[str, Any] = None, 
+
+    async def calculate_batch_all_schools(self, batch_code: str, config: Dict[str, Any] = None,
                                         progress_callback: callable = None) -> Dict[str, Any]:
-        """计算批次所有学校的统计数据"""
-        logger.info(f"开始批量计算批次 {batch_code} 所有学校的统计数据")
+        """?????????????"""
+        logger.info("???????? %s ?????", batch_code)
         start_time = time.time()
-        
+
         try:
-            # 1. 获取批次中所有学校列表
             if progress_callback:
-                progress_callback(0, "正在获取学校列表...")
+                progress_callback(0, "????????...")
             school_ids = await self._get_batch_schools(batch_code)
             if not school_ids:
-                raise ValueError(f"批次 {batch_code} 中没有找到学校数据")
-            
-            logger.info(f"批次 {batch_code} 共找到 {len(school_ids)} 所学校")
-            
-            # 2. 批量计算各学校统计数据
-            results = []
-            successful_count = 0
-            failed_schools = []
-            
-            for i, school_id in enumerate(school_ids):
+                raise ValueError(f"?? {batch_code} ?????????")
+
+            logger.info("?? %s ?? %s ???", batch_code, len(school_ids))
+
+            results: List[Dict[str, Any]] = []
+            successful = 0
+            failed: List[Dict[str, Any]] = []
+
+            for index, school_id in enumerate(school_ids):
                 try:
-                    # 更新进度
-                    progress = int((i / len(school_ids)) * 100)
+                    progress = int((index / len(school_ids)) * 100)
                     if progress_callback:
-                        progress_callback(progress, f"正在计算学校 {school_id} ({i+1}/{len(school_ids)})...")
-                    
+                        progress_callback(progress, f"?????? {school_id} ({index + 1}/{len(school_ids)})...")
+
                     school_result = await self.calculate_school_statistics(batch_code, school_id, config)
                     results.append({
                         'school_id': school_id,
                         'school_name': school_result['school_name'],
                         'total_students': school_result['total_students'],
                         'calculation_duration': school_result['calculation_duration'],
-                        'status': 'success'
+                        'status': 'success',
                     })
-                    successful_count += 1
-                    logger.debug(f"学校 {school_id} 计算成功，学生数: {school_result['total_students']}")
-                    
-                except Exception as e:
-                    logger.error(f"学校 {school_id} 计算失败: {str(e)}")
-                    failed_schools.append({
-                        'school_id': school_id, 
-                        'error': str(e),
-                        'status': 'failed'
-                    })
-            
+                    successful += 1
+                    logger.debug("?? %s ????????: %s", school_id, school_result['total_students'])
+
+                except Exception as exc:
+                    logger.error("?? %s ????: %s", school_id, exc)
+                    failed.append({'school_id': school_id, 'error': str(exc), 'status': 'failed'})
+
             duration = time.time() - start_time
-            
             if progress_callback:
-                progress_callback(100, "所有学校数据计算完成")
-            
-            logger.info(f"批次 {batch_code} 所有学校计算完成，耗时 {duration:.2f}s，"
-                       f"成功: {successful_count}, 失败: {len(failed_schools)}")
-            
+                progress_callback(100, "??????????")
+
+            logger.info(
+                "?? %s ????????? %.2fs??? %s??? %s",
+                batch_code,
+                duration,
+                successful,
+                len(failed),
+            )
+
             return {
                 'batch_code': batch_code,
                 'total_schools': len(school_ids),
-                'successful_schools': successful_count,
-                'failed_schools': len(failed_schools),
+                'successful_schools': successful,
+                'failed_schools': failed,
                 'school_results': results,
-                'failed_details': failed_schools,
-                'total_duration': duration
+                'processing_time': duration,
             }
-            
-        except Exception as e:
-            logger.error(f"批次 {batch_code} 批量学校计算失败: {str(e)}")
+
+        except Exception as exc:
+            logger.exception("??????????: %s", exc)
             raise
-    
+
     async def calculate_statistics(self, batch_code: str, aggregation_level: AggregationLevel,
                                  school_id: Optional[str] = None) -> Dict[str, Any]:
         """计算统计数据
@@ -420,9 +672,9 @@ class CalculationService:
             # 从数据库获取年级信息
             grade_level = self._get_batch_grade_level(batch_code)
             
-            # 构建计算配置
+            # 构建计算配置 - 使用默认值，具体计算时会使用实际满分
             config = {
-                'max_score': 100,  # 默认值，会在具体计算时使用科目的实际满分
+                'max_score': 100,  # 默认值，实际计算时会被替换
                 'grade_level': grade_level,
                 'percentiles': [10, 25, 50, 75, 90],
                 'required_columns': ['score'],
@@ -473,8 +725,8 @@ class CalculationService:
         """获取学校名称"""
         try:
             from sqlalchemy import text
-            query = text("SELECT DISTINCT school_name FROM student_cleaned_scores WHERE school_id = :school_id LIMIT 1")
-            result = self.db_session.execute(query, {'school_id': school_id})
+            query = text("SELECT DISTINCT school_name FROM student_cleaned_scores WHERE school_code = :school_code LIMIT 1")
+            result = self.db_session.execute(query, {'school_code': school_id})
             row = result.fetchone()
             if row:
                 return row[0]
@@ -528,16 +780,17 @@ class CalculationService:
             return 'exam'  # 默认考试类型
     
     async def _consolidate_multi_subject_results(self, batch_code: str, scores_df: pd.DataFrame, 
-                                                validation_result: Dict[str, Any] = None) -> Dict[str, Any]:
+                                                validation_result: Dict[str, Any] = None,
+                                                precomputed_dimension_stats: Dict[str, Dict[str, Any]] = None) -> Dict[str, Any]:
         """整合多科目计算结果"""
         logger.info(f"开始整合批次 {batch_code} 的多科目统计结果")
         
         # 获取科目配置信息
         subjects_config = await self._get_batch_subjects(batch_code)
         if not subjects_config:
-            logger.warning(f"批次 {batch_code} 没有找到科目配置")
-            return {}
-        
+            raise ValueError(f"批次 {batch_code} 缺少科目配置")
+        self._dimension_statistics_cache[batch_code] = {}
+
         consolidated = {
             'academic_subjects': {},
             'non_academic_subjects': {},  # 用于问卷类科目
@@ -550,20 +803,23 @@ class CalculationService:
             }
         }
         
+        # 批量获取所有满分信息（性能优化）
+        batch_max_scores = self._batch_get_max_scores(batch_code)
+        
         # 为每个科目计算统计指标
         for subject_config in subjects_config:
             subject_name = subject_config['subject_name']
-            max_score = subject_config['max_score']
+            # 使用统一的满分计算方法
+            max_score = self._get_subject_max_score(batch_code, subject_name)
             subject_type = self._normalize_subject_type(subject_config)
             
-            logger.debug(f"处理科目: {subject_name} (满分: {max_score}, 类型: {subject_type})")
+            logger.debug(f"处理科目: {subject_name} (满分: {max_score}, 类型: {subject_type}, 来源: subject_question_config)")
             
             # 筛选该科目的数据
             subject_data_df = scores_df[scores_df['subject_name'] == subject_name].copy()
             if subject_data_df.empty:
-                logger.warning(f"科目 {subject_name} 没有找到学生分数数据")
-                continue
-            
+                raise ValueError(f"科目 {subject_name} 在批次 {batch_code} 的清洗数据缺失")
+
             # 清洗表中的数据已经是每个学生每个科目一条记录
             logger.debug(f"清洗数据记录数: {len(subject_data_df)}")
             
@@ -583,9 +839,9 @@ class CalculationService:
             # 从数据库中获取批次的真实年级信息
             grade_level = self._get_batch_grade_level(batch_code)
             
-            # 科目专用配置
+            # 科目专用配置，使用统一计算的满分
             subject_calculation_config = {
-                'max_score': float(max_score),  # 确保是float类型
+                'max_score': float(max_score),  # 使用从 subject_question_config 表计算的满分
                 'grade_level': grade_level,
                 'percentiles': [10, 25, 50, 75, 90],  # 包含用户要求的P10, P50, P90
                 'required_columns': ['score']
@@ -594,9 +850,18 @@ class CalculationService:
             try:
                 # 根据科目类型选择不同的计算策略
                 if subject_type == 'questionnaire':
-                    # 问卷类科目：使用专门的问卷处理逻辑
+                    # 问卷类科目：使用学校/区域上下文数据直接计算，避免不必要的全批次明细扫描
                     basic_stats, educational_metrics, percentiles, discrimination, dimension_statistics = \
-                        await self._calculate_questionnaire_statistics(batch_code, subject_name, max_score, subject_calculation_config)
+                        await self._calculate_questionnaire_statistics(
+                            batch_code, subject_name, max_score, subject_calculation_config,
+                            calculation_df=None,
+                            subject_data_df=subject_data_df
+                        )
+                    # 使用预计算维度统计（若提供）避免重复全表扫描
+                    if precomputed_dimension_stats is not None:
+                        if subject_name not in precomputed_dimension_stats:
+                            raise ValueError(f"预计算维度统计缺少科目: {subject_name}")
+                        dimension_statistics = precomputed_dimension_stats.get(subject_name) or {}
                 else:
                     # 学业科目：使用标准计算流程
                     # 计算各项统计指标
@@ -625,8 +890,22 @@ class CalculationService:
                         discrimination = self.engine.calculate('discrimination', calculation_df, subject_calculation_config)
                         logger.debug(f"科目 {subject_name} 区分度计算完成: {discrimination.get('discrimination_index', 0)}")
                     
-                    # 计算维度统计
-                    dimension_statistics = await self._calculate_subject_dimensions(batch_code, subject_name)
+                    # 维度统计：优先使用预计算缓存，减少重复全表扫描
+                    if precomputed_dimension_stats is not None:
+                        if subject_name not in precomputed_dimension_stats:
+                            raise ValueError(f"预计算维度统计缺少科目: {subject_name}")
+                        dimension_statistics = precomputed_dimension_stats.get(subject_name) or {}
+                    else:
+                        dimension_statistics = await self._calculate_subject_dimensions(
+                            batch_code, subject_name, subject_data_df, subject_type
+                        )
+
+                        if not percentiles:
+                            raise ValueError(f"科目 {subject_name} 百分位统计缺失")
+                        if discrimination is None:
+                            raise ValueError(f"科目 {subject_name} 区分度统计缺失")
+                        if not educational_metrics or not educational_metrics.get('grade_distribution'):
+                            raise ValueError(f"科目 {subject_name} 等级分布统计缺失")
                     logger.debug(f"科目 {subject_name} 维度统计完成: {len(dimension_statistics)} 个维度")
                 
                 # 整合该科目的结果
@@ -634,7 +913,12 @@ class CalculationService:
                     subject_name, max_score, basic_stats, educational_metrics, 
                     percentiles, discrimination, unique_student_count, dimension_statistics
                 )
-                
+
+                if subject_type == 'questionnaire' and not dimension_statistics:
+                    raise ValueError(f"问卷科目 {subject_name} 缺少维度统计数据")
+                cache_for_batch = self._dimension_statistics_cache.setdefault(batch_code, {})
+                cache_for_batch[subject_name] = dimension_statistics or {}
+
                 # 根据科目类型存储到对应的分类中
                 if subject_type == 'questionnaire':
                     consolidated['non_academic_subjects'][subject_name] = subject_result
@@ -644,13 +928,8 @@ class CalculationService:
                     logger.info(f"学业科目 {subject_name} 统计计算完成，学生数: {len(calculation_df)}")
                 
             except Exception as e:
-                logger.error(f"科目 {subject_name} 统计计算失败: {e}")
-                # 创建空的统计结果
-                empty_stats = self._create_empty_subject_stats(subject_name, max_score)
-                if subject_type == 'questionnaire':
-                    consolidated['non_academic_subjects'][subject_name] = empty_stats
-                else:
-                    consolidated['academic_subjects'][subject_name] = empty_stats
+                logger.exception(f"科目 {subject_name} 统计计算失败: {e}")
+                raise ValueError(f"科目 {subject_name} 增强统计失败: {e}") from e
         
         # 验证警告
         if validation_result:
@@ -699,7 +978,7 @@ class CalculationService:
             
             # 判断是否为初中标准（使用A/B/C/D等级）
             if 'a_count' in grade_dist:
-                # 初中标准：A≥85, B70-84, C60-69, D<60
+                # 初中标准：A≥80, B70-79, C60-69, D<60
                 subject_data['grade_distribution'] = {
                     'excellent': {  # A等级对应优秀
                         'count': grade_dist.get('a_count', 0),
@@ -719,7 +998,7 @@ class CalculationService:
                     }
                 }
             else:
-                # 小学标准：优秀≥90, 良好80-89, 及格60-79, 不及格<60
+                # 小学标准：优秀≥85, 良好70-84, 及格60-69, 不及格<60
                 subject_data['grade_distribution'] = {
                     'excellent': {
                         'count': grade_dist.get('excellent_count', 0),
@@ -773,45 +1052,65 @@ class CalculationService:
         
         return subject_data
     
-    def _create_empty_subject_stats(self, subject_name: str, max_score: float) -> Dict[str, Any]:
-        """创建空的科目统计结果"""
-        return {
-            'subject_name': subject_name,
-            'max_score': max_score,
-            'school_stats': {
-                'avg_score': 0,
-                'std_score': 0,
-                'min_score': 0,
-                'max_score_achieved': 0,
-                'student_count': 0,
-                'score_rate': 0
-            },
-            'grade_distribution': {
-                'excellent': {'count': 0, 'percentage': 0},
-                'good': {'count': 0, 'percentage': 0},
-                'pass': {'count': 0, 'percentage': 0},
-                'fail': {'count': 0, 'percentage': 0}
-            },
-            'statistical_indicators': {
-                'difficulty_coefficient': 0,
-                'pass_rate': 0,
-                'excellent_rate': 0,
-                'average_score_rate': 0,
-                'discrimination_index': 0,
-                'discrimination_interpretation': 'unknown'
-            },
-            'percentiles': {
-                'P10': 0, 'P25': 0, 'P50': 0, 'P75': 0, 'P90': 0, 'IQR': 0
-            },
-            'dimensions': {}
-        }
-    
+    def _validate_enhanced_subjects(self, scope: str, subjects: List[Dict[str, Any]]) -> None:
+        """确保增强subjects结构完整，缺失关键字段时直接抛错。"""
+        if not subjects:
+            raise ValueError(f"{scope} subjects 构建结果为空")
+        for subject in subjects:
+            subject_name = subject.get('subject_name')
+            metrics = subject.get('metrics')
+            if not isinstance(metrics, dict) or not metrics:
+                raise ValueError(f"{scope} subjects 缺少metrics: {subject_name}")
+
+            required_metric_keys = ['avg', 'stddev', 'max', 'min', 'subject_full_score', 'student_count', 'score_rate']
+            for key in required_metric_keys:
+                if metrics.get(key) is None:
+                    raise ValueError(f"{scope} subjects 缺少关键指标 {key}: {subject_name}")
+
+            subject_type = (subject.get('type') or 'exam').lower()
+
+            if subject_type != 'questionnaire':
+                for key in ('p10', 'p50', 'p90'):
+                    if metrics.get(key) is None:
+                        raise ValueError(f"{scope} subjects 缺少百分位 {key}: {subject_name}")
+                if metrics.get('discrimination') is None:
+                    raise ValueError(f"{scope} subjects 缺少区分度: {subject_name}")
+                for key in ('difficulty', 'pass_rate', 'excellent_rate', 'good_rate', 'fail_rate'):
+                    if metrics.get(key) is None:
+                        raise ValueError(f"{scope} subjects 缺少 {key}: {subject_name}")
+                if not subject.get('grade_distribution'):
+                    raise ValueError(f"{scope} subjects 缺少等级分布: {subject_name}")
+            else:
+                questions = subject.get('questions')
+                if not isinstance(questions, list) or not questions:
+                    raise ValueError(f"{scope} 问卷subjects缺少题目选项分布: {subject_name}")
+
+            if scope == 'regional':
+                rankings = subject.get('school_rankings')
+                if not isinstance(rankings, list) or not rankings:
+                    raise ValueError(f"区域subjects缺少学校排名: {subject_name}")
+                if subject_type == 'questionnaire':
+                    dims = subject.get('dimensions')
+                    if not isinstance(dims, list) or not dims:
+                        raise ValueError(f"区域问卷subjects缺少维度分布: {subject_name}")
+            if scope == 'school':
+                dims = subject.get('dimensions')
+                if not isinstance(dims, list) or not dims:
+                    raise ValueError(f"学校subjects缺少维度信息: {subject_name}")
+
+
     async def _save_regional_statistics(self, batch_code: str, statistics_data: Dict[str, Any], 
                                       total_students: int, calculation_duration: float):
         """保存区域级统计数据"""
-        # v1.2：计算完成即产出 subjects 结构（忽略旧结构，统一写入 v1.2）
+        # v1.2：计算完成即产出 subjects 结构（传递计算的统计数据）
         builder = SubjectsBuilder()
-        subjects = builder.build_regional_subjects(batch_code)
+        try:
+            subjects = builder.build_regional_subjects_v12(batch_code, enhanced_stats=statistics_data)
+            logger.debug(f"区域级subjects(v1.2)构建完成，包含 {len(subjects)} 个科目")
+        except Exception as e:
+            logger.exception(f"构建区域级subjects v1.2 失败: {e}")
+            raise RuntimeError(f"批次 {batch_code} 区域subjects增强构建失败") from e
+        self._validate_enhanced_subjects('regional', subjects)
         v12_json = {
             'schema_version': 'v1.2',
             'batch_code': batch_code,
@@ -819,15 +1118,23 @@ class CalculationService:
             'subjects': subjects,
         }
         processed = round2_json(v12_json)
+        # 统计 ACTIVE 学校数
+        try:
+            total_schools = self.db_session.execute(text(
+                "SELECT COUNT(*) FROM school_master_data WHERE batch_code=:b AND status='ACTIVE'"
+            ), {"b": batch_code}).scalar() or 0
+        except Exception:
+            total_schools = 0
         aggregation_data = {
             'batch_code': batch_code,
             'aggregation_level': AggregationLevel.REGIONAL,
-            'school_id': None,
-            'school_name': None,
+            'school_id': 'REGIONAL',
+            'school_name': '区域汇总',
             'statistics_data': processed,
+            'data_version': 'v1.2',
             'calculation_status': CalculationStatus.COMPLETED,
             'total_students': total_students,
-            'total_schools': 0,
+            'total_schools': total_schools,
             'calculation_duration': calculation_duration
         }
         result = self.repository.upsert_statistics(aggregation_data)
@@ -837,26 +1144,41 @@ class CalculationService:
                                     statistics_data: Dict[str, Any], total_students: int, 
                                     calculation_duration: float):
         """保存学校级统计数据"""
-        # v1.2：计算完成即产出 subjects 结构
+        # v1.2：计算完成即产出 subjects 结构（传递计算的统计数据）
         builder = SubjectsBuilder()
-        subjects = builder.build_school_subjects(batch_code, school_id)
+        try:
+            subjects = builder.build_school_subjects_v12(batch_code, school_id, enhanced_stats=statistics_data)
+            logger.debug(f"学校 {school_id} subjects(v1.2) 构建完成，包含 {len(subjects)} 个科目")
+        except Exception as e:
+            logger.exception(f"构建学校 {school_id} subjects v1.2 失败: {e}")
+            raise RuntimeError(f"批次 {batch_code} 学校 {school_id} subjects增强构建失败") from e
+        self._validate_enhanced_subjects('school', subjects)
         v12_json = {
             'schema_version': 'v1.2',
             'batch_code': batch_code,
             'aggregation_level': 'SCHOOL',
-            'school_code': school_id,
+            'school_id': school_id,
+            'school_name': school_name,
             'subjects': subjects,
         }
         processed = round2_json(v12_json)
+        # 统计 ACTIVE 学校总数（用于排名口径的一致性）
+        try:
+            total_schools = self.db_session.execute(text(
+                "SELECT COUNT(*) FROM school_master_data WHERE batch_code=:b AND status='ACTIVE'"
+            ), {"b": batch_code}).scalar() or 0
+        except Exception:
+            total_schools = 0
         aggregation_data = {
             'batch_code': batch_code,
             'aggregation_level': AggregationLevel.SCHOOL,
             'school_id': school_id,
             'school_name': school_name,
             'statistics_data': processed,
+            'data_version': 'v1.2',
             'calculation_status': CalculationStatus.COMPLETED,
             'total_students': total_students,
-            'total_schools': 0,
+            'total_schools': total_schools,
             'calculation_duration': calculation_duration
         }
         result = self.repository.upsert_statistics(aggregation_data)
@@ -943,218 +1265,201 @@ class CalculationService:
         logger.debug(f"从清洗数据提取到 {len(dimension_scores)} 个维度 {dimension_code} 分数")
         return dimension_scores
     
-    async def _calculate_subject_dimensions(self, batch_code: str, subject_name: str) -> Dict[str, Dict[str, Any]]:
-        """计算科目的所有维度统计 - 基于数据适配器的JSON维度数据"""
-        logger.debug(f"使用数据适配器计算科目 {subject_name} 的维度统计")
-        
-        try:
-            # 1. 使用数据适配器获取该科目的学生分数数据（包含维度JSON）
-            student_scores = self.data_adapter.get_student_scores(batch_code, subject_type=None, school_id=None)
-            if not student_scores:
-                logger.warning(f"批次 {batch_code} 没有找到学生分数数据")
-                return {}
-            
-            # 2. 筛选该科目的数据
-            subject_scores = [s for s in student_scores if s['subject_name'] == subject_name]
-            if not subject_scores:
-                logger.warning(f"科目 {subject_name} 没有找到学生维度数据")
-                return {}
-            
-            logger.info(f"科目 {subject_name} 找到 {len(subject_scores)} 个学生的维度数据")
-            
-        except Exception as e:
-            logger.error(f"获取科目 {subject_name} 维度数据失败: {e}")
-            return {}
-        
-        # 3. 提取所有维度定义和数据
-        available_dimensions = set()
-        dimension_max_scores_info = {}
-        
-        for student_score in subject_scores:
-            dimensions = student_score.get('dimensions', {})
-            if dimensions:
-                available_dimensions.update(dimensions.keys())
-                
-                # 保存维度满分信息（以第一个有效记录为准）
-                for dim_code, dim_data in dimensions.items():
-                    if dim_code not in dimension_max_scores_info and isinstance(dim_data, dict):
-                        dimension_max_scores_info[dim_code] = {
-                            'name': dim_code,
-                            'max_score': dim_data.get('max_score', 0)
-                        }
-        
-        if not available_dimensions:
-            logger.warning(f"科目 {subject_name} 没有找到任何维度数据")
-            return {}
-        
-        logger.info(f"科目 {subject_name} 发现 {len(available_dimensions)} 个维度: {list(available_dimensions)}")
-        
-        dimension_results = {}
-        
-        # 4. 为每个维度计算统计
-        for dimension_code in available_dimensions:
-            try:
-                # 获取维度信息
-                dimension_max_info = dimension_max_scores_info.get(dimension_code, {})
-                dimension_name = dimension_max_info.get('name', dimension_code)
-                dimension_max_score = float(dimension_max_info.get('max_score', 0))
-                
-                logger.debug(f"处理维度: {dimension_code} - {dimension_name} (满分: {dimension_max_score})")
-                
-                # 提取学生在该维度的分数
-                dimension_scores = []
-                for student_score in subject_scores:
-                    dimensions = student_score.get('dimensions', {})
-                    dim_data = dimensions.get(dimension_code, {})
-                    if isinstance(dim_data, dict) and 'score' in dim_data:
-                        dimension_scores.append(float(dim_data['score']))
-                    else:
-                        dimension_scores.append(0.0)
-                
-                if not dimension_scores or all(score == 0 for score in dimension_scores):
-                    logger.warning(f"维度 {dimension_code} 没有有效分数数据")
-                    continue
-                
-                # 创建DataFrame用于统计计算
-                import pandas as pd
-                dimension_df = pd.DataFrame({'score': dimension_scores})
-                
-                # 维度专用配置
-                grade_level = self._get_batch_grade_level(batch_code)
-                dimension_config = {
-                    'max_score': dimension_max_score,
-                    'grade_level': grade_level,
-                    'percentiles': [10, 25, 50, 75, 90],
-                    'required_columns': ['score']
-                }
-                
-                # 计算基础统计
-                basic_stats = self.engine.calculate('basic_statistics', dimension_df, dimension_config)
-                
-                # 计算教育指标
-                educational_metrics = self.engine.calculate('educational_metrics', dimension_df, dimension_config)
-                
-                # 计算百分位数
-                percentiles = self.engine.calculate('percentiles', dimension_df, dimension_config)
-                
-                # 计算区分度（如果数据量足够）
-                discrimination = None
-                if len(dimension_scores) >= 10:
-                    discrimination = self.engine.calculate('discrimination', dimension_df, dimension_config)
-                
-                # 构建维度统计结果
-                dimension_results[dimension_code] = {
-                    'dimension_code': dimension_code,
-                    'dimension_name': dimension_name,
-                    'max_score': dimension_max_score,
-                    'question_count': 0,  # 清洗后数据不再需要题目计数
-                    'question_ids': [],   # 清洗后数据不再需要题目映射
-                    'basic_stats': {
-                        'avg_score': basic_stats.get('mean', 0),
-                        'std_score': basic_stats.get('std', 0),
-                        'min_score': basic_stats.get('min', 0),
-                        'max_score_achieved': basic_stats.get('max', 0),
-                        'student_count': basic_stats.get('count', 0),
-                        'score_rate': (basic_stats.get('mean', 0) / dimension_max_score) if dimension_max_score > 0 else 0
-                    },
-                    'percentiles': {
-                        'P10': percentiles.get('P10', 0),
-                        'P25': percentiles.get('P25', 0),
-                        'P50': percentiles.get('P50', 0),
-                        'P75': percentiles.get('P75', 0),
-                        'P90': percentiles.get('P90', 0),
-                        'IQR': percentiles.get('IQR', 0)
-                    },
-                    'educational_metrics': {
-                        'difficulty_coefficient': educational_metrics.get('difficulty_coefficient', 0),
-                        'pass_rate': educational_metrics.get('pass_rate', 0),
-                        'excellent_rate': educational_metrics.get('excellent_rate', 0),
-                        'average_score_rate': educational_metrics.get('average_score_rate', 0)
-                    }
-                }
-                
-                # 添加区分度（如果有的话）
-                if discrimination:
-                    dimension_results[dimension_code]['discrimination'] = {
-                        'discrimination_index': discrimination.get('discrimination_index', 0),
-                        'interpretation': discrimination.get('interpretation', 'unknown')
-                    }
-                
-                logger.info(f"维度 {dimension_code} 统计计算完成，学生数: {len(dimension_scores)}")
-                
-            except Exception as e:
-                logger.error(f"维度 {dimension_code} 统计计算失败: {e}")
+    async def _calculate_subject_dimensions(
+        self,
+        batch_code: str,
+        subject_name: str,
+        subject_data_df: 'pd.DataFrame',
+        subject_type: str,
+    ) -> Dict[str, Dict[str, Any]]:
+        """基于清洗阶段已加载的数据计算科目维度统计。"""
+        if subject_data_df.empty:
+            raise ValueError(f"科目 {subject_name} 维度计算缺少学生数据")
+
+        dimension_scores_map: Dict[str, List[float]] = defaultdict(list)
+        dimension_max_scores_info: Dict[str, Dict[str, Any]] = {}
+        dimension_name_mapping = self._batch_load_dimension_names(batch_code, subject_name)
+
+        for _, row in subject_data_df.iterrows():
+            raw_dims = row.get('dimensions')
+            dims: Dict[str, Any] = {}
+            if isinstance(raw_dims, str):
+                raw = raw_dims.strip()
+                if raw:
+                    try:
+                        dims = json.loads(raw)
+                    except Exception:
+                        dims = {}
+            elif isinstance(raw_dims, dict):
+                dims = raw_dims
+            if not isinstance(dims, dict):
                 continue
-        
-        logger.info(f"科目 {subject_name} 维度统计完成，处理了 {len(dimension_results)} 个维度")
+
+            for dim_code, dim_data in dims.items():
+                if not isinstance(dim_data, dict):
+                    continue
+                score_value = dim_data.get('score')
+                if score_value is None:
+                    continue
+                try:
+                    score = float(score_value)
+                except (TypeError, ValueError):
+                    continue
+                dim_code_str = str(dim_code)
+                dimension_scores_map[dim_code_str].append(score)
+                if dim_code_str not in dimension_max_scores_info:
+                    dimension_name = dimension_name_mapping.get(dim_code_str, dim_code_str)
+                    dimension_max_scores_info[dim_code_str] = {
+                        'name': dimension_name,
+                        'max_score': dim_data.get('max_score', 0),
+                    }
+
+        if not dimension_scores_map:
+            raise ValueError(f"科目 {subject_name} 缺少维度JSON数据")
+
+        grade_level = self._get_batch_grade_level(batch_code)
+        dimension_results: Dict[str, Dict[str, Any]] = {}
+
+        for dimension_code, scores in sorted(dimension_scores_map.items()):
+            if not scores or all(s == 0 for s in scores):
+                raise ValueError(f"科目 {subject_name} 的维度 {dimension_code} 缺少有效得分")
+
+            dimension_max_score = self._get_dimension_max_score(batch_code, subject_name, dimension_code)
+            if not dimension_max_score:
+                dimension_max_score = float(dimension_max_scores_info.get(dimension_code, {}).get('max_score', 0))
+            if dimension_max_score <= 0:
+                raise ValueError(f"维度 {dimension_code} 缺少有效满分配置")
+
+            dimension_name = dimension_name_mapping.get(dimension_code, dimension_code)
+            dimension_df = pd.DataFrame({'score': scores})
+            dimension_config = {
+                'max_score': float(dimension_max_score),
+                'grade_level': grade_level,
+                'percentiles': [10, 25, 50, 75, 90],
+                'required_columns': ['score'],
+            }
+
+            basic_stats = self.engine.calculate('basic_statistics', dimension_df, dimension_config)
+            educational_metrics = self.engine.calculate('educational_metrics', dimension_df, dimension_config)
+            percentiles = self.engine.calculate('percentiles', dimension_df, dimension_config)
+            discrimination = None
+            if len(scores) >= 10:
+                discrimination = self.engine.calculate('discrimination', dimension_df, dimension_config)
+
+            if not basic_stats or not educational_metrics or not percentiles:
+                raise ValueError(f"维度 {dimension_code} 统计结果不完整")
+
+            dimension_entry = {
+                'dimension_code': dimension_code,
+                'dimension_name': dimension_name,
+                'max_score': float(dimension_max_score),
+                'question_count': 0,
+                'question_ids': [],
+                'basic_stats': {
+                    'name': dimension_name,
+                    'avg_score': basic_stats.get('mean', 0),
+                    'std_score': basic_stats.get('std', 0),
+                    'min_score': basic_stats.get('min', 0),
+                    'max_score_achieved': basic_stats.get('max', 0),
+                    'student_count': basic_stats.get('count', 0),
+                    'score_rate': (basic_stats.get('mean', 0) / float(dimension_max_score)) if dimension_max_score else 0,
+                },
+                'percentiles': {
+                    'P10': percentiles.get('P10', 0),
+                    'P25': percentiles.get('P25', 0),
+                    'P50': percentiles.get('P50', 0),
+                    'P75': percentiles.get('P75', 0),
+                    'P90': percentiles.get('P90', 0),
+                    'IQR': percentiles.get('IQR', 0),
+                },
+                'educational_metrics': {
+                    'difficulty_coefficient': educational_metrics.get('difficulty_coefficient', 0),
+                    'pass_rate': educational_metrics.get('pass_rate', 0),
+                    'excellent_rate': educational_metrics.get('excellent_rate', 0),
+                    'average_score_rate': educational_metrics.get('average_score_rate', 0),
+                },
+            }
+
+            if discrimination:
+                dimension_entry['discrimination'] = {
+                    'discrimination_index': discrimination.get('discrimination_index', 0),
+                    'interpretation': discrimination.get('interpretation', 'unknown'),
+                }
+
+            dimension_results[dimension_code] = dimension_entry
+
         return dimension_results
-    
     async def _calculate_questionnaire_statistics(self, batch_code: str, subject_name: str, 
-                                                max_score: float, config: Dict[str, Any]) -> tuple:
-        """计算问卷类科目的统计数据 - 使用专用问卷明细表"""
+                                                max_score: float, config: Dict[str, Any],
+                                                calculation_df: 'pd.DataFrame' = None,
+                                                subject_data_df: 'pd.DataFrame' = None,
+                                                school_id: Optional[str] = None) -> tuple:
+        """计算问卷类科目的统计数据
+        - 区域/默认：从问卷明细聚合到学生总分
+        - 学校/已提供calculation_df：直接使用学校数据（每生每科一行的总分），避免全批扫描
+        """
+        import pandas as pd
         logger.info(f"开始计算问卷科目 {subject_name} 的统计数据")
         
         try:
-            # 1. 使用数据适配器获取问卷明细数据
-            questionnaire_details = self.data_adapter.get_questionnaire_details(batch_code, subject_name)
-            if not questionnaire_details:
-                logger.warning(f"问卷科目 {subject_name} 没有找到明细数据")
-                return {}, {}, {}, None, {}
-            
-            logger.info(f"问卷科目 {subject_name} 获取到 {len(questionnaire_details)} 条明细记录")
-            
-            # 2. 转换为计算引擎可用的DataFrame格式
-            df_data = []
-            for detail in questionnaire_details:
-                df_data.append({
-                    'score': detail['original_score'],
-                    'student_id': detail['student_id'],
-                    'school_id': detail['school_id'],
-                    'question_id': detail['question_id'],
-                    'max_score': detail['max_score'],
-                    'scale_level': detail['scale_level'],
-                    'instrument_type': detail['instrument_type']
-                })
-            
-            # 3. 按学生汇总分数（问卷总分）
-            import pandas as pd
-            details_df = pd.DataFrame(df_data)
-            
-            # 按学生ID汇总得到每个学生的问卷总分
-            student_totals = details_df.groupby('student_id')['score'].sum().reset_index()
-            calculation_df = pd.DataFrame({
-                'score': student_totals['score'],
-                'student_id': student_totals['student_id']
-            })
-            
-            logger.info(f"问卷科目 {subject_name} 学生总分范围: [{calculation_df['score'].min():.1f}, {calculation_df['score'].max():.1f}], 平均: {calculation_df['score'].mean():.1f}")
-            
-            # 4. 使用计算引擎进行统计计算
-            basic_stats = self.engine.calculate('basic_statistics', calculation_df, config)
-            educational_metrics = self.engine.calculate('educational_metrics', calculation_df, config)
-            percentiles = self.engine.calculate('percentiles', calculation_df, config)
-            
-            # 区分度（如果数据量足够）
+            if calculation_df is not None:
+                # 学校上下文：直接使用传入数据，避免全批次扫描问卷明细
+                if not isinstance(calculation_df, pd.DataFrame) or calculation_df.empty:
+                    raise ValueError(f"问卷科目 {subject_name} 学校数据为空或格式不符")
+                calc_df = calculation_df[['score', 'student_id']].copy()
+                logger.info(
+                    f"问卷科目 {subject_name} 学校上下文统计: 学生数={len(calc_df)}, "
+                    f"范围=[{calc_df['score'].min():.1f}, {calc_df['score'].max():.1f}], 平均={calc_df['score'].mean():.1f}"
+                )
+                basic_stats = self.engine.calculate('basic_statistics', calc_df, config)
+                educational_metrics = self.engine.calculate('educational_metrics', calc_df, config)
+                percentiles = self.engine.calculate('percentiles', calc_df, config)
+                discrimination = None
+                if len(calc_df) >= 10:
+                    discrimination = self.engine.calculate('discrimination', calc_df, config)
+                # 维度与题目分布：学校级由 SubjectsBuilder 生成，这里不再全批计算
+                dimension_statistics = {}
+                return basic_stats, educational_metrics, percentiles, discrimination, dimension_statistics
+
+            if subject_data_df is None or subject_data_df.empty:
+                raise ValueError(f"问卷科目 {subject_name} 缺少清洗后的维度数据")
+
+            # 区域/默认路径：从清洗后的学生总分聚合
+            calc_df = subject_data_df[['score', 'student_id']].copy()
+            logger.info(
+                f"问卷科目 {subject_name} 区域上下文统计: 学生数={len(calc_df)}, "
+                f"范围=[{calc_df['score'].min():.1f}, {calc_df['score'].max():.1f}], 平均={calc_df['score'].mean():.1f}"
+            )
+
+            basic_stats = self.engine.calculate('basic_statistics', calc_df, config)
+            educational_metrics = self.engine.calculate('educational_metrics', calc_df, config)
+            percentiles = self.engine.calculate('percentiles', calc_df, config)
             discrimination = None
-            if len(calculation_df) >= 10:
-                discrimination = self.engine.calculate('discrimination', calculation_df, config)
-            
-            # 5. 计算问卷维度统计（基于JSON维度数据）
-            dimension_statistics = await self._calculate_subject_dimensions(batch_code, subject_name)
-            
-            # 6. 获取选项分布统计（问卷特有）
+            if len(calc_df) >= 10:
+                discrimination = self.engine.calculate('discrimination', calc_df, config)
+
+            dimension_statistics = await self._calculate_subject_dimensions(
+                batch_code, subject_name, subject_data_df, 'questionnaire'
+            )
+
+            if not percentiles:
+                raise ValueError(f"问卷科目 {subject_name} 百分位统计缺失")
+            if discrimination is None:
+                raise ValueError(f"问卷科目 {subject_name} 区分度统计缺失")
+            if not educational_metrics or not educational_metrics.get('grade_distribution'):
+                raise ValueError(f"问卷科目 {subject_name} 等级分布统计缺失")
+
             option_distributions = self.data_adapter.get_questionnaire_distribution(batch_code, subject_name)
             if option_distributions:
                 logger.info(f"问卷科目 {subject_name} 获取到 {len(option_distributions)} 条选项分布记录")
-                # 将选项分布信息添加到维度统计中
                 dimension_statistics['_option_distributions'] = self._process_option_distributions(option_distributions)
-            
-            logger.info(f"问卷科目 {subject_name} 统计计算完成，学生数: {len(calculation_df)}")
+
+            logger.info(f"问卷科目 {subject_name} 统计计算完成，学生数: {len(calc_df)}")
             return basic_stats, educational_metrics, percentiles, discrimination, dimension_statistics
             
         except Exception as e:
-            logger.error(f"问卷科目 {subject_name} 统计计算失败: {e}")
-            return {}, {}, {}, None, {}
+            logger.exception(f"问卷科目 {subject_name} 统计计算失败: {e}")
+            raise
     
     def _process_option_distributions(self, distributions: List[Dict[str, Any]]) -> Dict[str, Any]:
         """处理问卷选项分布数据"""

@@ -402,7 +402,7 @@ class RegionalStatisticsData(BaseModel):
     radar_chart_data: RegionalRadarChartData = Field(..., description="雷达图数据")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "data_version": "1.0",
                 "schema_version": "2025-09-04",
@@ -433,7 +433,7 @@ class SchoolStatisticsData(BaseModel):
     radar_chart_data: SchoolRadarChartData = Field(..., description="雷达图数据")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "data_version": "1.0",
                 "schema_version": "2025-09-04",
@@ -471,7 +471,7 @@ class RegionalReportResponse(BaseModel):
             raise ValueError('时间格式必须为ISO格式')
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "code": 200,
                 "message": "success",
@@ -500,7 +500,7 @@ class SchoolReportResponse(BaseModel):
             raise ValueError('时间格式必须为ISO格式')
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "code": 200,
                 "message": "success",

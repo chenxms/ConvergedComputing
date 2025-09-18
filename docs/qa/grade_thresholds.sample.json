@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/grade_thresholds.sample.json",
+  "$comment": "示例：等级阈值配置。支持按年级段/科目覆盖。边界策略建议'左闭右开，最高档右闭'。",
+  "version": "1.0",
+  "boundary_policy": {
+    "left_closed_right_open": true,
+    "top_closed": true
+  },
+  "defaults": {
+    "$comment": "默认采用比例阈值（相对于科目满分）",
+    "mode": "ratio",
+    "excellent_min": 0.85,
+    "good_min": 0.70,
+    "pass_min": 0.60
+  },
+  "overrides": [
+    {
+      "$comment": "小学年级（1-6年级）统一阈值",
+      "grade_level": [
+        "1st_grade", "2nd_grade", "3rd_grade",
+        "4th_grade", "5th_grade", "6th_grade"
+      ],
+      "mode": "ratio",
+      "excellent_min": 0.85,
+      "good_min": 0.70,
+      "pass_min": 0.60
+    },
+    {
+      "$comment": "初中年级（7-9年级）统一阈值",
+      "grade_level": ["7th_grade", "8th_grade", "9th_grade"],
+      "mode": "ratio",
+      "excellent_min": 0.80,
+      "good_min": 0.70,
+      "pass_min": 0.60
+    }
+  ],
+  "subject_overrides": [
+    {
+      "$comment": "示例：数学使用绝对分数阈值（满分100则等价于90/80/60）",
+      "subject_name": "数学",
+      "mode": "score",
+      "excellent_min": 90,
+      "good_min": 80,
+      "pass_min": 60
+    }
+  ]
+}
+

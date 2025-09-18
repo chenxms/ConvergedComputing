@@ -1,0 +1,28 @@
+name: QA V12 Validation
+
+on:
+  push:
+    paths:
+      - 'app/**'
+      - 'docs/**'
+      - 'ci/**'
+      - '.github/workflows/qa-v12.yml'
+  pull_request:
+    paths:
+      - 'app/**'
+      - 'docs/**'
+      - 'ci/**'
+      - '.github/workflows/qa-v12.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Run QA v1.2 checks
+        run: |
+          bash ci/run_ci_checks.sh
+

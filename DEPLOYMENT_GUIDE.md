@@ -101,7 +101,7 @@ POOL_RECYCLE=3600              # 连接回收时间(秒)
 # 批处理配置
 BATCH_SIZE=10                   # 批处理大小
 BATCH_TIMEOUT=300              # 批处理超时时间(秒)
-BATCH_CODE=G7-2025             # 默认批次代码
+BATCH_CODE=<BATCH_CODE>             # 默认批次代码
 ```
 
 ### 3. 创建必要目录

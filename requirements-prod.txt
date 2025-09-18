@@ -1,0 +1,36 @@
+# 生产环境核心依赖
+# Web框架
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# 数据库
+sqlalchemy==2.0.23
+pymysql==1.1.0
+cryptography==41.0.7  # PyMySQL SSL支持
+
+# 数据处理
+pandas==2.1.4
+numpy==1.26.2
+scipy==1.11.4  # 统计计算
+
+# API相关
+pydantic==2.5.2
+pydantic-settings==2.1.0
+
+# 异步支持
+aiofiles==23.2.1
+
+# 日志和监控
+python-json-logger==2.0.7
+
+# 缓存
+redis==5.0.1
+hiredis==2.3.2  # Redis C扩展，提升性能
+
+# 工具库
+python-dateutil==2.8.2
+python-dotenv==1.0.0
+
+# 数据库迁移（生产环境也需要）
+alembic==1.13.0

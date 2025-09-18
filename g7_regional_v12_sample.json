@@ -1,0 +1,244 @@
+{
+  "batch_code": "G7-2025",
+  "statistics_data": {
+    "schema_version": "v1.2",
+    "generated_at": "2025-09-18T02:18:32.185326",
+    "data_type": "regional",
+    "subjects": [
+      {
+        "subject_code": "SUBJ_AI交互",
+        "subject_name": "AI交互",
+        "subject_type": "exam",
+        "metrics": {
+          "average_score": 9.175,
+          "score_rate": 39.89,
+          "percentiles": {
+            "p10": 5.5,
+            "p50": 9.18,
+            "p90": 12.85
+          },
+          "discrimination": 0.399,
+          "difficulty_coefficient": 0.399,
+          "student_count": 1137,
+          "max_score": 23.0
+        },
+        "dimensions": [
+          {
+            "dimension_code": "overall",
+            "dimension_name": "总体表现",
+            "ranking": 1,
+            "score": 9.175
+          }
+        ]
+      },
+      {
+        "subject_code": "SUBJ_历史",
+        "subject_name": "历史",
+        "subject_type": "exam",
+        "metrics": {
+          "average_score": 65.017,
+          "score_rate": 65.02,
+          "percentiles": {
+            "p10": 39.01,
+            "p50": 65.02,
+            "p90": 91.02
+          },
+          "discrimination": 0.65,
+          "difficulty_coefficient": 0.65,
+          "student_count": 13159,
+          "max_score": 100.0
+        },
+        "dimensions": [
+          {
+            "dimension_code": "overall",
+            "dimension_name": "总体表现",
+            "ranking": 1,
+            "score": 65.017
+          }
+        ]
+      },
+      {
+        "subject_code": "SUBJ_地理",
+        "subject_name": "地理",
+        "subject_type": "exam",
+        "metrics": {
+          "average_score": 60.6299,
+          "score_rate": 60.63,
+          "percentiles": {
+            "p10": 36.38,
+            "p50": 60.63,
+            "p90": 84.88
+          },
+          "discrimination": 0.606,
+          "difficulty_coefficient": 0.606,
+          "student_count": 13158,
+          "max_score": 100.0
+        },
+        "dimensions": [
+          {
+            "dimension_code": "overall",
+            "dimension_name": "总体表现",
+            "ranking": 1,
+            "score": 60.6299
+          }
+        ]
+      },
+      {
+        "subject_code": "SUBJ_政治",
+        "subject_name": "政治",
+        "subject_type": "exam",
+        "metrics": {
+          "average_score": 70.6152,
+          "score_rate": 70.62,
+          "percentiles": {
+            "p10": 42.37,
+            "p50": 70.62,
+            "p90": 98.86
+          },
+          "discrimination": 0.706,
+          "difficulty_coefficient": 0.706,
+          "student_count": 13161,
+          "max_score": 100.0
+        },
+        "dimensions": [
+          {
+            "dimension_code": "overall",
+            "dimension_name": "总体表现",
+            "ranking": 1,
+            "score": 70.6152
+          }
+        ]
+      },
+      {
+        "subject_code": "SUBJ_数学",
+        "subject_name": "数学",
+        "subject_type": "exam",
+        "metrics": {
+          "average_score": 87.3628,
+          "score_rate": 58.24,
+          "percentiles": {
+            "p10": 52.42,
+            "p50": 87.36,
+            "p90": 122.31
+          },
+          "discrimination": 0.582,
+          "difficulty_coefficient": 0.582,
+          "student_count": 13144,
+          "max_score": 150.0
+        },
+        "dimensions": [
+          {
+            "dimension_code": "overall",
+            "dimension_name": "总体表现",
+            "ranking": 1,
+            "score": 87.3628
+          }
+        ]
+      },
+      {
+        "subject_code": "SUBJ_生物",
+        "subject_name": "生物",
+        "subject_type": "exam",
+        "metrics": {
+          "average_score": 60.6802,
+          "score_rate": 60.68,
+          "percentiles": {
+            "p10": 36.41,
+            "p50": 60.68,
+            "p90": 84.95
+          },
+          "discrimination": 0.607,
+          "difficulty_coefficient": 0.607,
+          "student_count": 13157,
+          "max_score": 100.0
+        },
+        "dimensions": [
+          {
+            "dimension_code": "overall",
+            "dimension_name": "总体表现",
+            "ranking": 1,
+            "score": 60.6802
+          }
+        ]
+      },
+      {
+        "subject_code": "SUBJ_艺术",
+        "subject_name": "艺术",
+        "subject_type": "exam",
+        "metrics": {
+          "average_score": 126.39,
+          "score_rate": 63.19,
+          "percentiles": {
+            "p10": 75.83,
+            "p50": 126.39,
+            "p90": 176.95
+          },
+          "discrimination": 0.632,
+          "difficulty_coefficient": 0.632,
+          "student_count": 1945,
+          "max_score": 200.0
+        },
+        "dimensions": [
+          {
+            "dimension_code": "overall",
+            "dimension_name": "总体表现",
+            "ranking": 1,
+            "score": 126.39
+          }
+        ]
+      },
+      {
+        "subject_code": "SUBJ_英语",
+        "subject_name": "英语",
+        "subject_type": "exam",
+        "metrics": {
+          "average_score": 83.5233,
+          "score_rate": 55.68,
+          "percentiles": {
+            "p10": 50.11,
+            "p50": 83.52,
+            "p90": 116.93
+          },
+          "discrimination": 0.557,
+          "difficulty_coefficient": 0.557,
+          "student_count": 13152,
+          "max_score": 150.0
+        },
+        "dimensions": [
+          {
+            "dimension_code": "overall",
+            "dimension_name": "总体表现",
+            "ranking": 1,
+            "score": 83.5233
+          }
+        ]
+      },
+      {
+        "subject_code": "SUBJ_语文",
+        "subject_name": "语文",
+        "subject_type": "exam",
+        "metrics": {
+          "average_score": 106.457,
+          "score_rate": 70.97,
+          "percentiles": {
+            "p10": 63.87,
+            "p50": 106.46,
+            "p90": 149.04
+          },
+          "discrimination": 0.71,
+          "difficulty_coefficient": 0.71,
+          "student_count": 13154,
+          "max_score": 150.0
+        },
+        "dimensions": [
+          {
+            "dimension_code": "overall",
+            "dimension_name": "总体表现",
+            "ranking": 1,
+            "score": 106.457
+          }
+        ]
+      }
+    ]
+  }
+}

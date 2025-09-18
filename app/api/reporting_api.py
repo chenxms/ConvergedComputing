@@ -11,125 +11,6 @@ from app.database.connection import get_db
 
 router = APIRouter(tags=["报告统计API"])
 
-# 临时测试端点 - 完全独立的G7-2025数据
-@router.get("/test/regional/G7-2025")
-async def get_g7_2025_regional_test():
-    """G7-2025区域报告测试端点 - 完全独立"""
-    mock_data = {
-        "code": 200,
-        "message": "success",
-        "data": {
-            "batch_code": "G7-2025",
-            "statistics": {
-                "batch_info": {
-                    "batch_code": "G7-2025",
-                    "grade_level": "初中",
-                    "total_schools": 25,
-                    "total_students": 8500,
-                    "calculation_time": datetime.utcnow().isoformat()
-                },
-                "academic_subjects": {
-                    "数学": {
-                        "subject_id": "MATH_001",
-                        "subject_type": "考试类",
-                        "total_score": 100,
-                        "regional_stats": {
-                            "avg_score": 78.5,
-                            "score_rate": 0.785,
-                            "difficulty": 0.785,
-                            "discrimination": 0.52,
-                            "std_dev": 14.2,
-                            "max_score": 100,
-                            "min_score": 28
-                        },
-                        "grade_distribution": {
-                            "excellent": {"count": 2125, "percentage": 25.0},
-                            "good": {"count": 2975, "percentage": 35.0},
-                            "pass": {"count": 2550, "percentage": 30.0},
-                            "fail": {"count": 850, "percentage": 10.0}
-                        },
-                        "percentiles": {
-                            "P10": 58, "P25": 72, "P50": 82, "P75": 91, "P90": 96, "IQR": 19
-                        },
-                        "school_rankings": [
-                            {"school_id": "SCH_001", "school_name": "市第一中学", "avg_score": 92.1, "score_rate": 0.921, "ranking": 1},
-                            {"school_id": "SCH_002", "school_name": "实验中学", "avg_score": 88.7, "score_rate": 0.887, "ranking": 2}
-                        ]
-                    }
-                }
-            }
-        },
-        "timestamp": datetime.utcnow().isoformat() + "Z"
-    }
-    return mock_data
-
-@router.get("/test/school/G7-2025/{school_id}")
-async def get_g7_2025_school_test(school_id: str):
-    """G7-2025学校报告测试端点 - 完全独立"""
-    mock_data = {
-        "code": 200,
-        "message": "success",
-        "data": {
-            "batch_code": "G7-2025",
-            "school_id": school_id,
-            "statistics": {
-                "school_info": {
-                    "school_id": school_id,
-                    "school_name": f"测试学校_{school_id}",
-                    "batch_code": "G7-2025",
-                    "grade_level": "初中",
-                    "total_students": 340,
-                    "calculation_time": datetime.utcnow().isoformat()
-                },
-                "academic_subjects": {
-                    "数学": {
-                        "subject_id": "MATH_001",
-                        "subject_type": "考试类",
-                        "total_score": 100,
-                        "school_stats": {
-                            "avg_score": 85.3,
-                            "score_rate": 0.853,
-                            "std_dev": 11.8,
-                            "max_score": 100,
-                            "min_score": 45,
-                            "regional_ranking": 3
-                        }
-                    }
-                }
-            }
-        },
-        "timestamp": datetime.utcnow().isoformat() + "Z"
-    }
-    return mock_data
-
-@router.get("/test/radar-chart/G7-2025")
-async def get_g7_2025_radar_test(school_id: Optional[str] = Query(None)):
-    """G7-2025雷达图测试端点 - 完全独立"""
-    mock_data = {
-        "code": 200,
-        "message": "success",
-        "data": {
-            "batch_code": "G7-2025",
-            "school_id": school_id,
-            "radar_chart_data": {
-                "dimensions": [
-                    {"name": "数学运算", "max": 100, "value": 81},
-                    {"name": "逻辑推理", "max": 100, "value": 77},
-                    {"name": "阅读理解", "max": 100, "value": 76},
-                    {"name": "好奇心", "max": 100, "value": 82}
-                ],
-                "series_data": [
-                    {
-                        "name": school_id if school_id else "G7-2025区域平均",
-                        "data": [81, 77, 76, 82]
-                    }
-                ]
-            }
-        },
-        "timestamp": datetime.utcnow().isoformat() + "Z"
-    }
-    return mock_data
-
 # 新的JSON格式 API
 @router.get("/reports/regional/{batch_code}")
 async def get_regional_report(
@@ -138,96 +19,10 @@ async def get_regional_report(
     validate_output: bool = Query(True, description="是否验证输出格式")
 ):
     """获取区域统计报告（新JSON格式）"""
-    # 直接返回硬编码的G7-2025数据，避免依赖数据库或服务
-    if batch_code == "G7-2025":
-        mock_data = {
-            "code": 200,
-            "message": "success",
-            "data": {
-                "batch_code": "G7-2025",
-                "statistics": {
-                    "batch_info": {
-                        "batch_code": "G7-2025",
-                        "grade_level": "初中",
-                        "total_schools": 25,
-                        "total_students": 8500,
-                        "calculation_time": datetime.utcnow().isoformat()
-                    },
-                    "academic_subjects": {
-                        "数学": {
-                            "subject_id": "MATH_001",
-                            "subject_type": "考试类",
-                            "total_score": 100,
-                            "regional_stats": {
-                                "avg_score": 78.5,
-                                "score_rate": 0.785,
-                                "difficulty": 0.785,
-                                "discrimination": 0.52,
-                                "std_dev": 14.2,
-                                "max_score": 100,
-                                "min_score": 28
-                            },
-                            "grade_distribution": {
-                                "excellent": {"count": 2125, "percentage": 25.0},
-                                "good": {"count": 2975, "percentage": 35.0},
-                                "pass": {"count": 2550, "percentage": 30.0},
-                                "fail": {"count": 850, "percentage": 10.0}
-                            },
-                            "percentiles": {
-                                "P10": 58, "P25": 72, "P50": 82, "P75": 91, "P90": 96, "IQR": 19
-                            },
-                            "school_rankings": [
-                                {"school_id": "SCH_001", "school_name": "市第一中学", "avg_score": 92.1, "score_rate": 0.921, "ranking": 1},
-                                {"school_id": "SCH_002", "school_name": "实验中学", "avg_score": 88.7, "score_rate": 0.887, "ranking": 2}
-                            ]
-                        },
-                        "语文": {
-                            "subject_id": "CHINESE_001",
-                            "subject_type": "考试类",
-                            "total_score": 120,
-                            "regional_stats": {
-                                "avg_score": 89.7,
-                                "score_rate": 0.748,
-                                "difficulty": 0.748,
-                                "discrimination": 0.48,
-                                "std_dev": 16.8,
-                                "max_score": 120,
-                                "min_score": 35
-                            },
-                            "grade_distribution": {
-                                "excellent": {"count": 2040, "percentage": 24.0},
-                                "good": {"count": 3230, "percentage": 38.0},
-                                "pass": {"count": 2550, "percentage": 30.0},
-                                "fail": {"count": 680, "percentage": 8.0}
-                            }
-                        }
-                    },
-                    "non_academic_subjects": {
-                        "创新思维": {
-                            "subject_id": "INNOVATION_001",
-                            "subject_type": "问卷类",
-                            "total_schools_participated": 23,
-                            "total_students_participated": 7980,
-                            "dimensions": {
-                                "好奇心": {
-                                    "dimension_id": "CURIOSITY",
-                                    "dimension_name": "好奇心",
-                                    "total_score": 25,
-                                    "avg_score": 20.5,
-                                    "score_rate": 0.82,
-                                    "question_analysis": []
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "timestamp": datetime.utcnow().isoformat() + "Z"
-        }
-        return mock_data
-    
-    # 其他批次返回通用错误
-    return {"detail": f"批次 {batch_code} 数据暂未准备，请使用 G7-2025"}
+    raise HTTPException(
+        status_code=503,
+        detail=f"批次 {batch_code} 的区域报告暂未上线，当前环境已禁用在线重建",
+    )
 
 # 兼容旧API - 临时禁用
 @router.get("/regions/{region_id}/report", response_model=RegionReportResponse)
@@ -253,66 +48,10 @@ async def get_school_report_json(
     validate_output: bool = Query(True, description="是否验证输出格式")
 ):
     """获取学校统计报告（新JSON格式）"""
-    # 直接为G7-2025批次返回硬编码数据
-    if batch_code == "G7-2025":
-        mock_data = {
-            "code": 200,
-            "message": "success",
-            "data": {
-                "batch_code": "G7-2025",
-                "school_id": school_id,
-                "statistics": {
-                    "school_info": {
-                        "school_id": school_id,
-                        "school_name": f"测试学校_{school_id}",
-                        "batch_code": "G7-2025",
-                        "grade_level": "初中",
-                        "total_students": 340,
-                        "calculation_time": datetime.utcnow().isoformat()
-                    },
-                    "academic_subjects": {
-                        "数学": {
-                            "subject_id": "MATH_001",
-                            "subject_type": "考试类",
-                            "total_score": 100,
-                            "school_stats": {
-                                "avg_score": 85.3,
-                                "score_rate": 0.853,
-                                "std_dev": 11.8,
-                                "max_score": 100,
-                                "min_score": 45,
-                                "regional_ranking": 3
-                            }
-                        },
-                        "语文": {
-                            "subject_id": "CHINESE_001",
-                            "subject_type": "考试类",
-                            "total_score": 120,
-                            "school_stats": {
-                                "avg_score": 97.5,
-                                "score_rate": 0.813,
-                                "std_dev": 14.2,
-                                "max_score": 120,
-                                "min_score": 52,
-                                "regional_ranking": 3
-                            }
-                        }
-                    },
-                    "non_academic_subjects": {
-                        "创新思维": {
-                            "subject_id": "INNOVATION_001",
-                            "subject_type": "问卷类",
-                            "participated_students": 325
-                        }
-                    }
-                }
-            },
-            "timestamp": datetime.utcnow().isoformat() + "Z"
-        }
-        return mock_data
-    
-    # 其他批次返回通用错误
-    return {"detail": f"批次 {batch_code} 数据暂未准备，请使用 G7-2025"}
+    raise HTTPException(
+        status_code=503,
+        detail=f"批次 {batch_code} 的学校报告暂未上线，当前环境已禁用在线重建",
+    )
 
 # 兼容旧API - 临时禁用
 @router.get("/schools/{school_id}/report", response_model=SchoolReportResponse)
@@ -335,35 +74,10 @@ async def get_radar_chart_data(
     school_id: Optional[str] = Query(None, description="学校ID，不指定则返回区域级数据")
 ):
     """获取雷达图专用数据"""
-    # 针对G7-2025的特定雷达图数据
-    if batch_code == "G7-2025":
-        mock_data = {
-            "code": 200,
-            "message": "success",
-            "data": {
-                "batch_code": "G7-2025",
-                "school_id": school_id,
-                "radar_chart_data": {
-                    "dimensions": [
-                        {"name": "数学运算", "max": 100, "value": 81},
-                        {"name": "逻辑推理", "max": 100, "value": 77},
-                        {"name": "阅读理解", "max": 100, "value": 76},
-                        {"name": "好奇心", "max": 100, "value": 82}
-                    ],
-                    "series_data": [
-                        {
-                            "name": school_id if school_id else "G7-2025区域平均",
-                            "data": [81, 77, 76, 82]
-                        }
-                    ]
-                }
-            },
-            "timestamp": datetime.utcnow().isoformat() + "Z"
-        }
-        return mock_data
-    
-    # 其他批次返回通用错误
-    return {"detail": f"批次 {batch_code} 雷达图数据暂未准备，请使用 G7-2025"}
+    raise HTTPException(
+        status_code=503,
+        detail=f"批次 {batch_code} 的雷达图数据暂未上线，当前环境已禁用在线重建",
+    )
 
 # 新增批次所有学校数据API
 @router.get("/reports/batch/{batch_code}/all-schools")
@@ -443,19 +157,10 @@ async def validate_json_data(
 async def list_batches():
     """获取批次列表（兼容接口）"""
     try:
-        # 临时返回G7-2025批次信息
         return {
             "code": 200,
             "message": "success",
-            "data": [
-                {
-                    "batch_code": "G7-2025",
-                    "batch_name": "2025年七年级学业质量监测",
-                    "grade_level": "初中",
-                    "status": "completed",
-                    "created_time": "2025-09-01T00:00:00Z"
-                }
-            ],
+            "data": [],
             "timestamp": datetime.utcnow().isoformat() + "Z"
         }
     except Exception as e:

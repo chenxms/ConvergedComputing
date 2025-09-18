@@ -16,6 +16,8 @@ def clean_questionnaire_batch(batch_code: str):
     print(f"=== 清洗批次 {batch_code} 问卷数据 ===")
     print(f"开始时间: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("="*60)
+    exclude_zero = str(os.getenv("EXCLUDE_ZERO_TOTAL_SCORE", "1")).strip().lower() in ("1", "true", "yes", "on")
+    print(f"零分剔除规则: {'开启' if exclude_zero else '关闭'}")
     
     # 创建数据库连接
     DATABASE_URL = "mysql+pymysql://root:mysql_Lujing2022@117.72.14.166:23506/appraisal_test?charset=utf8mb4"
@@ -213,6 +215,12 @@ def clean_questionnaire_batch(batch_code: str):
                         
                         # 计算平均分并插入汇总记录
                         avg_score = student_total_score / student_question_count if student_question_count > 0 else 0
+                        if exclude_zero and avg_score <= 0:
+                            # 按需剔除0分记录
+                            session.commit()
+                            student_count += 1 if questionnaire_records else 0
+                            total_processed += len(questionnaire_records)
+                            continue
                         
                         summary_record = {
                             'student_id': str(student_id),

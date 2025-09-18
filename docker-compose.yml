@@ -1,7 +1,5 @@
-version: '3.8'
-
 services:
-  # 主应用服务
+  # 涓诲簲鐢ㄦ湇鍔?
   app:
     build:
       context: .
@@ -12,33 +10,42 @@ services:
       - "8010:8000"
     command: ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
     environment:
-      # 数据库配置
+      # 鏁版嵁搴撻厤缃?
       DATABASE_URL: ${DATABASE_URL:-mysql+pymysql://root:mysql_Lujing2022@117.72.14.166:23506/appraisal_test?charset=utf8mb4}
       
-      # 应用配置
+      # 搴旂敤閰嶇疆
       PYTHONPATH: /app
       APP_ENV: ${APP_ENV:-production}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       
-      # 性能配置
+      # 鎬ц兘閰嶇疆
       WORKERS: ${WORKERS:-4}
       MAX_CONNECTIONS: ${MAX_CONNECTIONS:-100}
       POOL_SIZE: ${POOL_SIZE:-20}
       POOL_RECYCLE: ${POOL_RECYCLE:-3600}
       
-      # 批处理配置
+      # 鎵瑰鐞嗛厤缃?
       BATCH_SIZE: ${BATCH_SIZE:-10}
       BATCH_TIMEOUT: ${BATCH_TIMEOUT:-300}
-      
+      # 鍐欏叆闃绘柇锛氬凡瑙ｉ櫎瀵?G7-2025 鐨勫啓鍏ラ檺鍒?
+      DISABLE_WRITES_FOR_BATCHES: ${DISABLE_WRITES_FOR_BATCHES:-}
+
+      # Redis缓存配置
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+
     volumes:
-      # 日志目录
+      # 鏃ュ織鐩綍
       - ./logs:/app/logs
-      # 临时文件目录
+      # 涓存椂鏂囦欢鐩綍
       - ./temp:/app/temp
-      # 文档目录（只读）
+      # 鏂囨。鐩綍锛堝彧璇伙級
       - ./docs:/app/docs:ro
-      # 验证报告输出
+      # 楠岃瘉鎶ュ憡杈撳嚭
       - ./reports:/app/reports
+      # 测试目录（只读）
+      - ./tests:/app/tests:ro
       
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -50,7 +57,7 @@ services:
     networks:
       - converged-network
     
-    # 资源限制
+    # 璧勬簮闄愬埗
     deploy:
       resources:
         limits:
@@ -67,9 +74,17 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL:-mysql+pymysql://root:mysql_Lujing2022@117.72.14.166:23506/appraisal_test?charset=utf8mb4}
       PYTHONPATH: /app
+      # 涓庝富搴旂敤淇濇寔涓€鑷寸殑鍐欏叆闃绘柇绛栫暐锛堝凡瑙ｉ櫎G7-2025闄愬埗锛?
+      DISABLE_WRITES_FOR_BATCHES: ${DISABLE_WRITES_FOR_BATCHES:-}
+      # Redis缓存配置
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: 0
     command: ["python", "-m", "uvicorn", "app.subjects_api_main:app", "--host", "0.0.0.0", "--port", "8001", "--workers", "2"]
     ports:
       - "8011:8001"
+    volumes:
+      - ./app:/app/app:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
       interval: 30s
@@ -79,19 +94,22 @@ services:
     networks:
       - converged-network
 
-  # 批处理任务执行器
+  # 鎵瑰鐞嗕换鍔℃墽琛屽櫒
   batch-processor:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: converged-batch-processor
-    restart: unless-stopped
+    # 淇锛氶伩鍏嶆垚鍔熼€€鍑哄悗琚獶ocker瀹堟姢杩涚▼鍙嶅鎷夎捣锛屽鑷撮噸澶嶆眹鑱?
+    restart: "no"
     environment:
       DATABASE_URL: ${DATABASE_URL:-mysql+pymysql://root:mysql_Lujing2022@117.72.14.166:23506/appraisal_test?charset=utf8mb4}
       PYTHONPATH: /app
       BATCH_MODE: "true"
-    # 通过环境变量 BATCH_CODE 控制物化批次，默认G7-2025
-    command: ["python", "scripts/rewrite_subjects_v12.py", "${BATCH_CODE:-G7-2025}"]
+      # 鎵瑰鐞嗗啓鍏ユ帶鍒讹紙宸茶В闄7-2025闄愬埗锛?
+      DISABLE_WRITES_FOR_BATCHES: ${DISABLE_WRITES_FOR_BATCHES:-}
+    # 閫氳繃鐜鍙橀噺 BATCH_CODE 鎺у埗鐗╁寲鎵规锛岄粯璁7-2025
+    command: ["python", "scripts/batch_processor_entrypoint.py"]
     volumes:
       - ./logs:/app/logs
       - ./reports:/app/reports
@@ -102,7 +120,7 @@ services:
     profiles:
       - batch
 
-  # 数据验证服务
+  # 鏁版嵁楠岃瘉鏈嶅姟
   validator:
     build:
       context: .
@@ -122,7 +140,7 @@ services:
     profiles:
       - validation
 
-  # Redis缓存服务（可选）
+  # Redis缂撳瓨鏈嶅姟锛堝彲閫夛級
   redis:
     image: redis:7-alpine
     container_name: converged-redis
@@ -137,7 +155,7 @@ services:
     profiles:
       - cache
 
-  # Nginx反向代理（可选）
+  # Nginx鍙嶅悜浠ｇ悊锛堝彲閫夛級
   nginx:
     image: nginx:alpine
     container_name: converged-nginx

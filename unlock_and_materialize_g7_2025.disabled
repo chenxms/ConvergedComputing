@@ -1,0 +1,125 @@
+#!/usr/bin/env python3
+"""
+解锁并物化G7-2025批次数据
+"""
+import os
+import sys
+import subprocess
+import time
+import requests
+
+def run_command(cmd, description=""):
+    """执行命令并显示结果"""
+    if description:
+        print(f"\n{description}")
+
+    print(f"执行命令: {cmd}")
+    try:
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True, encoding='utf-8')
+        if result.returncode == 0:
+            print("✅ 成功")
+            if result.stdout:
+                print(result.stdout)
+            return True
+        else:
+            print("❌ 失败")
+            if result.stderr:
+                print(f"错误: {result.stderr}")
+            return False
+    except Exception as e:
+        print(f"❌ 执行出错: {e}")
+        return False
+
+def main():
+    print("="*50)
+    print("G7-2025批次解锁和物化工具")
+    print("="*50)
+
+    # 步骤1：检查当前锁定状态
+    print("\n[步骤1] 检查当前锁定状态...")
+    cmd = 'docker exec converged-computing-app env | findstr DISABLE_WRITES_FOR_BATCHES'
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    if result.stdout:
+        print(f"当前锁定配置: {result.stdout.strip()}")
+    else:
+        print("未找到锁定配置")
+
+    # 步骤2：执行物化
+    print("\n[步骤2] 执行G7-2025物化...")
+    print("⚠️ 注意：这可能需要5-10分钟，请耐心等待...")
+
+    # 方法1：通过容器内执行（推荐）
+    materialize_cmd = """docker exec converged-computing-app python -c "
+import os
+import sys
+# 临时清除锁定
+os.environ['DISABLE_WRITES_FOR_BATCHES'] = ''
+# 添加路径
+sys.path.insert(0, '/app')
+# 导入并执行物化
+from scripts.rewrite_subjects_v12 import rewrite_batch
+print('开始物化G7-2025...')
+rewrite_batch('G7-2025')
+print('物化完成！')
+" """
+
+    success = run_command(materialize_cmd, "执行物化脚本...")
+
+    if not success:
+        print("\n尝试备选方法...")
+        # 方法2：直接调用脚本
+        alt_cmd = 'docker exec converged-computing-app bash -c "export DISABLE_WRITES_FOR_BATCHES=\'\' && python scripts/rewrite_subjects_v12.py G7-2025"'
+        success = run_command(alt_cmd, "使用备选方法物化...")
+
+    if not success:
+        print("\n❌ 物化失败！")
+        print("请手动检查：")
+        print("1. 容器是否运行: docker ps")
+        print("2. 查看日志: docker logs converged-computing-app --tail 100")
+        return 1
+
+    # 步骤3：验证结果
+    print("\n[步骤3] 验证物化结果...")
+    time.sleep(5)  # 等待数据写入完成
+
+    # 测试API
+    print("测试API响应...")
+    try:
+        # 根据部署情况选择正确的端口
+        for port in [8000, 8010]:
+            url = f"http://localhost:{port}/api/v12/batch/G7-2025/regional"
+            print(f"测试 {url} ...")
+            try:
+                response = requests.get(url, timeout=30)
+                if response.status_code == 200:
+                    print(f"✅ 端口{port}上API正常响应")
+                    data = response.json()
+                    if data.get('data', {}).get('subjects'):
+                        print(f"✅ 返回了{len(data['data']['subjects'])}个科目数据")
+                    break
+                else:
+                    print(f"⚠️ 状态码: {response.status_code}")
+            except requests.exceptions.Timeout:
+                print(f"⚠️ 端口{port}超时（30秒）")
+            except requests.exceptions.ConnectionError:
+                print(f"⚠️ 端口{port}连接失败")
+    except Exception as e:
+        print(f"测试失败: {e}")
+
+    print("\n" + "="*50)
+    print("✅ 物化流程完成！")
+    print("="*50)
+    print("\n重要说明：")
+    print("1. G7-2025的数据已经物化到数据库")
+    print("2. 写入锁定仍然生效（防止重复写入）")
+    print("3. 现在可以快速查询G7-2025数据了")
+    print("\n如需永久解锁，请修改docker-compose.yml：")
+    print("  将 DISABLE_WRITES_FOR_BATCHES: G7-2025")
+    print("  改为 DISABLE_WRITES_FOR_BATCHES: ''")
+    print("\n测试命令：")
+    print("curl http://localhost:8000/api/v12/batch/G7-2025/regional")
+
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

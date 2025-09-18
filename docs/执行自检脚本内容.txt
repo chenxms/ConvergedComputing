@@ -1,0 +1,2796 @@
+root@lavm-3jtwzoa9jr:~/scripts# python3 self_check_backend.py --base http://127.0.0.1:8000 --batch G4-2025
+== 后端自检开始 ==
+Base: http://127.0.0.1:8000  Batch: G4-2025  Timeout: 12s
+[health] PASS -> http://127.0.0.1:8000/health
+[docs]   PASS -> http://127.0.0.1:8000/docs
+[v12/regional] PASS (usable=OK) -> http://127.0.0.1:8000/api/v12/batch/G4-2025/regional
+[database] FAIL
+== 检查总结 ==
+Overall: FAIL
+Failed items: database
+root@lavm-3jtwzoa9jr:~/scripts# python3 self_check_backend.py --base http://127.0.0.1:8000 --batch G4-2025 --school 5044
+== 后端自检开始 ==
+Base: http://127.0.0.1:8000  Batch: G4-2025  Timeout: 12s
+[health] PASS -> http://127.0.0.1:8000/health
+[docs]   PASS -> http://127.0.0.1:8000/docs
+[v12/regional] PASS (usable=OK) -> http://127.0.0.1:8000/api/v12/batch/G4-2025/regional
+[v12/school]   PASS (usable=OK) -> http://127.0.0.1:8000/api/v12/batch/G4-2025/school/5044
+[database] FAIL
+== 检查总结 ==
+Overall: FAIL
+Failed items: database
+root@lavm-3jtwzoa9jr:~/scripts# python3 self_check_backend.py --base http://127.0.0.1:8000 --batch G4-2025 --json
+== 后端自检开始 ==
+Base: http://127.0.0.1:8000  Batch: G4-2025  Timeout: 12s
+[health] PASS -> http://127.0.0.1:8000/health
+[docs]   PASS -> http://127.0.0.1:8000/docs
+[v12/regional] PASS (usable=OK) -> http://127.0.0.1:8000/api/v12/batch/G4-2025/regional
+[database] FAIL
+{
+  "summary": {
+    "passed": false,
+    "failed_items": [
+      "database"
+    ]
+  },
+  "results": {
+    "health": {
+      "item": "health",
+      "url": "http://127.0.0.1:8000/health",
+      "passed": true,
+      "detail": {
+        "ok": true,
+        "status": 200,
+        "data": {
+          "status": "healthy"
+        },
+        "headers": {
+          "date": "Sun, 14 Sep 2025 02:10:37 GMT",
+          "server": "uvicorn",
+          "content-length": "20",
+          "content-type": "application/json",
+          "connection": "close"
+        }
+      }
+    },
+    "docs": {
+      "item": "docs",
+      "url": "http://127.0.0.1:8000/docs",
+      "passed": true,
+      "detail": {
+        "ok": true,
+        "status": 200,
+        "data": "\n    <!DOCTYPE html>\n    <html>\n    <head>\n    <link type=\"text/css\" rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.9.0/swagger-ui.css\">\n    <link rel=\"shortcut icon\" href=\"https://fastapi.tiangolo.com/img/favicon.png\">\n    <title>学业发展质量监测统计分析服务 - Swagger UI</title>\n    </head>\n    <body>\n    <div id=\"swagger-ui\">\n    </div>\n    <script src=\"https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.9.0/swagger-ui-bundle.js\"></script>\n    <!-- `SwaggerUIBundle` is now available on the page -->\n    <script>\n    const ui = SwaggerUIBundle({\n        url: '/openapi.json',\n    \"dom_id\": \"#swagger-ui\",\n\"layout\": \"BaseLayout\",\n\"deepLinking\": true,\n\"showExtensions\": true,\n\"showCommonExtensions\": true,\noauth2RedirectUrl: window.location.origin + '/docs/oauth2-redirect',\n    presets: [\n        SwaggerUIBundle.presets.apis,\n        SwaggerUIBundle.SwaggerUIStandalonePreset\n        ],\n    })\n    </script>\n    </body>\n    </html>\n    ",
+        "headers": {
+          "date": "Sun, 14 Sep 2025 02:10:37 GMT",
+          "server": "uvicorn",
+          "content-length": "974",
+          "content-type": "text/html; charset=utf-8",
+          "connection": "close"
+        }
+      }
+    },
+    "v12_regional": {
+      "item": "v12_regional",
+      "url": "http://127.0.0.1:8000/api/v12/batch/G4-2025/regional",
+      "passed": true,
+      "usable": true,
+      "detail": {
+        "ok": true,
+        "status": 200,
+        "data": {
+          "success": true,
+          "message": "v1.2 区域级 subjects 已生成 G4-2025",
+          "data": {
+            "subjects": [
+              {
+                "type": "exam",
+                "metrics": {
+                  "avg": 11.9,
+                  "max": 20.0,
+                  "min": 1.0,
+                  "stddev": 4.09,
+                  "difficulty": 0.6,
+                  "subject_full_score": 20.0
+                },
+                "subject_name": "AI交互",
+                "school_rankings": [
+                  {
+                    "avg": 15.04,
+                    "rank": 1.0,
+                    "school_id": "5096",
+                    "school_name": "旃檀东区"
+                  },
+                  {
+                    "avg": 14.71,
+                    "rank": 2.0,
+                    "school_id": "5044",
+                    "school_name": "芭德"
+                  },
+                  {
+                    "avg": 14.64,
+                    "rank": 3.0,
+                    "school_id": "5092",
+                    "school_name": "一实"
+                  },
+                  {
+                    "avg": 14.04,
+                    "rank": 4.0,
+                    "school_id": "5097",
+                    "school_name": "正德"
+                  },
+                  {
+                    "avg": 13.97,
+                    "rank": 5.0,
+                    "school_id": "5090",
+                    "school_name": "兴乐路"
+                  },
+                  {
+                    "avg": 13.75,
+                    "rank": 6.0,
+                    "school_id": "5095",
+                    "school_name": "悦动新城"
+                  },
+                  {
+                    "avg": 13.61,
+                    "rank": 7.0,
+                    "school_id": "5068",
+                    "school_name": "南丰"
+                  },
+                  {
+                    "avg": 13.57,
+                    "rank": 8.0,
+                    "school_id": "5076",
+                    "school_name": "市教科附"
+                  },
+                  {
+                    "avg": 13.56,
+                    "rank": 9.0,
+                    "school_id": "5079",
+                    "school_name": "天元"
+                  },
+                  {
+                    "avg": 13.54,
+                    "rank": 10.0,
+                    "school_id": "5051",
+                    "school_name": "繁江"
+                  },
+                  {
+                    "avg": 13.41,
+                    "rank": 11.0,
+                    "school_id": "5083",
+                    "school_name": "西街新城"
+                  },
+                  {
+                    "avg": 13.33,
+                    "rank": 12.0,
+                    "school_id": "5045",
+                    "school_name": "柏水"
+                  },
+                  {
+                    "avg": 13.12,
+                    "rank": 13.0,
+                    "school_id": "5081",
+                    "school_name": "五龙山"
+                  },
+                  {
+                    "avg": 13.09,
+                    "rank": 14.0,
+                    "school_id": "5048",
+                    "school_name": "大丰"
+                  },
+                  {
+                    "avg": 13.08,
+                    "rank": 15.0,
+                    "school_id": "5078",
+                    "school_name": "泰兴本部"
+                  },
+                  {
+                    "avg": 12.95,
+                    "rank": 16.0,
+                    "school_id": "5057",
+                    "school_name": "锦门本"
+                  },
+                  {
+                    "avg": 12.93,
+                    "rank": 17.0,
+                    "school_id": "5075",
+                    "school_name": "石犀"
+                  },
+                  {
+                    "avg": 12.92,
+                    "rank": 18.0,
+                    "school_id": "5094",
+                    "school_name": "谕亭本部"
+                  },
+                  {
+                    "avg": 12.88,
+                    "rank": 19.0,
+                    "school_id": "5047",
+                    "school_name": "北星"
+                  },
+                  {
+                    "avg": 12.77,
+                    "rank": 20.0,
+                    "school_id": "5058",
+                    "school_name": "军屯"
+                  },
+                  {
+                    "avg": 12.72,
+                    "rank": 21.0,
+                    "school_id": "5046",
+                    "school_name": "斑竹园"
+                  },
+                  {
+                    "avg": 12.53,
+                    "rank": 22.0,
+                    "school_id": "5077",
+                    "school_name": "蜀龙"
+                  },
+                  {
+                    "avg": 12.53,
+                    "rank": 23.0,
+                    "school_id": "5084",
+                    "school_name": "香城"
+                  },
+                  {
+                    "avg": 12.45,
+                    "rank": 24.0,
+                    "school_id": "5089",
+                    "school_name": "新新路"
+                  },
+                  {
+                    "avg": 12.4,
+                    "rank": 25.0,
+                    "school_id": "5085",
+                    "school_name": "新川"
+                  },
+                  {
+                    "avg": 12.36,
+                    "rank": 26.0,
+                    "school_id": "5072",
+                    "school_name": "三河"
+                  },
+                  {
+                    "avg": 12.34,
+                    "rank": 27.0,
+                    "school_id": "5087",
+                    "school_name": "新徽弘儒"
+                  },
+                  {
+                    "avg": 12.28,
+                    "rank": 28.0,
+                    "school_id": "5071",
+                    "school_name": "区教科附东"
+                  },
+                  {
+                    "avg": 12.27,
+                    "rank": 29.0,
+                    "school_id": "5056",
+                    "school_name": "汉城"
+                  },
+                  {
+                    "avg": 12.24,
+                    "rank": 30.0,
+                    "school_id": "5099",
+                    "school_name": "竹友"
+                  },
+                  {
+                    "avg": 11.82,
+                    "rank": 31.0,
+                    "school_id": "5073",
+                    "school_name": "三原"
+                  },
+                  {
+                    "avg": 11.68,
+                    "rank": 32.0,
+                    "school_id": "5052",
+                    "school_name": "甫家"
+                  },
+                  {
+                    "avg": 11.57,
+                    "rank": 33.0,
+                    "school_id": "5055",
+                    "school_name": "桂林"
+                  },
+                  {
+                    "avg": 11.5,
+                    "rank": 34.0,
+                    "school_id": "5054",
+                    "school_name": "桂湖"
+                  },
+                  {
+                    "avg": 11.48,
+                    "rank": 35.0,
+                    "school_id": "5080",
+                    "school_name": "渭水普文"
+                  },
+                  {
+                    "avg": 11.28,
+                    "rank": 36.0,
+                    "school_id": "5091",
+                    "school_name": "扬帆"
+                  },
+                  {
+                    "avg": 11.16,
+                    "rank": 37.0,
+                    "school_id": "5063",
+                    "school_name": "龙虎"
+                  },
+                  {
+                    "avg": 10.97,
+                    "rank": 38.0,
+                    "school_id": "5064",
+                    "school_name": "龙桥育才街"
+                  },
+                  {
+                    "avg": 10.93,
+                    "rank": 39.0,
+                    "school_id": "5050",
+                    "school_name": "东湖"
+                  },
+                  {
+                    "avg": 10.92,
+                    "rank": 40.0,
+                    "school_id": "5082",
+                    "school_name": "西航"
+                  },
+                  {
+                    "avg": 10.8,
+                    "rank": 41.0,
+                    "school_id": "5061",
+                    "school_name": "利民"
+                  },
+                  {
+                    "avg": 10.73,
+                    "rank": 42.0,
+                    "school_id": "5070",
+                    "school_name": "新都清流学校"
+                  },
+                  {
+                    "avg": 10.65,
+                    "rank": 43.0,
+                    "school_id": "5053",
+                    "school_name": "高宁"
+                  },
+                  {
+                    "avg": 10.65,
+                    "rank": 44.0,
+                    "school_id": "5062",
+                    "school_name": "龙安中心校"
+                  },
+                  {
+                    "avg": 10.65,
+                    "rank": 45.0,
+                    "school_id": "5065",
+                    "school_name": "马家"
+                  },
+                  {
+                    "avg": 10.61,
+                    "rank": 46.0,
+                    "school_id": "5074",
+                    "school_name": "石板滩中心"
+                  },
+                  {
+                    "avg": 10.34,
+                    "rank": 47.0,
+                    "school_id": "5088",
+                    "school_name": "新民"
+                  },
+                  {
+                    "avg": 9.8,
+                    "rank": 48.0,
+                    "school_id": "5067",
+                    "school_name": "木兰中心校"
+                  },
+                  {
+                    "avg": 9.62,
+                    "rank": 49.0,
+                    "school_id": "5060",
+                    "school_name": "利济"
+                  },
+                  {
+                    "avg": 9.59,
+                    "rank": 50.0,
+                    "school_id": "5093",
+                    "school_name": "雨禾"
+                  },
+                  {
+                    "avg": 9.54,
+                    "rank": 51.0,
+                    "school_id": "5066",
+                    "school_name": "美德嘉年"
+                  },
+                  {
+                    "avg": 9.34,
+                    "rank": 52.0,
+                    "school_id": "5069",
+                    "school_name": "清白育才"
+                  },
+                  {
+                    "avg": 8.72,
+                    "rank": 53.0,
+                    "school_id": "5086",
+                    "school_name": "新辉"
+                  },
+                  {
+                    "avg": 8.47,
+                    "rank": 54.0,
+                    "school_id": "5049",
+                    "school_name": "狄邦肯思"
+                  },
+                  {
+                    "avg": 7.18,
+                    "rank": 55.0,
+                    "school_id": "5098",
+                    "school_name": "新都中科育才学校"
+                  },
+                  {
+                    "avg": 7.1,
+                    "rank": 56.0,
+                    "school_id": "5059",
+                    "school_name": "立信"
+                  }
+                ]
+              },
+              {
+                "type": "exam",
+                "metrics": {
+                  "avg": 76.63,
+                  "max": 100.0,
+                  "min": 1.5,
+                  "stddev": 15.79,
+                  "difficulty": 0.77,
+                  "subject_full_score": 100.0
+                },
+                "subject_name": "数学",
+                "school_rankings": [
+                  {
+                    "avg": 88.49,
+                    "rank": 1.0,
+                    "school_id": "5097",
+                    "school_name": "正德"
+                  },
+                  {
+                    "avg": 87.6,
+                    "rank": 2.0,
+                    "school_id": "5094",
+                    "school_name": "谕亭本部"
+                  },
+                  {
+                    "avg": 87.45,
+                    "rank": 3.0,
+                    "school_id": "5044",
+                    "school_name": "芭德"
+                  },
+                  {
+                    "avg": 87.26,
+                    "rank": 4.0,
+                    "school_id": "5092",
+                    "school_name": "一实"
+                  },
+                  {
+                    "avg": 85.64,
+                    "rank": 5.0,
+                    "school_id": "5083",
+                    "school_name": "西街新城"
+                  },
+                  {
+                    "avg": 84.62,
+                    "rank": 6.0,
+                    "school_id": "5047",
+                    "school_name": "北星"
+                  },
+                  {
+                    "avg": 83.54,
+                    "rank": 7.0,
+                    "school_id": "5087",
+                    "school_name": "新徽弘儒"
+                  },
+                  {
+                    "avg": 82.86,
+                    "rank": 8.0,
+                    "school_id": "5090",
+                    "school_name": "兴乐路"
+                  },
+                  {
+                    "avg": 82.81,
+                    "rank": 9.0,
+                    "school_id": "5084",
+                    "school_name": "香城"
+                  },
+                  {
+                    "avg": 82.77,
+                    "rank": 10.0,
+                    "school_id": "5055",
+                    "school_name": "桂林"
+                  },
+                  {
+                    "avg": 82.24,
+                    "rank": 11.0,
+                    "school_id": "5045",
+                    "school_name": "柏水"
+                  },
+                  {
+                    "avg": 82.24,
+                    "rank": 12.0,
+                    "school_id": "5068",
+                    "school_name": "南丰"
+                  },
+                  {
+                    "avg": 81.87,
+                    "rank": 13.0,
+                    "school_id": "5051",
+                    "school_name": "繁江"
+                  },
+                  {
+                    "avg": 81.81,
+                    "rank": 14.0,
+                    "school_id": "5076",
+                    "school_name": "市教科附"
+                  },
+                  {
+                    "avg": 81.09,
+                    "rank": 15.0,
+                    "school_id": "5096",
+                    "school_name": "旃檀东区"
+                  },
+                  {
+                    "avg": 81.01,
+                    "rank": 16.0,
+                    "school_id": "5081",
+                    "school_name": "五龙山"
+                  },
+                  {
+                    "avg": 80.91,
+                    "rank": 17.0,
+                    "school_id": "5057",
+                    "school_name": "锦门本"
+                  },
+                  {
+                    "avg": 80.38,
+                    "rank": 18.0,
+                    "school_id": "5079",
+                    "school_name": "天元"
+                  },
+                  {
+                    "avg": 80.19,
+                    "rank": 19.0,
+                    "school_id": "5048",
+                    "school_name": "大丰"
+                  },
+                  {
+                    "avg": 78.49,
+                    "rank": 20.0,
+                    "school_id": "5095",
+                    "school_name": "悦动新城"
+                  },
+                  {
+                    "avg": 78.4,
+                    "rank": 21.0,
+                    "school_id": "5077",
+                    "school_name": "蜀龙"
+                  },
+                  {
+                    "avg": 78.2,
+                    "rank": 22.0,
+                    "school_id": "5078",
+                    "school_name": "泰兴本部"
+                  },
+                  {
+                    "avg": 77.6,
+                    "rank": 23.0,
+                    "school_id": "5085",
+                    "school_name": "新川"
+                  },
+                  {
+                    "avg": 77.08,
+                    "rank": 24.0,
+                    "school_id": "5071",
+                    "school_name": "区教科附东"
+                  },
+                  {
+                    "avg": 76.98,
+                    "rank": 25.0,
+                    "school_id": "5089",
+                    "school_name": "新新路"
+                  },
+                  {
+                    "avg": 76.19,
+                    "rank": 26.0,
+                    "school_id": "5056",
+                    "school_name": "汉城"
+                  },
+                  {
+                    "avg": 76.19,
+                    "rank": 27.0,
+                    "school_id": "5073",
+                    "school_name": "三原"
+                  },
+                  {
+                    "avg": 75.87,
+                    "rank": 28.0,
+                    "school_id": "5065",
+                    "school_name": "马家"
+                  },
+                  {
+                    "avg": 75.7,
+                    "rank": 29.0,
+                    "school_id": "5064",
+                    "school_name": "龙桥育才街"
+                  },
+                  {
+                    "avg": 75.48,
+                    "rank": 30.0,
+                    "school_id": "5054",
+                    "school_name": "桂湖"
+                  },
+                  {
+                    "avg": 75.45,
+                    "rank": 31.0,
+                    "school_id": "5046",
+                    "school_name": "斑竹园"
+                  },
+                  {
+                    "avg": 75.22,
+                    "rank": 32.0,
+                    "school_id": "5075",
+                    "school_name": "石犀"
+                  },
+                  {
+                    "avg": 74.91,
+                    "rank": 33.0,
+                    "school_id": "5052",
+                    "school_name": "甫家"
+                  },
+                  {
+                    "avg": 73.62,
+                    "rank": 34.0,
+                    "school_id": "5063",
+                    "school_name": "龙虎"
+                  },
+                  {
+                    "avg": 72.15,
+                    "rank": 35.0,
+                    "school_id": "5099",
+                    "school_name": "竹友"
+                  },
+                  {
+                    "avg": 72.0,
+                    "rank": 36.0,
+                    "school_id": "5093",
+                    "school_name": "雨禾"
+                  },
+                  {
+                    "avg": 71.83,
+                    "rank": 37.0,
+                    "school_id": "5058",
+                    "school_name": "军屯"
+                  },
+                  {
+                    "avg": 70.22,
+                    "rank": 38.0,
+                    "school_id": "5074",
+                    "school_name": "石板滩中心"
+                  },
+                  {
+                    "avg": 69.22,
+                    "rank": 39.0,
+                    "school_id": "5072",
+                    "school_name": "三河"
+                  },
+                  {
+                    "avg": 68.65,
+                    "rank": 40.0,
+                    "school_id": "5062",
+                    "school_name": "龙安中心校"
+                  },
+                  {
+                    "avg": 68.17,
+                    "rank": 41.0,
+                    "school_id": "5080",
+                    "school_name": "渭水普文"
+                  },
+                  {
+                    "avg": 68.01,
+                    "rank": 42.0,
+                    "school_id": "5067",
+                    "school_name": "木兰中心校"
+                  },
+                  {
+                    "avg": 66.89,
+                    "rank": 43.0,
+                    "school_id": "5070",
+                    "school_name": "新都清流学校"
+                  },
+                  {
+                    "avg": 63.47,
+                    "rank": 44.0,
+                    "school_id": "5069",
+                    "school_name": "清白育才"
+                  },
+                  {
+                    "avg": 63.39,
+                    "rank": 45.0,
+                    "school_id": "5061",
+                    "school_name": "利民"
+                  },
+                  {
+                    "avg": 60.67,
+                    "rank": 46.0,
+                    "school_id": "5053",
+                    "school_name": "高宁"
+                  },
+                  {
+                    "avg": 60.11,
+                    "rank": 47.0,
+                    "school_id": "5050",
+                    "school_name": "东湖"
+                  },
+                  {
+                    "avg": 59.97,
+                    "rank": 48.0,
+                    "school_id": "5088",
+                    "school_name": "新民"
+                  },
+                  {
+                    "avg": 59.57,
+                    "rank": 49.0,
+                    "school_id": "5091",
+                    "school_name": "扬帆"
+                  },
+                  {
+                    "avg": 57.87,
+                    "rank": 50.0,
+                    "school_id": "5082",
+                    "school_name": "西航"
+                  },
+                  {
+                    "avg": 57.74,
+                    "rank": 51.0,
+                    "school_id": "5059",
+                    "school_name": "立信"
+                  },
+                  {
+                    "avg": 54.53,
+                    "rank": 52.0,
+                    "school_id": "5066",
+                    "school_name": "美德嘉年"
+                  },
+                  {
+                    "avg": 52.36,
+                    "rank": 53.0,
+                    "school_id": "5098",
+                    "school_name": "新都中科育才学校"
+                  },
+                  {
+                    "avg": 50.38,
+                    "rank": 54.0,
+                    "school_id": "5060",
+                    "school_name": "利济"
+                  },
+                  {
+                    "avg": 48.35,
+                    "rank": 55.0,
+                    "school_id": "5086",
+                    "school_name": "新辉"
+                  },
+                  {
+                    "avg": 45.33,
+                    "rank": 56.0,
+                    "school_id": "5049",
+                    "school_name": "狄邦肯思"
+                  }
+                ]
+              },
+              {
+                "type": "exam",
+                "metrics": {
+                  "avg": 73.25,
+                  "max": 100.0,
+                  "min": 18.0,
+                  "stddev": 15.54,
+                  "difficulty": 0.73,
+                  "subject_full_score": 100.0
+                },
+                "subject_name": "科学",
+                "school_rankings": [
+                  {
+                    "avg": 90.08,
+                    "rank": 1.0,
+                    "school_id": "5097",
+                    "school_name": "正德"
+                  },
+                  {
+                    "avg": 88.35,
+                    "rank": 2.0,
+                    "school_id": "5090",
+                    "school_name": "兴乐路"
+                  },
+                  {
+                    "avg": 81.69,
+                    "rank": 3.0,
+                    "school_id": "5071",
+                    "school_name": "区教科附东"
+                  },
+                  {
+                    "avg": 81.22,
+                    "rank": 4.0,
+                    "school_id": "5068",
+                    "school_name": "南丰"
+                  },
+                  {
+                    "avg": 80.78,
+                    "rank": 5.0,
+                    "school_id": "5084",
+                    "school_name": "香城"
+                  },
+                  {
+                    "avg": 80.45,
+                    "rank": 6.0,
+                    "school_id": "5044",
+                    "school_name": "芭德"
+                  },
+                  {
+                    "avg": 80.24,
+                    "rank": 7.0,
+                    "school_id": "5092",
+                    "school_name": "一实"
+                  },
+                  {
+                    "avg": 80.19,
+                    "rank": 8.0,
+                    "school_id": "5083",
+                    "school_name": "西街新城"
+                  },
+                  {
+                    "avg": 78.77,
+                    "rank": 9.0,
+                    "school_id": "5075",
+                    "school_name": "石犀"
+                  },
+                  {
+                    "avg": 78.17,
+                    "rank": 10.0,
+                    "school_id": "5047",
+                    "school_name": "北星"
+                  },
+                  {
+                    "avg": 77.55,
+                    "rank": 11.0,
+                    "school_id": "5094",
+                    "school_name": "谕亭本部"
+                  },
+                  {
+                    "avg": 77.16,
+                    "rank": 12.0,
+                    "school_id": "5096",
+                    "school_name": "旃檀东区"
+                  },
+                  {
+                    "avg": 77.1,
+                    "rank": 13.0,
+                    "school_id": "5057",
+                    "school_name": "锦门本"
+                  },
+                  {
+                    "avg": 76.33,
+                    "rank": 14.0,
+                    "school_id": "5065",
+                    "school_name": "马家"
+                  },
+                  {
+                    "avg": 76.18,
+                    "rank": 15.0,
+                    "school_id": "5081",
+                    "school_name": "五龙山"
+                  },
+                  {
+                    "avg": 75.85,
+                    "rank": 16.0,
+                    "school_id": "5045",
+                    "school_name": "柏水"
+                  },
+                  {
+                    "avg": 75.63,
+                    "rank": 17.0,
+                    "school_id": "5095",
+                    "school_name": "悦动新城"
+                  },
+                  {
+                    "avg": 75.46,
+                    "rank": 18.0,
+                    "school_id": "5073",
+                    "school_name": "三原"
+                  },
+                  {
+                    "avg": 75.4,
+                    "rank": 19.0,
+                    "school_id": "5076",
+                    "school_name": "市教科附"
+                  },
+                  {
+                    "avg": 74.89,
+                    "rank": 20.0,
+                    "school_id": "5048",
+                    "school_name": "大丰"
+                  },
+                  {
+                    "avg": 74.69,
+                    "rank": 21.0,
+                    "school_id": "5085",
+                    "school_name": "新川"
+                  },
+                  {
+                    "avg": 74.19,
+                    "rank": 22.0,
+                    "school_id": "5051",
+                    "school_name": "繁江"
+                  },
+                  {
+                    "avg": 74.17,
+                    "rank": 23.0,
+                    "school_id": "5087",
+                    "school_name": "新徽弘儒"
+                  },
+                  {
+                    "avg": 73.95,
+                    "rank": 24.0,
+                    "school_id": "5055",
+                    "school_name": "桂林"
+                  },
+                  {
+                    "avg": 73.62,
+                    "rank": 25.0,
+                    "school_id": "5056",
+                    "school_name": "汉城"
+                  },
+                  {
+                    "avg": 73.17,
+                    "rank": 26.0,
+                    "school_id": "5077",
+                    "school_name": "蜀龙"
+                  },
+                  {
+                    "avg": 72.95,
+                    "rank": 27.0,
+                    "school_id": "5067",
+                    "school_name": "木兰中心校"
+                  },
+                  {
+                    "avg": 72.28,
+                    "rank": 28.0,
+                    "school_id": "5079",
+                    "school_name": "天元"
+                  },
+                  {
+                    "avg": 72.28,
+                    "rank": 29.0,
+                    "school_id": "5099",
+                    "school_name": "竹友"
+                  },
+                  {
+                    "avg": 71.77,
+                    "rank": 30.0,
+                    "school_id": "5078",
+                    "school_name": "泰兴本部"
+                  },
+                  {
+                    "avg": 70.3,
+                    "rank": 31.0,
+                    "school_id": "5089",
+                    "school_name": "新新路"
+                  },
+                  {
+                    "avg": 70.0,
+                    "rank": 32.0,
+                    "school_id": "5054",
+                    "school_name": "桂湖"
+                  },
+                  {
+                    "avg": 69.64,
+                    "rank": 33.0,
+                    "school_id": "5064",
+                    "school_name": "龙桥育才街"
+                  },
+                  {
+                    "avg": 69.33,
+                    "rank": 34.0,
+                    "school_id": "5074",
+                    "school_name": "石板滩中心"
+                  },
+                  {
+                    "avg": 68.1,
+                    "rank": 35.0,
+                    "school_id": "5058",
+                    "school_name": "军屯"
+                  },
+                  {
+                    "avg": 66.38,
+                    "rank": 36.0,
+                    "school_id": "5062",
+                    "school_name": "龙安中心校"
+                  },
+                  {
+                    "avg": 65.81,
+                    "rank": 37.0,
+                    "school_id": "5061",
+                    "school_name": "利民"
+                  },
+                  {
+                    "avg": 65.09,
+                    "rank": 38.0,
+                    "school_id": "5098",
+                    "school_name": "新都中科育才学校"
+                  },
+                  {
+                    "avg": 65.05,
+                    "rank": 39.0,
+                    "school_id": "5063",
+                    "school_name": "龙虎"
+                  },
+                  {
+                    "avg": 64.9,
+                    "rank": 40.0,
+                    "school_id": "5072",
+                    "school_name": "三河"
+                  },
+                  {
+                    "avg": 64.35,
+                    "rank": 41.0,
+                    "school_id": "5052",
+                    "school_name": "甫家"
+                  },
+                  {
+                    "avg": 64.28,
+                    "rank": 42.0,
+                    "school_id": "5059",
+                    "school_name": "立信"
+                  },
+                  {
+                    "avg": 64.0,
+                    "rank": 43.0,
+                    "school_id": "5046",
+                    "school_name": "斑竹园"
+                  },
+                  {
+                    "avg": 64.0,
+                    "rank": 44.0,
+                    "school_id": "5086",
+                    "school_name": "新辉"
+                  },
+                  {
+                    "avg": 63.43,
+                    "rank": 45.0,
+                    "school_id": "5080",
+                    "school_name": "渭水普文"
+                  },
+                  {
+                    "avg": 62.43,
+                    "rank": 46.0,
+                    "school_id": "5088",
+                    "school_name": "新民"
+                  },
+                  {
+                    "avg": 62.3,
+                    "rank": 47.0,
+                    "school_id": "5069",
+                    "school_name": "清白育才"
+                  },
+                  {
+                    "avg": 60.8,
+                    "rank": 48.0,
+                    "school_id": "5093",
+                    "school_name": "雨禾"
+                  },
+                  {
+                    "avg": 60.37,
+                    "rank": 49.0,
+                    "school_id": "5050",
+                    "school_name": "东湖"
+                  },
+                  {
+                    "avg": 59.13,
+                    "rank": 50.0,
+                    "school_id": "5053",
+                    "school_name": "高宁"
+                  },
+                  {
+                    "avg": 58.8,
+                    "rank": 51.0,
+                    "school_id": "5060",
+                    "school_name": "利济"
+                  },
+                  {
+                    "avg": 56.6,
+                    "rank": 52.0,
+                    "school_id": "5082",
+                    "school_name": "西航"
+                  },
+                  {
+                    "avg": 55.86,
+                    "rank": 53.0,
+                    "school_id": "5070",
+                    "school_name": "新都清流学校"
+                  },
+                  {
+                    "avg": 55.21,
+                    "rank": 54.0,
+                    "school_id": "5066",
+                    "school_name": "美德嘉年"
+                  },
+                  {
+                    "avg": 53.81,
+                    "rank": 55.0,
+                    "school_id": "5049",
+                    "school_name": "狄邦肯思"
+                  },
+                  {
+                    "avg": 52.91,
+                    "rank": 56.0,
+                    "school_id": "5091",
+                    "school_name": "扬帆"
+                  }
+                ]
+              },
+              {
+                "type": "exam",
+                "metrics": {
+                  "avg": 154.59,
+                  "max": 193.81,
+                  "min": 68.7,
+                  "stddev": 18.41,
+                  "difficulty": 0.77,
+                  "subject_full_score": 200.0
+                },
+                "subject_name": "艺术",
+                "school_rankings": [
+                  {
+                    "avg": 179.76,
+                    "rank": 1.0,
+                    "school_id": "5047",
+                    "school_name": "北星"
+                  },
+                  {
+                    "avg": 175.56,
+                    "rank": 2.0,
+                    "school_id": "5044",
+                    "school_name": "芭德"
+                  },
+                  {
+                    "avg": 173.32,
+                    "rank": 3.0,
+                    "school_id": "5095",
+                    "school_name": "悦动新城"
+                  },
+                  {
+                    "avg": 168.65,
+                    "rank": 4.0,
+                    "school_id": "5090",
+                    "school_name": "兴乐路"
+                  },
+                  {
+                    "avg": 167.68,
+                    "rank": 5.0,
+                    "school_id": "5092",
+                    "school_name": "一实"
+                  },
+                  {
+                    "avg": 167.44,
+                    "rank": 6.0,
+                    "school_id": "5083",
+                    "school_name": "西街新城"
+                  },
+                  {
+                    "avg": 166.9,
+                    "rank": 7.0,
+                    "school_id": "5057",
+                    "school_name": "锦门本"
+                  },
+                  {
+                    "avg": 166.58,
+                    "rank": 8.0,
+                    "school_id": "5068",
+                    "school_name": "南丰"
+                  },
+                  {
+                    "avg": 166.42,
+                    "rank": 9.0,
+                    "school_id": "5076",
+                    "school_name": "市教科附"
+                  },
+                  {
+                    "avg": 165.82,
+                    "rank": 10.0,
+                    "school_id": "5089",
+                    "school_name": "新新路"
+                  },
+                  {
+                    "avg": 164.67,
+                    "rank": 11.0,
+                    "school_id": "5071",
+                    "school_name": "区教科附东"
+                  },
+                  {
+                    "avg": 164.65,
+                    "rank": 12.0,
+                    "school_id": "5077",
+                    "school_name": "蜀龙"
+                  },
+                  {
+                    "avg": 163.86,
+                    "rank": 13.0,
+                    "school_id": "5073",
+                    "school_name": "三原"
+                  },
+                  {
+                    "avg": 162.74,
+                    "rank": 14.0,
+                    "school_id": "5096",
+                    "school_name": "旃檀东区"
+                  },
+                  {
+                    "avg": 161.33,
+                    "rank": 15.0,
+                    "school_id": "5097",
+                    "school_name": "正德"
+                  },
+                  {
+                    "avg": 160.43,
+                    "rank": 16.0,
+                    "school_id": "5058",
+                    "school_name": "军屯"
+                  },
+                  {
+                    "avg": 160.32,
+                    "rank": 17.0,
+                    "school_id": "5099",
+                    "school_name": "竹友"
+                  },
+                  {
+                    "avg": 160.2,
+                    "rank": 18.0,
+                    "school_id": "5081",
+                    "school_name": "五龙山"
+                  },
+                  {
+                    "avg": 159.75,
+                    "rank": 19.0,
+                    "school_id": "5048",
+                    "school_name": "大丰"
+                  },
+                  {
+                    "avg": 159.3,
+                    "rank": 20.0,
+                    "school_id": "5054",
+                    "school_name": "桂湖"
+                  },
+                  {
+                    "avg": 158.84,
+                    "rank": 21.0,
+                    "school_id": "5094",
+                    "school_name": "谕亭本部"
+                  },
+                  {
+                    "avg": 158.49,
+                    "rank": 22.0,
+                    "school_id": "5078",
+                    "school_name": "泰兴本部"
+                  },
+                  {
+                    "avg": 158.26,
+                    "rank": 23.0,
+                    "school_id": "5084",
+                    "school_name": "香城"
+                  },
+                  {
+                    "avg": 157.73,
+                    "rank": 24.0,
+                    "school_id": "5045",
+                    "school_name": "柏水"
+                  },
+                  {
+                    "avg": 157.26,
+                    "rank": 25.0,
+                    "school_id": "5087",
+                    "school_name": "新徽弘儒"
+                  },
+                  {
+                    "avg": 156.72,
+                    "rank": 26.0,
+                    "school_id": "5065",
+                    "school_name": "马家"
+                  },
+                  {
+                    "avg": 156.11,
+                    "rank": 27.0,
+                    "school_id": "5075",
+                    "school_name": "石犀"
+                  },
+                  {
+                    "avg": 155.43,
+                    "rank": 28.0,
+                    "school_id": "5079",
+                    "school_name": "天元"
+                  },
+                  {
+                    "avg": 155.27,
+                    "rank": 29.0,
+                    "school_id": "5085",
+                    "school_name": "新川"
+                  },
+                  {
+                    "avg": 154.99,
+                    "rank": 30.0,
+                    "school_id": "5051",
+                    "school_name": "繁江"
+                  },
+                  {
+                    "avg": 154.45,
+                    "rank": 31.0,
+                    "school_id": "5055",
+                    "school_name": "桂林"
+                  },
+                  {
+                    "avg": 153.31,
+                    "rank": 32.0,
+                    "school_id": "5063",
+                    "school_name": "龙虎"
+                  },
+                  {
+                    "avg": 152.18,
+                    "rank": 33.0,
+                    "school_id": "5061",
+                    "school_name": "利民"
+                  },
+                  {
+                    "avg": 151.7,
+                    "rank": 34.0,
+                    "school_id": "5067",
+                    "school_name": "木兰中心校"
+                  },
+                  {
+                    "avg": 151.13,
+                    "rank": 35.0,
+                    "school_id": "5074",
+                    "school_name": "石板滩中心"
+                  },
+                  {
+                    "avg": 149.99,
+                    "rank": 36.0,
+                    "school_id": "5062",
+                    "school_name": "龙安中心校"
+                  },
+                  {
+                    "avg": 149.76,
+                    "rank": 37.0,
+                    "school_id": "5050",
+                    "school_name": "东湖"
+                  },
+                  {
+                    "avg": 148.29,
+                    "rank": 38.0,
+                    "school_id": "5088",
+                    "school_name": "新民"
+                  },
+                  {
+                    "avg": 147.47,
+                    "rank": 39.0,
+                    "school_id": "5072",
+                    "school_name": "三河"
+                  },
+                  {
+                    "avg": 147.23,
+                    "rank": 40.0,
+                    "school_id": "5069",
+                    "school_name": "清白育才"
+                  },
+                  {
+                    "avg": 146.92,
+                    "rank": 41.0,
+                    "school_id": "5056",
+                    "school_name": "汉城"
+                  },
+                  {
+                    "avg": 146.9,
+                    "rank": 42.0,
+                    "school_id": "5046",
+                    "school_name": "斑竹园"
+                  },
+                  {
+                    "avg": 146.72,
+                    "rank": 43.0,
+                    "school_id": "5060",
+                    "school_name": "利济"
+                  },
+                  {
+                    "avg": 146.37,
+                    "rank": 44.0,
+                    "school_id": "5066",
+                    "school_name": "美德嘉年"
+                  },
+                  {
+                    "avg": 145.15,
+                    "rank": 45.0,
+                    "school_id": "5082",
+                    "school_name": "西航"
+                  },
+                  {
+                    "avg": 144.61,
+                    "rank": 46.0,
+                    "school_id": "5053",
+                    "school_name": "高宁"
+                  },
+                  {
+                    "avg": 142.93,
+                    "rank": 47.0,
+                    "school_id": "5070",
+                    "school_name": "新都清流学校"
+                  },
+                  {
+                    "avg": 141.54,
+                    "rank": 48.0,
+                    "school_id": "5052",
+                    "school_name": "甫家"
+                  },
+                  {
+                    "avg": 139.76,
+                    "rank": 49.0,
+                    "school_id": "5059",
+                    "school_name": "立信"
+                  },
+                  {
+                    "avg": 139.2,
+                    "rank": 50.0,
+                    "school_id": "5093",
+                    "school_name": "雨禾"
+                  },
+                  {
+                    "avg": 138.04,
+                    "rank": 51.0,
+                    "school_id": "5091",
+                    "school_name": "扬帆"
+                  },
+                  {
+                    "avg": 137.48,
+                    "rank": 52.0,
+                    "school_id": "5064",
+                    "school_name": "龙桥育才街"
+                  },
+                  {
+                    "avg": 134.35,
+                    "rank": 53.0,
+                    "school_id": "5080",
+                    "school_name": "渭水普文"
+                  },
+                  {
+                    "avg": 133.22,
+                    "rank": 54.0,
+                    "school_id": "5086",
+                    "school_name": "新辉"
+                  },
+                  {
+                    "avg": 128.07,
+                    "rank": 55.0,
+                    "school_id": "5098",
+                    "school_name": "新都中科育才学校"
+                  },
+                  {
+                    "avg": 124.23,
+                    "rank": 56.0,
+                    "school_id": "5049",
+                    "school_name": "狄邦肯思"
+                  }
+                ]
+              },
+              {
+                "type": "questionnaire",
+                "metrics": {
+                  "avg": 87.57,
+                  "max": 112.0,
+                  "min": 23.0,
+                  "stddev": 12.4,
+                  "score_rate": 78.19,
+                  "subject_full_score": 112.0
+                },
+                "dimensions": [
+                  {
+                    "avg": 10.03,
+                    "code": "CZL-hqx",
+                    "name": "创造力-好奇心",
+                    "questions": [
+                      {
+                        "question_id": "12_4",
+                        "option_distribution": [
+                          {
+                            "pct": 11.29,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 9.86,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 28.26,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 50.59,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      },
+                      {
+                        "question_id": "12_5",
+                        "option_distribution": [
+                          {
+                            "pct": 3.52,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 6.4,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 29.63,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 60.44,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      },
+                      {
+                        "question_id": "12_6",
+                        "option_distribution": [
+                          {
+                            "pct": 3.79,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 8.62,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 33.49,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 54.11,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      }
+                    ],
+                    "option_distribution": [
+                      {
+                        "pct": 6.2,
+                        "option_label": null,
+                        "option_level": 1
+                      },
+                      {
+                        "pct": 8.29,
+                        "option_label": null,
+                        "option_level": 2
+                      },
+                      {
+                        "pct": 30.46,
+                        "option_label": null,
+                        "option_level": 3
+                      },
+                      {
+                        "pct": 55.05,
+                        "option_label": null,
+                        "option_level": 4
+                      }
+                    ]
+                  },
+                  {
+                    "avg": 6.27,
+                    "code": "CZL-mmx",
+                    "name": "创造力-冒险性",
+                    "questions": [
+                      {
+                        "question_id": "12_1",
+                        "option_distribution": [
+                          {
+                            "pct": 31.92,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 26.31,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 29.77,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 12.01,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      },
+                      {
+                        "question_id": "12_2",
+                        "option_distribution": [
+                          {
+                            "pct": 28.0,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 26.7,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 31.14,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 14.16,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      },
+                      {
+                        "question_id": "12_3",
+                        "option_distribution": [
+                          {
+                            "pct": 54.83,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 23.89,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 13.77,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 7.51,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      }
+                    ],
+                    "option_distribution": [
+                      {
+                        "pct": 38.25,
+                        "option_label": null,
+                        "option_level": 1
+                      },
+                      {
+                        "pct": 25.63,
+                        "option_label": null,
+                        "option_level": 2
+                      },
+                      {
+                        "pct": 24.89,
+                        "option_label": null,
+                        "option_level": 3
+                      },
+                      {
+                        "pct": 11.23,
+                        "option_label": null,
+                        "option_level": 4
+                      }
+                    ]
+                  },
+                  {
+                    "avg": 9.55,
+                    "code": "CZL-tzx",
+                    "name": "创造力-挑战性",
+                    "questions": [
+                      {
+                        "question_id": "12_10",
+                        "option_distribution": [
+                          {
+                            "pct": 5.74,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 12.6,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 35.7,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 45.95,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      },
+                      {
+                        "question_id": "12_11",
+                        "option_distribution": [
+                          {
+                            "pct": 2.68,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 6.59,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 23.69,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 67.04,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      },
+                      {
+                        "question_id": "12_9",
+                        "option_distribution": [
+                          {
+                            "pct": 16.91,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 20.5,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 30.74,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 31.85,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      }
+                    ],
+                    "option_distribution": [
+                      {
+                        "pct": 8.44,
+                        "option_label": null,
+                        "option_level": 1
+                      },
+                      {
+                        "pct": 13.23,
+                        "option_label": null,
+                        "option_level": 2
+                      },
+                      {
+                        "pct": 30.05,
+                        "option_label": null,
+                        "option_level": 3
+                      },
+                      {
+                        "pct": 48.28,
+                        "option_label": null,
+                        "option_level": 4
+                      }
+                    ]
+                  },
+                  {
+                    "avg": 6.27,
+                    "code": "CZL-xxl",
+                    "name": "创造力-想象力",
+                    "questions": [
+                      {
+                        "question_id": "12_7",
+                        "option_distribution": [
+                          {
+                            "pct": 10.77,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 13.05,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 28.52,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 47.65,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      },
+                      {
+                        "question_id": "12_8",
+                        "option_distribution": [
+                          {
+                            "pct": 8.75,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 13.05,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 33.55,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 44.65,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      }
+                    ],
+                    "option_distribution": [
+                      {
+                        "pct": 9.76,
+                        "option_label": null,
+                        "option_level": 1
+                      },
+                      {
+                        "pct": 13.05,
+                        "option_label": null,
+                        "option_level": 2
+                      },
+                      {
+                        "pct": 31.04,
+                        "option_label": null,
+                        "option_level": 3
+                      },
+                      {
+                        "pct": 46.15,
+                        "option_label": null,
+                        "option_level": 4
+                      }
+                    ]
+                  },
+                  {
+                    "avg": 10.06,
+                    "code": "CZX-jthj",
+                    "name": "创造性-家庭环境",
+                    "questions": [
+                      {
+                        "question_id": "14_4",
+                        "option_distribution": [
+                          {
+                            "pct": 3.98,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 7.7,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 25.46,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 62.86,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      },
+                      {
+                        "question_id": "14_5",
+                        "option_distribution": [
+                          {
+                            "pct": 6.59,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 9.66,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 29.11,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 54.63,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      },
+                      {
+                        "question_id": "14_6",
+                        "option_distribution": [
+                          {
+                            "pct": 6.92,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 8.55,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 31.72,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 52.81,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      }
+                    ],
+                    "option_distribution": [
+                      {
+                        "pct": 5.83,
+                        "option_label": null,
+                        "option_level": 1
+                      },
+                      {
+                        "pct": 8.64,
+                        "option_label": null,
+                        "option_level": 2
+                      },
+                      {
+                        "pct": 28.76,
+                        "option_label": null,
+                        "option_level": 3
+                      },
+                      {
+                        "pct": 56.77,
+                        "option_label": null,
+                        "option_level": 4
+                      }
+                    ]
+                  },
+                  {
+                    "avg": 10.31,
+                    "code": "CZX-tbhj",
+                    "name": "创造性-同伴环境",
+                    "questions": [
+                      {
+                        "question_id": "14_1",
+                        "option_distribution": [
+                          {
+                            "pct": 4.9,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 7.25,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 38.32,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 49.54,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      },
+                      {
+                        "question_id": "14_2",
+                        "option_distribution": [
+                          {
+                            "pct": 3.98,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 5.03,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 27.74,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 63.25,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      },
+                      {
+                        "question_id": "14_3",
+                        "option_distribution": [
+                          {
+                            "pct": 3.66,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 5.29,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 26.24,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 64.82,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      }
+                    ],
+                    "option_distribution": [
+                      {
+                        "pct": 4.18,
+                        "option_label": null,
+                        "option_level": 1
+                      },
+                      {
+                        "pct": 5.85,
+                        "option_label": null,
+                        "option_level": 2
+                      },
+                      {
+                        "pct": 30.77,
+                        "option_label": null,
+                        "option_level": 3
+                      },
+                      {
+                        "pct": 59.2,
+                        "option_label": null,
+                        "option_level": 4
+                      }
+                    ]
+                  },
+                  {
+                    "avg": 16.44,
+                    "code": "CZX-xxhj",
+                    "name": "创造性-学校环境",
+                    "questions": [
+                      {
+                        "question_id": "14_10",
+                        "option_distribution": [
+                          {
+                            "pct": 9.6,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 14.62,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 34.79,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 40.99,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      },
+                      {
+                        "question_id": "14_11",
+                        "option_distribution": [
+                          {
+                            "pct": 8.81,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 15.93,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 30.81,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 44.45,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      },
+                      {
+                        "question_id": "14_7",
+                        "option_distribution": [
+                          {
+                            "pct": 4.05,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 6.79,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 30.87,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 58.29,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      },
+                      {
+                        "question_id": "14_8",
+                        "option_distribution": [
+                          {
+                            "pct": 4.7,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 7.05,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 25.46,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 62.79,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      },
+                      {
+                        "question_id": "14_9",
+                        "option_distribution": [
+                          {
+                            "pct": 4.11,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 7.9,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 30.29,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 57.7,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      }
+                    ],
+                    "option_distribution": [
+                      {
+                        "pct": 6.25,
+                        "option_label": null,
+                        "option_level": 1
+                      },
+                      {
+                        "pct": 10.46,
+                        "option_label": null,
+                        "option_level": 2
+                      },
+                      {
+                        "pct": 30.44,
+                        "option_label": null,
+                        "option_level": 3
+                      },
+                      {
+                        "pct": 52.85,
+                        "option_label": null,
+                        "option_level": 4
+                      }
+                    ]
+                  },
+                  {
+                    "avg": 18.64,
+                    "code": "CZX-zwxn",
+                    "name": "创造性-自我效能",
+                    "questions": [
+                      {
+                        "question_id": "13_1",
+                        "option_distribution": [
+                          {
+                            "pct": 4.18,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 14.3,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 40.93,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 40.6,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      },
+                      {
+                        "question_id": "13_2",
+                        "option_distribution": [
+                          {
+                            "pct": 6.98,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 21.21,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 33.16,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 38.64,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      },
+                      {
+                        "question_id": "13_3",
+                        "option_distribution": [
+                          {
+                            "pct": 6.01,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 17.3,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 34.33,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 42.36,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      },
+                      {
+                        "question_id": "13_4",
+                        "option_distribution": [
+                          {
+                            "pct": 6.72,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 15.14,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 27.02,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 51.11,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      },
+                      {
+                        "question_id": "13_5",
+                        "option_distribution": [
+                          {
+                            "pct": 9.46,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 22.39,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 34.07,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 34.07,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      },
+                      {
+                        "question_id": "13_6",
+                        "option_distribution": [
+                          {
+                            "pct": 6.79,
+                            "option_label": null,
+                            "option_level": 1
+                          },
+                          {
+                            "pct": 15.08,
+                            "option_label": null,
+                            "option_level": 2
+                          },
+                          {
+                            "pct": 32.05,
+                            "option_label": null,
+                            "option_level": 3
+                          },
+                          {
+                            "pct": 46.08,
+                            "option_label": null,
+                            "option_level": 4
+                          }
+                        ]
+                      }
+                    ],
+                    "option_distribution": [
+                      {
+                        "pct": 6.69,
+                        "option_label": null,
+                        "option_level": 1
+                      },
+                      {
+                        "pct": 17.57,
+                        "option_label": null,
+                        "option_level": 2
+                      },
+                      {
+                        "pct": 33.59,
+                        "option_label": null,
+                        "option_level": 3
+                      },
+                      {
+                        "pct": 42.15,
+                        "option_label": null,
+                        "option_level": 4
+                      }
+                    ]
+                  }
+                ],
+                "subject_name": "问卷",
+                "school_rankings": [
+                  {
+                    "avg": 95.52,
+                    "rank": 1.0,
+                    "school_id": "5095",
+                    "school_name": "悦动新城"
+                  },
+                  {
+                    "avg": 95.26,
+                    "rank": 2.0,
+                    "school_id": "5097",
+                    "school_name": "正德"
+                  },
+                  {
+                    "avg": 94.69,
+                    "rank": 3.0,
+                    "school_id": "5060",
+                    "school_name": "利济"
+                  },
+                  {
+                    "avg": 94.57,
+                    "rank": 4.0,
+                    "school_id": "5076",
+                    "school_name": "市教科附"
+                  },
+                  {
+                    "avg": 94.46,
+                    "rank": 5.0,
+                    "school_id": "5092",
+                    "school_name": "一实"
+                  },
+                  {
+                    "avg": 92.74,
+                    "rank": 6.0,
+                    "school_id": "5073",
+                    "school_name": "三原"
+                  },
+                  {
+                    "avg": 92.73,
+                    "rank": 7.0,
+                    "school_id": "5090",
+                    "school_name": "兴乐路"
+                  },
+                  {
+                    "avg": 92.62,
+                    "rank": 8.0,
+                    "school_id": "5088",
+                    "school_name": "新民"
+                  },
+                  {
+                    "avg": 92.19,
+                    "rank": 9.0,
+                    "school_id": "5081",
+                    "school_name": "五龙山"
+                  },
+                  {
+                    "avg": 92.18,
+                    "rank": 10.0,
+                    "school_id": "5050",
+                    "school_name": "东湖"
+                  },
+                  {
+                    "avg": 92.18,
+                    "rank": 11.0,
+                    "school_id": "5067",
+                    "school_name": "木兰中心校"
+                  },
+                  {
+                    "avg": 92.07,
+                    "rank": 12.0,
+                    "school_id": "5094",
+                    "school_name": "谕亭本部"
+                  },
+                  {
+                    "avg": 91.54,
+                    "rank": 13.0,
+                    "school_id": "5098",
+                    "school_name": "新都中科育才学校"
+                  },
+                  {
+                    "avg": 91.07,
+                    "rank": 14.0,
+                    "school_id": "5096",
+                    "school_name": "旃檀东区"
+                  },
+                  {
+                    "avg": 90.88,
+                    "rank": 15.0,
+                    "school_id": "5068",
+                    "school_name": "南丰"
+                  },
+                  {
+                    "avg": 90.86,
+                    "rank": 16.0,
+                    "school_id": "5075",
+                    "school_name": "石犀"
+                  },
+                  {
+                    "avg": 90.33,
+                    "rank": 17.0,
+                    "school_id": "5079",
+                    "school_name": "天元"
+                  },
+                  {
+                    "avg": 89.68,
+                    "rank": 18.0,
+                    "school_id": "5054",
+                    "school_name": "桂湖"
+                  },
+                  {
+                    "avg": 89.61,
+                    "rank": 19.0,
+                    "school_id": "5051",
+                    "school_name": "繁江"
+                  },
+                  {
+                    "avg": 89.38,
+                    "rank": 20.0,
+                    "school_id": "5083",
+                    "school_name": "西街新城"
+                  },
+                  {
+                    "avg": 89.2,
+                    "rank": 21.0,
+                    "school_id": "5078",
+                    "school_name": "泰兴本部"
+                  },
+                  {
+                    "avg": 88.67,
+                    "rank": 22.0,
+                    "school_id": "5046",
+                    "school_name": "斑竹园"
+                  },
+                  {
+                    "avg": 87.72,
+                    "rank": 23.0,
+                    "school_id": "5089",
+                    "school_name": "新新路"
+                  },
+                  {
+                    "avg": 87.69,
+                    "rank": 24.0,
+                    "school_id": "5064",
+                    "school_name": "龙桥育才街"
+                  },
+                  {
+                    "avg": 87.57,
+                    "rank": 25.0,
+                    "school_id": "5071",
+                    "school_name": "区教科附东"
+                  },
+                  {
+                    "avg": 87.47,
+                    "rank": 26.0,
+                    "school_id": "5057",
+                    "school_name": "锦门本"
+                  },
+                  {
+                    "avg": 87.28,
+                    "rank": 28.0,
+                    "school_id": "5056",
+                    "school_name": "汉城"
+                  },
+                  {
+                    "avg": 87.28,
+                    "rank": 27.0,
+                    "school_id": "5059",
+                    "school_name": "立信"
+                  },
+                  {
+                    "avg": 87.18,
+                    "rank": 29.0,
+                    "school_id": "5077",
+                    "school_name": "蜀龙"
+                  },
+                  {
+                    "avg": 87.13,
+                    "rank": 30.0,
+                    "school_id": "5087",
+                    "school_name": "新徽弘儒"
+                  },
+                  {
+                    "avg": 86.86,
+                    "rank": 31.0,
+                    "school_id": "5072",
+                    "school_name": "三河"
+                  },
+                  {
+                    "avg": 86.65,
+                    "rank": 32.0,
+                    "school_id": "5084",
+                    "school_name": "香城"
+                  },
+                  {
+                    "avg": 86.62,
+                    "rank": 33.0,
+                    "school_id": "5044",
+                    "school_name": "芭德"
+                  },
+                  {
+                    "avg": 86.53,
+                    "rank": 34.0,
+                    "school_id": "5045",
+                    "school_name": "柏水"
+                  },
+                  {
+                    "avg": 86.23,
+                    "rank": 35.0,
+                    "school_id": "5061",
+                    "school_name": "利民"
+                  },
+                  {
+                    "avg": 85.81,
+                    "rank": 36.0,
+                    "school_id": "5074",
+                    "school_name": "石板滩中心"
+                  },
+                  {
+                    "avg": 85.56,
+                    "rank": 37.0,
+                    "school_id": "5048",
+                    "school_name": "大丰"
+                  },
+                  {
+                    "avg": 85.39,
+                    "rank": 38.0,
+                    "school_id": "5053",
+                    "school_name": "高宁"
+                  },
+                  {
+                    "avg": 85.38,
+                    "rank": 39.0,
+                    "school_id": "5099",
+                    "school_name": "竹友"
+                  },
+                  {
+                    "avg": 85.31,
+                    "rank": 40.0,
+                    "school_id": "5047",
+                    "school_name": "北星"
+                  },
+                  {
+                    "avg": 85.0,
+                    "rank": 41.0,
+                    "school_id": "5058",
+                    "school_name": "军屯"
+                  },
+                  {
+                    "avg": 84.93,
+                    "rank": 42.0,
+                    "school_id": "5065",
+                    "school_name": "马家"
+                  },
+                  {
+                    "avg": 84.91,
+                    "rank": 43.0,
+                    "school_id": "5055",
+                    "school_name": "桂林"
+                  },
+                  {
+                    "avg": 84.83,
+                    "rank": 44.0,
+                    "school_id": "5085",
+                    "school_name": "新川"
+                  },
+                  {
+                    "avg": 84.17,
+                    "rank": 45.0,
+                    "school_id": "5082",
+                    "school_name": "西航"
+                  },
+                  {
+                    "avg": 84.15,
+                    "rank": 46.0,
+                    "school_id": "5070",
+                    "school_name": "新都清流学校"
+                  },
+                  {
+                    "avg": 84.1,
+                    "rank": 47.0,
+                    "school_id": "5086",
+                    "school_name": "新辉"
+                  },
+                  {
+                    "avg": 84.0,
+                    "rank": 48.0,
+                    "school_id": "5066",
+                    "school_name": "美德嘉年"
+                  },
+                  {
+                    "avg": 82.82,
+                    "rank": 49.0,
+                    "school_id": "5091",
+                    "school_name": "扬帆"
+                  },
+                  {
+                    "avg": 81.68,
+                    "rank": 50.0,
+                    "school_id": "5063",
+                    "school_name": "龙虎"
+                  },
+                  {
+                    "avg": 81.62,
+                    "rank": 51.0,
+                    "school_id": "5062",
+                    "school_name": "龙安中心校"
+                  },
+                  {
+                    "avg": 80.92,
+                    "rank": 52.0,
+                    "school_id": "5080",
+                    "school_name": "渭水普文"
+                  },
+                  {
+                    "avg": 80.79,
+                    "rank": 53.0,
+                    "school_id": "5052",
+                    "school_name": "甫家"
+                  },
+                  {
+                    "avg": 79.53,
+                    "rank": 54.0,
+                    "school_id": "5093",
+                    "school_name": "雨禾"
+                  },
+                  {
+                    "avg": 78.36,
+                    "rank": 55.0,
+                    "school_id": "5069",
+                    "school_name": "清白育才"
+                  },
+                  {
+                    "avg": 70.92,
+                    "rank": 56.0,
+                    "school_id": "5049",
+                    "school_name": "狄邦肯思"
+                  }
+                ]
+              }
+            ],
+            "batch_code": "G4-2025",
+            "updated_at": "2025-09-12T14:08:07.357003+00:00",
+            "data_version": "v1.2",
+            "schema_version": "v1.2",
+            "aggregation_level": "REGIONAL"
+          },
+          "code": 200
+        },
+        "headers": {
+          "date": "Sun, 14 Sep 2025 02:10:37 GMT",
+          "server": "uvicorn",
+          "content-length": "30294",
+          "content-type": "application/json",
+          "connection": "close"
+        }
+      }
+    },
+    "database": {
+      "item": "database",
+      "passed": false,
+      "detail": {
+        "error": "connection.py not found: /root/deployment_package_production/app/database/connection.py"
+      }
+    }
+  }
+}

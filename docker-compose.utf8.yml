@@ -1,0 +1,148 @@
+version: "3.9"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: converged-computing-app
+    restart: unless-stopped
+    ports:
+      - "8010:8000"
+    command: ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-mysql+pymysql://root:mysql_Lujing2022@117.72.14.166:23506/appraisal_test?charset=utf8mb4}
+      PYTHONPATH: /app
+      APP_ENV: ${APP_ENV:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      WORKERS: ${WORKERS:-4}
+      MAX_CONNECTIONS: ${MAX_CONNECTIONS:-100}
+      POOL_SIZE: ${POOL_SIZE:-20}
+      POOL_RECYCLE: ${POOL_RECYCLE:-3600}
+      BATCH_SIZE: ${BATCH_SIZE:-10}
+      BATCH_TIMEOUT: ${BATCH_TIMEOUT:-300}
+      DISABLE_WRITES_FOR_BATCHES: ${DISABLE_WRITES_FOR_BATCHES:-}
+    volumes:
+      - ./logs:/app/logs
+      - ./temp:/app/temp
+      - ./docs:/app/docs:ro
+      - ./reports:/app/reports
+      - ./scripts:/app/scripts
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - converged-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+
+  subjects:
+    image: convergedcomputing-app:latest
+    container_name: subjects-v12-api
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-mysql+pymysql://root:mysql_Lujing2022@117.72.14.166:23506/appraisal_test?charset=utf8mb4}
+      PYTHONPATH: /app
+      DISABLE_WRITES_FOR_BATCHES: ${DISABLE_WRITES_FOR_BATCHES:-}
+    command: ["python", "-m", "uvicorn", "app.subjects_api_main:app", "--host", "0.0.0.0", "--port", "8001", "--workers", "2"]
+    ports:
+      - "8011:8001"
+    volumes:
+      - ./app:/app/app:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - converged-network
+
+  batch-processor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: converged-batch-processor
+    restart: "no"
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-mysql+pymysql://root:mysql_Lujing2022@117.72.14.166:23506/appraisal_test?charset=utf8mb4}
+      PYTHONPATH: /app
+      BATCH_MODE: "true"
+      DISABLE_WRITES_FOR_BATCHES: ${DISABLE_WRITES_FOR_BATCHES:-}
+    command: ["python", "scripts/batch_processor_entrypoint.py"]
+    volumes:
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+    networks:
+      - converged-network
+    depends_on:
+      - app
+    profiles:
+      - batch
+
+  validator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: converged-validator
+    restart: "no"
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-mysql+pymysql://root:mysql_Lujing2022@117.72.14.166:23506/appraisal_test?charset=utf8mb4}
+      PYTHONPATH: /app
+    command: ["python", "final_validation_report.py"]
+    volumes:
+      - ./reports:/app/reports
+    networks:
+      - converged-network
+    depends_on:
+      - app
+    profiles:
+      - validation
+
+  redis:
+    image: redis:7-alpine
+    container_name: converged-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - converged-network
+    command: redis-server --appendonly yes
+    profiles:
+      - cache
+
+  nginx:
+    image: nginx:alpine
+    container_name: converged-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    networks:
+      - converged-network
+    depends_on:
+      - app
+    profiles:
+      - production
+
+networks:
+  converged-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+    driver: local
+

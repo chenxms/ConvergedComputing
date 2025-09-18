@@ -1,0 +1,48 @@
+================================================================================
+G7-2025预聚合表创建报告 - 2025-09-18 01:30:32
+================================================================================
+
+[失败] 批次 G7-2025 预聚合表创建失败
+
+错误信息: 预聚合表创建失败: (pymysql.err.OperationalError) (1364, "Field 'created_at' doesn't have a default value")
+[SQL: 
+            INSERT INTO subject_core_metrics (
+                batch_code, subject_name, subject_type, student_count,
+                avg_score, std_score, max_score_achieved, min_score,
+                max_score, score_rate, difficulty_coefficient,
+                pass_rate, excellent_rate, good_rate, fail_rate
+            )
+            SELECT
+                scs.batch_code,
+                scs.subject_name,
+                scs.subject_type,
+                COUNT(*) AS student_count,
+                ROUND(AVG(scs.total_score), 4) AS avg_score,
+                ROUND(STDDEV_POP(scs.total_score), 4) AS std_score,
+                ROUND(MAX(scs.total_score), 4) AS max_score_achieved,
+                ROUND(MIN(scs.total_score), 4) AS min_score,
+                ROUND(MAX(scs.max_score), 4) AS max_score,
+                ROUND(AVG(CASE WHEN scs.max_score > 0 THEN scs.total_score / scs.max_score ELSE 0 END) * 100, 4) AS score_rate,
+                ROUND(AVG(CASE WHEN scs.max_score > 0 THEN scs.total_score / scs.max_score ELSE 0 END), 4) AS difficulty_coefficient,
+                NULL AS pass_rate,
+                NULL AS excellent_rate,
+                NULL AS good_rate,
+                NULL AS fail_rate
+            FROM student_cleaned_scores scs
+            JOIN school_master_data smd
+              ON smd.batch_code COLLATE utf8mb4_unicode_ci = scs.batch_code COLLATE utf8mb4_unicode_ci
+             AND smd.school_id COLLATE utf8mb4_unicode_ci = scs.school_code COLLATE utf8mb4_unicode_ci
+             AND smd.status = 'ACTIVE'
+            WHERE scs.batch_code = %(batch)s
+            GROUP BY scs.batch_code, scs.subject_name, scs.subject_type
+        ]
+[parameters: {'batch': 'G7-2025'}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+
+[故障排除] 建议:  1. 检查数据库连接是否正常
+  2. 确认G7-2025基础数据是否存在
+  3. 检查student_cleaned_scores表是否有数据
+  4. 验证school_master_data表是否正确配置
+  5. 查看详细错误日志: g7_precomputed_metrics.log
+
+================================================================================

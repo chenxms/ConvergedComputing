@@ -1,0 +1,303 @@
+{
+  "batch_code": "G4-2025",
+  "check_timestamp": "2025-09-10T02:51:46.113904",
+  "overall_status": "FAIL",
+  "total_checks": 8,
+  "passed_checks": 3,
+  "warned_checks": 2,
+  "failed_checks": 3,
+  "critical_issues": 2,
+  "results": [
+    {
+      "check_type": "BASIC_DATA_EXISTENCE",
+      "status": "PASS",
+      "message": "所有必要的数据表都有数据",
+      "details": {
+        "school_master_data": 56,
+        "student_cleaned_scores": 12850,
+        "student_score_detail": 12851
+      },
+      "severity": "LOW",
+      "recommendations": [],
+      "affected_count": 0
+    },
+    {
+      "check_type": "SCHOOL_DATA_CONSISTENCY",
+      "status": "FAIL",
+      "message": "发现 26 所孤立学校",
+      "details": {
+        "validation_result": {
+          "batch_code": "G4-2025",
+          "is_valid": false,
+          "errors": [
+            {
+              "type": "ORPHANED_SCHOOLS",
+              "message": "发现 26 所学校在student_cleaned_scores中但不在school_master_data中",
+              "schools": [
+                {
+                  "school_code": "SCH_0093",
+                  "school_name": "成都市新都区谕亭小学校（小学）",
+                  "student_count": 50
+                },
+                {
+                  "school_code": "SCH_0023",
+                  "school_name": "成都市新都一中实验学校（小学）",
+                  "student_count": 50
+                },
+                {
+                  "school_code": "SCH_0125",
+                  "school_name": "新都区渭水学校（小学）",
+                  "student_count": 50
+                },
+                {
+                  "school_code": "SCH_0092",
+                  "school_name": "成都市新都区西街小学校（小学）",
+                  "student_count": 50
+                },
+                {
+                  "school_code": "SCH_0071",
+                  "school_name": "成都市新都区泰兴小学校（小学）",
+                  "student_count": 50
+                },
+                {
+                  "school_code": "SCH_0078",
+                  "school_name": "成都市新都区石板滩小学校（小学）",
+                  "student_count": 50
+                },
+                {
+                  "school_code": "SCH_0061",
+                  "school_name": "成都市新都区木兰小学校（小学）",
+                  "student_count": 50
+                },
+                {
+                  "school_code": "SCH_0104",
+                  "school_name": "成都市新都区龙安小学校（小学）",
+                  "student_count": 50
+                },
+                {
+                  "school_code": "SCH_0049",
+                  "school_name": "成都市新都区教科院附属小学校（小学）",
+                  "student_count": 50
+                },
+                {
+                  "school_code": "SCH_0109",
+                  "school_name": "成都教科院附属新都实验学校（小学）",
+                  "student_count": 50
+                }
+              ]
+            }
+          ],
+          "warnings": [],
+          "statistics": {
+            "master_schools": 56,
+            "orphaned_schools": 26,
+            "name_inconsistencies": 0,
+            "invalid_school_ids": 0
+          },
+          "recommendations": [
+            "立即停止处理此批次数据",
+            "修复school_master_data中缺失的学校记录",
+            "重新运行数据清洗流程",
+            "验证所有学校名称使用标准化名称"
+          ]
+        },
+        "orphaned_schools": 26,
+        "master_schools": 56
+      },
+      "severity": "CRITICAL",
+      "recommendations": [
+        "立即停止处理此批次数据！",
+        "修复school_master_data中缺失的学校记录",
+        "使用DataValidator.enforce_master_data_constraint()清理不匹配数据",
+        "重新运行数据清洗流程",
+        "验证所有学校都在school_master_data中"
+      ],
+      "affected_count": 26
+    },
+    {
+      "check_type": "SCHOOL_NAME_COMPLETENESS",
+      "status": "FAIL",
+      "message": "发现 1 条NULL或空的学校名称记录",
+      "details": {
+        "null_counts_by_table": {
+          "student_cleaned_scores": 0,
+          "school_master_data": 0,
+          "statistical_aggregations": 1
+        },
+        "total_null_count": 1
+      },
+      "severity": "CRITICAL",
+      "recommendations": [
+        "立即停止处理！NULL学校名称会导致前端显示错误",
+        "修复所有NULL或空的学校名称",
+        "确保school_master_data中所有学校都有标准化名称",
+        "重新运行数据清洗和汇聚流程",
+        "添加数据库约束防止NULL值"
+      ],
+      "affected_count": 1
+    },
+    {
+      "check_type": "DATA_SOURCE_CONSISTENCY",
+      "status": "PASS",
+      "message": "数据源一致性检查通过",
+      "details": {
+        "school_master_data": {
+          "SYSTEM_AUTO_REGISTER": 56
+        },
+        "student_cleaned_scores": {
+          "CLEANED_DATA": 12850
+        }
+      },
+      "severity": "LOW",
+      "recommendations": [],
+      "affected_count": 0
+    },
+    {
+      "check_type": "STUDENT_DATA_DISTRIBUTION",
+      "status": "WARN",
+      "message": "学生数据分布有 1 个问题",
+      "details": {
+        "total_schools": 82,
+        "total_students": 12850,
+        "avg_students_per_school": 156.71,
+        "min_students": 20,
+        "max_students": 1684,
+        "low_student_schools": [],
+        "duplicate_data_schools": [
+          {
+            "school_code": "5060",
+            "school_name": "利济(小学)",
+            "student_count": 1684,
+            "unique_students": 1585
+          },
+          {
+            "school_code": "5048",
+            "school_name": "大丰(小学)",
+            "student_count": 421,
+            "unique_students": 281
+          },
+          {
+            "school_code": "5094",
+            "school_name": "谕亭(本部）(小学)",
+            "student_count": 379,
+            "unique_students": 187
+          },
+          {
+            "school_code": "5084",
+            "school_name": "香城(小学)",
+            "student_count": 342,
+            "unique_students": 208
+          },
+          {
+            "school_code": "5068",
+            "school_name": "南丰(小学)",
+            "student_count": 322,
+            "unique_students": 192
+          }
+        ]
+      },
+      "severity": "MEDIUM",
+      "recommendations": [
+        "检查学生数过少的学校是否正常",
+        "清理重复的学生数据",
+        "验证学校规模是否合理"
+      ],
+      "affected_count": 56
+    },
+    {
+      "check_type": "HISTORICAL_DATA_COMPARISON",
+      "status": "WARN",
+      "message": "学校数量偏差34.9%，超过5.0%阈值",
+      "details": {
+        "current_batch": "G4-2025",
+        "current_school_count": 56,
+        "historical_average": 41.5,
+        "deviation_percentage": 34.94,
+        "threshold_percentage": 5.0,
+        "historical_data": {
+          "G8-2025": 41,
+          "G7-2025": 42,
+          "G4-2025": 56
+        }
+      },
+      "severity": "MEDIUM",
+      "recommendations": [
+        "检查是否有学校数据缺失",
+        "验证批次范围是否正确",
+        "确认是否有新增或减少的学校"
+      ],
+      "affected_count": 1
+    },
+    {
+      "check_type": "DATA_COMPLETENESS",
+      "status": "FAIL",
+      "message": "检查过程出错: (pymysql.err.OperationalError) (1054, \"Unknown column 'subject_code' in 'field list'\")\n[SQL: \n                SELECT \n                    COUNT(*) as total_records,\n                    COUNT(student_id) as non_null_student_ids,\n                    COUNT(school_code) as non_null_school_codes,\n                    COUNT(school_name) as non_null_school_names,\n                    COUNT(subject_code) as non_null_subject_codes,\n                    COUNT(score) as non_null_scores\n                FROM student_cleaned_scores \n                WHERE batch_code = %(batch_code)s\n            ]\n[parameters: {'batch_code': 'G4-2025'}]\n(Background on this error at: https://sqlalche.me/e/20/e3q8)",
+      "details": {},
+      "severity": "MEDIUM",
+      "recommendations": [
+        "检查数据库连接",
+        "重新运行检查"
+      ],
+      "affected_count": 1
+    },
+    {
+      "check_type": "PERFORMANCE_IMPACT",
+      "status": "PASS",
+      "message": "数据量适中(25,701条)，预估处理时间8分钟",
+      "details": {
+        "data_volume": {
+          "student_cleaned_scores": {
+            "records": 12850,
+            "schools": 82,
+            "students": 7378
+          },
+          "student_score_detail": {
+            "records": 12851,
+            "schools": 57,
+            "students": 7379
+          }
+        },
+        "total_records": 25701,
+        "estimated_processing_time_minutes": 8,
+        "performance_level": "LOW"
+      },
+      "severity": "LOW",
+      "recommendations": [],
+      "affected_count": 0
+    }
+  ],
+  "recommendations": [
+    "立即停止处理此批次数据！",
+    "修复school_master_data中缺失的学校记录",
+    "使用DataValidator.enforce_master_data_constraint()清理不匹配数据",
+    "重新运行数据清洗流程",
+    "验证所有学校都在school_master_data中",
+    "立即停止处理！NULL学校名称会导致前端显示错误",
+    "修复所有NULL或空的学校名称",
+    "确保school_master_data中所有学校都有标准化名称",
+    "重新运行数据清洗和汇聚流程",
+    "添加数据库约束防止NULL值",
+    "检查学生数过少的学校是否正常",
+    "清理重复的学生数据",
+    "验证学校规模是否合理",
+    "检查是否有学校数据缺失",
+    "验证批次范围是否正确",
+    "确认是否有新增或减少的学校",
+    "检查数据库连接",
+    "重新运行检查"
+  ],
+  "summary": {
+    "processing_time_seconds": 3.42,
+    "total_affected_count": 85,
+    "critical_checks": [
+      "SCHOOL_DATA_CONSISTENCY",
+      "SCHOOL_NAME_COMPLETENESS"
+    ],
+    "failed_checks": [
+      "SCHOOL_DATA_CONSISTENCY",
+      "SCHOOL_NAME_COMPLETENESS",
+      "DATA_COMPLETENESS"
+    ],
+    "check_completion_rate": 62.5
+  }
+}

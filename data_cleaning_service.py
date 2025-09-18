@@ -6,21 +6,32 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import asyncio
+import logging
 import pandas as pd
 import json
-from typing import Dict, List, Any
+from typing import Any, Dict, List, Optional
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
+
+from app.database.models import SubjectCoreMetric, SubjectSchoolRanking
+
+logger = logging.getLogger(__name__)
 
 class DataCleaningService:
     """数据清洗服务"""
     
-    def __init__(self, db_session):
+    def __init__(self, db_session, exclude_zero_total_scores: Optional[bool] = None):
         self.db_session = db_session
+        if exclude_zero_total_scores is None:
+            env_val = os.getenv("EXCLUDE_ZERO_TOTAL_SCORE", "1").strip().lower()
+            self.exclude_zero_total_scores = env_val in {"1", "true", "yes", "on"}
+        else:
+            self.exclude_zero_total_scores = bool(exclude_zero_total_scores)
     
     async def clean_batch_scores(self, batch_code: str) -> Dict[str, Any]:
         """清洗批次分数数据"""
-        print(f"开始清洗批次 {batch_code} 的分数数据...")
+        status_label = "开启" if self.exclude_zero_total_scores else "关闭"
+        print(f"开始清洗批次 {batch_code} 的分数数据... (零分过滤：{status_label})")
         
         cleaning_result = {
             'batch_code': batch_code,
@@ -68,6 +79,8 @@ class DataCleaningService:
                 cleaning_result['anomalous_records'] += subject_result['anomalous_records']
                 cleaning_result['subjects_processed'] += 1
             
+            await self._materialize_precomputed_metrics(batch_code)
+            print(f"批次 {batch_code} 预聚合指标已刷新")
             print(f"批次 {batch_code} 清洗完成:")
             print(f"  处理科目: {cleaning_result['subjects_processed']} 个")
             print(f"  原始记录: {cleaning_result['total_raw_records']} 条")
@@ -82,6 +95,175 @@ class DataCleaningService:
             traceback.print_exc()
             return cleaning_result
     
+    async def clean_single_subject(self, batch_code: str, subject_name: str) -> Dict[str, Any]:
+        """清洗指定批次的单个科目并刷新预聚合指标"""
+        print(f"开始清洗批次 {batch_code} 的科目 {subject_name} ...")
+        result = {
+            'batch_code': batch_code,
+            'subject_name': subject_name,
+            'raw_records': 0,
+            'cleaned_records': 0,
+            'anomalous_records': 0,
+            'unique_students': 0,
+        }
+
+        subjects_config = await self._get_batch_subjects(batch_code)
+        target = None
+        for cfg in subjects_config:
+            if str(cfg.get('subject_name')) == str(subject_name):
+                target = cfg
+                break
+
+        if not target:
+            print(f"批次 {batch_code} 未找到科目 {subject_name} 的配置")
+            return result
+
+        try:
+            self.db_session.execute(
+                text("DELETE FROM student_cleaned_scores WHERE batch_code = :batch_code AND subject_name = :subject_name"),
+                {'batch_code': batch_code, 'subject_name': subject_name}
+            )
+            self.db_session.execute(
+                text("DELETE FROM questionnaire_question_scores WHERE batch_code = :batch_code AND subject_name = :subject_name"),
+                {'batch_code': batch_code, 'subject_name': subject_name}
+            )
+            self.db_session.commit()
+        except Exception as exc:
+            self.db_session.rollback()
+            print(f"清理旧数据失败: {exc}")
+            raise
+
+        if target.get('is_questionnaire', False):
+            subject_result = await self._clean_questionnaire_scores(
+                batch_code,
+                subject_name,
+                target.get('instrument_id'),
+                int(target.get('question_count') or 0)
+            )
+        else:
+            subject_result = await self._clean_subject_scores(
+                batch_code,
+                subject_name,
+                float(target.get('max_score') or 100.0),
+                int(target.get('question_count') or 0)
+            )
+
+        result.update(subject_result)
+        result['batch_code'] = batch_code
+        await self._materialize_precomputed_metrics(batch_code)
+        print(f"科目 {subject_name} 清洗完成")
+        return result
+
+    async def _materialize_precomputed_metrics(self, batch_code: str) -> None:
+        """生成清洗阶段的科目核心指标与学校排名缓存"""
+        SubjectCoreMetric.__table__.create(self.db_session.bind, checkfirst=True)
+        SubjectSchoolRanking.__table__.create(self.db_session.bind, checkfirst=True)
+
+        delete_core = text("DELETE FROM subject_core_metrics WHERE batch_code = :batch")
+        delete_school = text("DELETE FROM subject_school_rankings WHERE batch_code = :batch")
+
+        core_insert_sql = text("""
+            INSERT INTO subject_core_metrics (
+                batch_code, subject_name, subject_type, student_count,
+                avg_score, std_score, max_score_achieved, min_score,
+                max_score, score_rate, difficulty_coefficient,
+                pass_rate, excellent_rate, good_rate, fail_rate,
+                created_at, updated_at
+            )
+            SELECT
+                scs.batch_code,
+                scs.subject_name,
+                scs.subject_type,
+                COUNT(*) AS student_count,
+                ROUND(AVG(scs.total_score), 4) AS avg_score,
+                ROUND(STDDEV_POP(scs.total_score), 4) AS std_score,
+                ROUND(MAX(scs.total_score), 4) AS max_score_achieved,
+                ROUND(MIN(scs.total_score), 4) AS min_score,
+                ROUND(MAX(scs.max_score), 4) AS max_score,
+                ROUND(AVG(CASE WHEN scs.max_score > 0 THEN scs.total_score / scs.max_score ELSE 0 END) * 100, 4) AS score_rate,
+                ROUND(AVG(CASE WHEN scs.max_score > 0 THEN scs.total_score / scs.max_score ELSE 0 END), 4) AS difficulty_coefficient,
+                NULL AS pass_rate,
+                NULL AS excellent_rate,
+                NULL AS good_rate,
+                NULL AS fail_rate,
+                NOW() AS created_at,
+                NOW() AS updated_at
+            FROM student_cleaned_scores scs
+            JOIN school_master_data smd
+              ON smd.batch_code COLLATE utf8mb4_unicode_ci = scs.batch_code COLLATE utf8mb4_unicode_ci
+             AND smd.school_id COLLATE utf8mb4_unicode_ci = scs.school_code COLLATE utf8mb4_unicode_ci
+             AND smd.status = 'ACTIVE'
+            WHERE scs.batch_code = :batch
+            GROUP BY scs.batch_code, scs.subject_name, scs.subject_type
+        """)
+
+        school_insert_sql = text("""
+            INSERT INTO subject_school_rankings (
+                batch_code, subject_name, subject_type,
+                school_code, school_name, student_count,
+                avg_score, std_score, max_score_achieved, min_score, max_score,
+                score_rate, difficulty_coefficient,
+                `rank`, total_schools,
+                created_at, updated_at
+            )
+            SELECT
+                base.batch_code,
+                base.subject_name,
+                base.subject_type,
+                base.school_code,
+                base.school_name,
+                base.student_count,
+                ROUND(base.avg_score, 4) AS avg_score,
+                ROUND(base.std_score, 4) AS std_score,
+                ROUND(base.max_score_achieved, 4) AS max_score_achieved,
+                ROUND(base.min_score, 4) AS min_score,
+                ROUND(base.max_score, 4) AS max_score,
+                ROUND(base.score_ratio * 100, 4) AS score_rate,
+                ROUND(base.score_ratio, 4) AS difficulty_coefficient,
+                DENSE_RANK() OVER (
+                    PARTITION BY base.subject_name
+                    ORDER BY base.avg_score DESC, base.school_code ASC
+                ) AS `rank`,
+                COUNT(*) OVER (
+                    PARTITION BY base.subject_name
+                ) AS total_schools,
+                NOW() AS created_at,
+                NOW() AS updated_at
+            FROM (
+                SELECT
+                    scs.batch_code,
+                    scs.subject_name,
+                    scs.subject_type,
+                    scs.school_code,
+                    smd.standard_school_name AS school_name,
+                    COUNT(*) AS student_count,
+                    AVG(scs.total_score) AS avg_score,
+                    STDDEV_POP(scs.total_score) AS std_score,
+                    MAX(scs.total_score) AS max_score_achieved,
+                    MIN(scs.total_score) AS min_score,
+                    MAX(scs.max_score) AS max_score,
+                    AVG(CASE WHEN scs.max_score > 0 THEN scs.total_score / scs.max_score ELSE 0 END) AS score_ratio
+                FROM student_cleaned_scores scs
+                JOIN school_master_data smd
+                  ON smd.batch_code COLLATE utf8mb4_unicode_ci = scs.batch_code COLLATE utf8mb4_unicode_ci
+                 AND smd.school_id COLLATE utf8mb4_unicode_ci = scs.school_code COLLATE utf8mb4_unicode_ci
+                 AND smd.status = 'ACTIVE'
+                WHERE scs.batch_code = :batch
+                GROUP BY scs.batch_code, scs.subject_name, scs.subject_type, scs.school_code, smd.standard_school_name
+            ) AS base
+        """)
+
+        try:
+            self.db_session.execute(delete_core, {'batch': batch_code})
+            self.db_session.execute(delete_school, {'batch': batch_code})
+            core_result = self.db_session.execute(core_insert_sql, {'batch': batch_code})
+            school_result = self.db_session.execute(school_insert_sql, {'batch': batch_code})
+            self.db_session.commit()
+            print(f"  预聚合指标写入完成：核心指标 {core_result.rowcount or 0} 条，学校排名 {school_result.rowcount or 0} 条")
+        except Exception as exc:
+            self.db_session.rollback()
+            print(f"预聚合指标生成失败: {exc}")
+            raise
     async def _get_batch_subjects(self, batch_code: str) -> List[Dict[str, Any]]:
         """获取批次科目配置，包含问卷类型识别"""
         try:
@@ -158,21 +340,27 @@ class DataCleaningService:
             dimension_max_scores = await self._calculate_dimension_max_scores(batch_code, subject_name)
             print(f"  计算得到 {len(dimension_max_scores)} 个维度满分")
             
-            # 2. 获取原始数据（包含subject_scores）
+            # 2. 获取原始数据（包含subject_scores）- 必须与school_master_data JOIN
             query = text("""
-                SELECT 
-                    student_id,
-                    student_name,
-                    school_id, 
-                    school_code,
-                    school_name,
-                    class_name,
-                    subject_id,
-                    total_score,
-                    subject_scores
-                FROM student_score_detail
-                WHERE batch_code = :batch_code AND subject_name = :subject_name
-                ORDER BY student_id
+                SELECT DISTINCT
+                    ssd.student_id,
+                    ssd.student_name,
+                    ssd.school_id, 
+                    COALESCE(smd.school_id, ssd.school_code) AS school_code,
+                    COALESCE(smd.standard_school_name, ssd.school_name) AS school_name,
+                    ssd.class_name,
+                    ssd.subject_id,
+                    ssd.total_score,
+                    ssd.subject_scores
+                FROM student_score_detail ssd
+                INNER JOIN school_master_data smd 
+                    ON smd.batch_code COLLATE utf8mb4_unicode_ci = ssd.batch_code COLLATE utf8mb4_unicode_ci
+                    AND smd.school_id COLLATE utf8mb4_unicode_ci = COALESCE(ssd.school_id, ssd.school_code) COLLATE utf8mb4_unicode_ci
+                    AND smd.status = 'ACTIVE'
+                WHERE ssd.batch_code = :batch_code 
+                    AND ssd.subject_name = :subject_name
+                    AND smd.school_id IS NOT NULL
+                ORDER BY ssd.student_id
             """)
             
             raw_result = self.db_session.execute(query, {
@@ -187,11 +375,16 @@ class DataCleaningService:
                 print(f"  科目 {subject_name} 没有原始数据")
                 return result
             
-            # 3. 转换为DataFrame进行聚合
+            # 3. 转换为DataFrame进行聚合 - 使用标准化的school_name
             df = pd.DataFrame(raw_data, columns=[
                 'student_id', 'student_name', 'school_id', 'school_code', 
                 'school_name', 'class_name', 'subject_id', 'total_score', 'subject_scores'
             ])
+            
+            print(f"  与school_master_data匹配后的记录数: {len(df)}")
+            if len(df) == 0:
+                print(f"  警告: 科目 {subject_name} 的所有学校都未在school_master_data中找到匹配记录")
+                return result
             
             # 4. 按学生分组聚合分数
             print(f"  原始记录: {len(df)} 条")
@@ -253,7 +446,11 @@ class DataCleaningService:
                 print(f"  未找到维度定义，跳过维度分数计算")
             
             # 6. 过滤异常分数
-            valid_mask = (aggregated['total_score'] >= 0) & (aggregated['total_score'] <= max_score)
+            base_mask = (aggregated["total_score"] >= 0) & (aggregated["total_score"] <= max_score)
+            if self.exclude_zero_total_scores:
+                valid_mask = base_mask & (aggregated["total_score"] > 0)
+            else:
+                valid_mask = base_mask
             anomalous_data = aggregated[~valid_mask]
             clean_data = aggregated[valid_mask]
             
@@ -279,8 +476,16 @@ class DataCleaningService:
             traceback.print_exc()
             return result
     
-    async def _insert_cleaned_scores(self, batch_code: str, subject_name: str, 
-                                   clean_data: pd.DataFrame, max_score: float, question_count: int, dimension_max_scores: Dict[str, Any]):
+    async def _insert_cleaned_scores(
+        self,
+        batch_code: str,
+        subject_name: str,
+        clean_data: pd.DataFrame,
+        max_score: float,
+        question_count: int,
+        dimension_max_scores: Dict[str, Any],
+        subject_type: str = 'exam',
+    ):
         """批量插入清洗后的分数数据"""
         try:
             # 准备批量插入数据
@@ -305,7 +510,7 @@ class DataCleaningService:
                     'is_valid': 1,
                     'dimension_scores': dimension_scores_json,
                     'dimension_max_scores': dimension_max_scores_json,
-                    'subject_type': 'exam'
+                    'subject_type': subject_type
                 })
             
             # 批量插入
@@ -352,33 +557,58 @@ class DataCleaningService:
             
             # 2. 为每个维度计算满分
             for dim_code, dim_name in dimensions:
-                # 获取该维度下的所有题目及其满分
+                dim_code_str = str(dim_code) if dim_code is not None else ''
+                dim_name_str = dim_name or dim_code_str or 'UNKNOWN'
+                if not dim_code_str:
+                    continue
+
                 max_score_query = text("""
                     SELECT SUM(sqc.max_score) as total_max_score
                     FROM question_dimension_mapping qdm
-                    JOIN subject_question_config sqc ON qdm.question_id = sqc.question_id 
-                        AND qdm.batch_code = sqc.batch_code 
-                        AND qdm.subject_name = sqc.subject_name
-                    WHERE qdm.batch_code = :batch_code 
-                        AND qdm.subject_name = :subject_name
-                        AND qdm.dimension_code = :dimension_code
-                        AND sqc.question_type_enum IN ('exam','interaction')
+                    JOIN subject_question_config sqc
+                      ON qdm.batch_code COLLATE utf8mb4_unicode_ci = sqc.batch_code COLLATE utf8mb4_unicode_ci
+                     AND qdm.subject_name COLLATE utf8mb4_unicode_ci = sqc.subject_name COLLATE utf8mb4_unicode_ci
+                     AND CAST(qdm.question_id AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci =
+                         CAST(sqc.question_id AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+                    WHERE qdm.batch_code COLLATE utf8mb4_unicode_ci = CAST(:batch_code AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+                      AND qdm.subject_name COLLATE utf8mb4_unicode_ci = CAST(:subject_name AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+                      AND qdm.dimension_code COLLATE utf8mb4_unicode_ci = CAST(:dimension_code AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
                 """)
-                
+
                 max_score_result = self.db_session.execute(max_score_query, {
                     'batch_code': batch_code,
                     'subject_name': subject_name,
-                    'dimension_code': dim_code
+                    'dimension_code': dim_code_str
                 })
-                
+
                 max_score_row = max_score_result.fetchone()
-                max_score = float(max_score_row[0]) if max_score_row[0] else 0.0
-                
-                dimension_max_scores[dim_code] = {
+                max_score = float(max_score_row[0]) if max_score_row and max_score_row[0] else 0.0
+
+                if max_score == 0.0:
+                    fallback_query = text("""
+                        SELECT SUM(max_score) as total_max_score
+                        FROM subject_question_config
+                        WHERE batch_code = :batch_code
+                          AND subject_name = :subject_name
+                          AND question_type_enum = 'questionnaire'
+                          AND (
+                              question_id = :dimension_code OR
+                              question_id LIKE CONCAT(:dimension_code, '-%') OR
+                              instrument_id = :dimension_code
+                          )
+                    """)
+                    fallback_result = self.db_session.execute(fallback_query, {
+                        'batch_code': batch_code,
+                        'subject_name': subject_name,
+                        'dimension_code': dim_code_str
+                    })
+                    fallback_row = fallback_result.fetchone()
+                    max_score = float(fallback_row[0]) if fallback_row and fallback_row[0] else 0.0
+
+                dimension_max_scores[dim_code_str] = {
                     'max_score': max_score,
-                    'name': dim_name
+                    'name': dim_name_str
                 }
-            
             return dimension_max_scores
             
         except Exception as e:
@@ -412,14 +642,17 @@ class DataCleaningService:
             # 2. 构建维度映射字典
             dimension_questions = {}
             for dim_code, dim_name, question_id in mappings:
-                if dim_code not in dimension_questions:
-                    dimension_questions[dim_code] = {
-                        'name': dim_name,
+                dim_code_str = str(dim_code) if dim_code is not None else ''
+                if not dim_code_str:
+                    continue
+                question_id_str = str(question_id) if question_id is not None else ''
+                if dim_code_str not in dimension_questions:
+                    dimension_questions[dim_code_str] = {
+                        'name': dim_name or dim_code_str,
                         'questions': []
                     }
-                dimension_questions[dim_code]['questions'].append(question_id)
-            
-            # 3. 批量处理每个学生的维度分数
+                if question_id_str:
+                    dimension_questions[dim_code_str]['questions'].append(question_id_str)
             results = []
             for subject_scores_json in subject_scores_list:
                 student_dimension_scores = await self._calculate_student_dimension_scores(
@@ -553,80 +786,258 @@ class DataCleaningService:
             # 3) 物化选项分布
             self.db_session.execute(text(
                 """
-                REPLACE INTO questionnaire_option_distribution
-                    (batch_code, subject_name, question_id, option_level, count, updated_at)
-                SELECT batch_code, subject_name, question_id, option_level, COUNT(*), NOW()
+                INSERT INTO questionnaire_option_distribution
+                    (batch_code, school_id, subject_name, question_id, option_level, option_label, count, n_total, pct)
+                SELECT
+                    d.batch_code,
+                    d.school_id,
+                    d.subject_name,
+                    d.question_id,
+                    d.option_level,
+                    NULL AS option_label,
+                    d.cnt AS count,
+                    t.total AS n_total,
+                    ROUND(d.cnt * 100.0 / NULLIF(t.total, 0), 2) AS pct
                 FROM (
-                    SELECT 
-                        batch_code,
-                        subject_name,
-                        question_id,
-                        GREATEST(1, LEAST(scale_level,
-                            ROUND(COALESCE(original_score,0) / NULLIF(max_score,0) * scale_level, 0)
-                        )) AS option_level
-                    FROM questionnaire_question_scores
-                    WHERE BINARY batch_code = BINARY :batch_code
-                      AND BINARY subject_name = BINARY :subject_name
-                ) x
-                GROUP BY batch_code, subject_name, question_id, option_level
+                    SELECT
+                        qqs.batch_code,
+                        qqs.school_id,
+                        qqs.subject_name,
+                        qqs.question_id,
+                        GREATEST(
+                            1,
+                            LEAST(
+                                qqs.scale_level,
+                                ROUND(COALESCE(qqs.original_score,0) / NULLIF(qqs.max_score,0) * qqs.scale_level, 0)
+                            )
+                        ) AS option_level,
+                        COUNT(*) AS cnt
+                    FROM questionnaire_question_scores qqs
+                    WHERE BINARY qqs.batch_code = BINARY :batch_code
+                      AND BINARY qqs.subject_name = BINARY :subject_name
+                      AND qqs.school_id IS NOT NULL
+                    GROUP BY qqs.batch_code, qqs.school_id, qqs.subject_name, qqs.question_id,
+                             GREATEST(
+                                1,
+                                LEAST(
+                                    qqs.scale_level,
+                                    ROUND(COALESCE(qqs.original_score,0) / NULLIF(qqs.max_score,0) * qqs.scale_level, 0)
+                                )
+                             )
+                ) d
+                JOIN (
+                    SELECT
+                        qqs.batch_code,
+                        qqs.school_id,
+                        qqs.subject_name,
+                        qqs.question_id,
+                        COUNT(*) AS total
+                    FROM questionnaire_question_scores qqs
+                    WHERE BINARY qqs.batch_code = BINARY :batch_code
+                      AND BINARY qqs.subject_name = BINARY :subject_name
+                      AND qqs.school_id IS NOT NULL
+                    GROUP BY qqs.batch_code, qqs.school_id, qqs.subject_name, qqs.question_id
+                ) t
+                  ON t.batch_code = d.batch_code
+                 AND t.school_id = d.school_id
+                 AND t.subject_name = d.subject_name
+                 AND t.question_id = d.question_id
                 """
             ), {'batch_code': batch_code, 'subject_name': subject_name})
 
-            # 4) 写入汇总 student_cleaned_scores（逐题求和 / 满分求和）
+            # 4) 写入汇总 student_cleaned_scores（包含维度 JSON）
             self.db_session.execute(text(
                 "DELETE FROM student_cleaned_scores WHERE batch_code=:batch_code AND subject_name=:subject_name AND subject_type='questionnaire'"
             ), {'batch_code': batch_code, 'subject_name': subject_name})
 
-            self.db_session.execute(text(
+            dimension_max_scores = await self._calculate_dimension_max_scores(batch_code, subject_name)
+
+            max_score_row = self.db_session.execute(text(
                 """
-                INSERT INTO student_cleaned_scores 
-                    (batch_code, student_id, student_name, school_id, school_code, school_name,
-                     class_name, subject_id, subject_name, total_score, max_score,
-                     question_count, is_valid, dimension_scores, dimension_max_scores, subject_type)
-                SELECT
-                    :batch_code AS batch_code,
-                    CAST(ssd.student_id AS UNSIGNED) AS student_id,
+                SELECT SUM(max_score) AS total_max
+                FROM subject_question_config
+                WHERE BINARY batch_code = BINARY :batch_code
+                  AND BINARY subject_name = BINARY :subject_name
+                  AND question_type_enum = 'questionnaire'
+                """
+            ), {'batch_code': batch_code, 'subject_name': subject_name}).fetchone()
+            questionnaire_max_score = float(max_score_row[0]) if max_score_row and max_score_row[0] else 0.0
+
+            question_count_row = self.db_session.execute(text(
+                """
+                SELECT COUNT(*)
+                FROM subject_question_config
+                WHERE BINARY batch_code = BINARY :batch_code
+                  AND BINARY subject_name = BINARY :subject_name
+                  AND question_type_enum = 'questionnaire'
+                """
+            ), {'batch_code': batch_code, 'subject_name': subject_name}).fetchone()
+            question_count_value = int(question_count_row[0]) if question_count_row and question_count_row[0] else 0
+
+            student_query = text("""
+                SELECT DISTINCT
+                    ssd.student_id,
                     ssd.student_name,
                     ssd.school_id,
-                    ssd.school_code,
-                    ssd.school_name,
+                    COALESCE(smd.school_id, ssd.school_code) AS school_code,
+                    COALESCE(smd.standard_school_name, ssd.school_name) AS school_name,
                     ssd.class_name,
                     ssd.subject_id,
-                    :subject_name AS subject_name,
-                    ROUND(SUM(qqs.original_score), 2) AS total_score,
-                    (
-                        SELECT SUM(sqc2.max_score)
-                        FROM subject_question_config sqc2
-                        WHERE BINARY sqc2.batch_code = BINARY :batch_code
-                          AND BINARY sqc2.subject_name = BINARY :subject_name
-                          AND sqc2.question_type_enum = 'questionnaire'
-                    ) AS max_score,
-                    (
-                        SELECT COUNT(*)
-                        FROM subject_question_config sqc3
-                        WHERE BINARY sqc3.batch_code = BINARY :batch_code
-                          AND BINARY sqc3.subject_name = BINARY :subject_name
-                          AND sqc3.question_type_enum = 'questionnaire'
-                    ) AS question_count,
-                    1 AS is_valid,
-                    '{}' AS dimension_scores,
-                    '{}' AS dimension_max_scores,
-                    'questionnaire' AS subject_type
-                FROM questionnaire_question_scores qqs
-                JOIN student_score_detail ssd
-                  ON BINARY ssd.batch_code = BINARY qqs.batch_code
-                 AND BINARY ssd.subject_name = BINARY qqs.subject_name
-                 AND ssd.student_id = qqs.student_id
-                WHERE BINARY qqs.batch_code = BINARY :batch_code
-                  AND BINARY qqs.subject_name = BINARY :subject_name
-                  AND ssd.student_id REGEXP '^[0-9]+$'
-                GROUP BY ssd.student_id, ssd.student_name, ssd.school_id, ssd.school_code,
-                         ssd.school_name, ssd.class_name, ssd.subject_id
-                """
-            ), {'batch_code': batch_code, 'subject_name': subject_name})
+                    ssd.subject_scores
+                FROM student_score_detail ssd
+                INNER JOIN school_master_data smd 
+                    ON smd.batch_code COLLATE utf8mb4_unicode_ci = ssd.batch_code COLLATE utf8mb4_unicode_ci
+                    AND smd.school_id COLLATE utf8mb4_unicode_ci = COALESCE(ssd.school_id, ssd.school_code) COLLATE utf8mb4_unicode_ci
+                    AND smd.status = 'ACTIVE'
+                WHERE ssd.batch_code = :batch_code 
+                    AND ssd.subject_name = :subject_name
+                    AND ssd.student_id REGEXP '^[0-9]+$'
+                ORDER BY ssd.student_id
+            """)
 
-            self.db_session.commit()
-            print(f"  问卷科目 {subject_name} 处理完成（明细 {result['cleaned_records']} 条）")
+            student_rows = self.db_session.execute(student_query, {
+                'batch_code': batch_code,
+                'subject_name': subject_name
+            }).fetchall()
+
+            if not student_rows:
+                print(f"  问卷科目 {subject_name} 未生成有效学生记录")
+                self.db_session.commit()
+                result['cleaned_records'] = 0
+                return result
+
+            df = pd.DataFrame(student_rows, columns=[
+                'student_id', 'student_name', 'school_id', 'school_code',
+                'school_name', 'class_name', 'subject_id', 'subject_scores'
+            ])
+
+            print(f"  问卷科目与school_master_data匹配后的记录数: {len(df)}")
+            if df.empty:
+                print(f"  问卷科目 {subject_name} 无法匹配有效学校数据")
+                self.db_session.commit()
+                result['cleaned_records'] = 0
+                return result
+
+            qid_query = text("""
+                SELECT question_id
+                FROM subject_question_config
+                WHERE batch_code=:batch_code AND subject_name=:subject_name
+                  AND question_type_enum = 'questionnaire'
+            """)
+            qids = self.db_session.execute(qid_query, {
+                'batch_code': batch_code,
+                'subject_name': subject_name
+            }).fetchall()
+            qid_set = set(str(r[0]) for r in qids if r[0] is not None)
+
+            def _sum_questionnaire_scores(json_text: Any) -> float:
+                if not json_text:
+                    return 0.0
+                try:
+                    payload = json_text
+                    if isinstance(json_text, (bytes, bytearray)):
+                        payload = json_text.decode('utf-8')
+                    if isinstance(payload, str):
+                        payload = json.loads(payload)
+                except Exception:
+                    return 0.0
+                if not isinstance(payload, dict):
+                    return 0.0
+                total = 0.0
+                for key, value in payload.items():
+                    if qid_set and str(key) not in qid_set:
+                        continue
+                    try:
+                        total += float(value) if value is not None else 0.0
+                    except (TypeError, ValueError):
+                        continue
+                return total
+
+            df['total_score'] = df['subject_scores'].apply(_sum_questionnaire_scores)
+
+            aggregated = df.groupby(['student_id']).agg({
+                'student_name': 'first',
+                'school_id': 'first', 
+                'school_code': 'first',
+                'school_name': 'first',
+                'class_name': 'first',
+                'subject_id': 'first',
+                'total_score': 'sum',
+                'subject_scores': 'first'
+            }).reset_index()
+
+            print(f"  问卷按学生聚合后: {len(aggregated)} 条")
+            result['unique_students'] = len(aggregated)
+
+            if len(dimension_max_scores) > 0:
+                print(f"  问卷科目 {subject_name} 开始计算学生维度分数...")
+                dim_scores_list = await self._calculate_student_dimension_scores_batch(
+                    batch_code, subject_name, aggregated['subject_scores'].tolist()
+                )
+            else:
+                dim_scores_list = [{}] * len(aggregated)
+
+            enriched_dim_scores: List[Dict[str, Any]] = []
+            for dim_scores in dim_scores_list:
+                if not isinstance(dim_scores, dict):
+                    enriched_dim_scores.append({})
+                    continue
+                enriched_entry: Dict[str, Any] = {}
+                for dim_code, payload in dim_scores.items():
+                    if isinstance(payload, dict):
+                        dim_payload = dict(payload)
+                    else:
+                        try:
+                            dim_payload = {'score': float(payload)}
+                        except (TypeError, ValueError):
+                            dim_payload = {'score': 0.0}
+                    dim_info = dimension_max_scores.get(dim_code)
+                    if isinstance(dim_info, dict):
+                        if 'max_score' in dim_info and dim_payload.get('max_score') is None:
+                            dim_payload['max_score'] = dim_info['max_score']
+                        if 'name' in dim_info and dim_payload.get('name') is None:
+                            dim_payload['name'] = dim_info['name']
+                    enriched_entry[dim_code] = dim_payload
+                enriched_dim_scores.append(enriched_entry)
+
+            aggregated['dimension_scores'] = enriched_dim_scores
+            aggregated = aggregated.drop(columns=['subject_scores'])
+
+            effective_max_score = questionnaire_max_score if questionnaire_max_score > 0 else float(aggregated['total_score'].max() or 0.0)
+
+            base_mask = aggregated['total_score'] >= 0
+            if effective_max_score > 0:
+                base_mask &= aggregated['total_score'] <= (effective_max_score + 1e-6)
+            if self.exclude_zero_total_scores:
+                valid_mask = base_mask & (aggregated['total_score'] > 0)
+            else:
+                valid_mask = base_mask
+
+            anomalous_data = aggregated[~valid_mask]
+            clean_data = aggregated[valid_mask]
+
+            result['anomalous_records'] = len(anomalous_data)
+            result['cleaned_records'] = len(clean_data)
+
+            if len(anomalous_data) > 0:
+                print(f"  问卷科目发现 {len(anomalous_data)} 条异常记录 (范围: {anomalous_data['total_score'].min():.2f}-{anomalous_data['total_score'].max():.2f})")
+
+            if len(clean_data) == 0:
+                print(f"  问卷科目 {subject_name} 没有有效学生数据")
+                self.db_session.commit()
+                return result
+
+            await self._insert_cleaned_scores(
+                batch_code,
+                subject_name,
+                clean_data,
+                effective_max_score,
+                question_count_value,
+                dimension_max_scores,
+                subject_type='questionnaire'
+            )
+
+            print(f"  问卷科目 {subject_name} 处理完成（有效 {result['cleaned_records']} 条，异常 {result['anomalous_records']} 条）")
             return result
             
         except Exception as e:
@@ -1101,7 +1512,3 @@ async def _create_questionnaire_summary_total(self, batch_code: str, subject_nam
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-
-    
-

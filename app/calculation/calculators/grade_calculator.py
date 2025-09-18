@@ -23,16 +23,16 @@ class GradeLevelConfig:
     
     # 小学等级阈值配置（基于满分的百分比）
     ELEMENTARY_THRESHOLDS = {
-        'excellent': 0.90,  # 优秀 ≥90%
-        'good': 0.80,       # 良好 80-89%
-        'pass': 0.60,       # 及格 60-79%
+        'excellent': 0.85,  # 优秀 ≥85%
+        'good': 0.70,       # 良好 70-84%
+        'pass': 0.60,       # 及格 60-69%
         'fail': 0.00        # 不及格 <60%
     }
     
     # 初中等级阈值配置（基于满分的百分比）
     MIDDLE_SCHOOL_THRESHOLDS = {
-        'A': 0.85,          # A等 ≥85%
-        'B': 0.70,          # B等 70-84%
+        'A': 0.80,          # A等 ≥80%
+        'B': 0.70,          # B等 70-79%
         'C': 0.60,          # C等 60-69%
         'D': 0.00           # D等 <60%
     }
@@ -105,8 +105,8 @@ class GradeLevelDistributionCalculator(StatisticalStrategy):
         Args:
             custom_thresholds: 自定义等级阈值配置
                 格式: {
-                    'elementary': {'excellent': 0.90, 'good': 0.80, 'pass': 0.60, 'fail': 0.00},
-                    'middle_school': {'A': 0.85, 'B': 0.70, 'C': 0.60, 'D': 0.00}
+                    'elementary': {'excellent': 0.85, 'good': 0.70, 'pass': 0.60, 'fail': 0.00},
+                    'middle_school': {'A': 0.80, 'B': 0.70, 'C': 0.60, 'D': 0.00}
                 }
         """
         self.custom_thresholds = custom_thresholds or {}
@@ -494,11 +494,18 @@ def calculate_individual_grade(score: float, grade_level: str, max_score: float 
         else:
             grade = 'D'
     
+    if GradeLevelConfig.is_elementary_grade(grade_level):
+        pass_threshold = thresholds.get('pass', 0.6)
+    elif GradeLevelConfig.is_middle_school_grade(grade_level):
+        pass_threshold = thresholds.get('C', thresholds.get('pass', 0.6))
+    else:
+        pass_threshold = thresholds.get('pass', thresholds.get('C', 0.6))
+
     return {
         'grade': grade,
         'grade_name': grade_names.get(grade, grade),
         'score_rate': round(score_rate, 4),
-        'threshold_met': score_rate >= min(thresholds.values())
+        'threshold_met': score_rate >= pass_threshold
     }
 
 

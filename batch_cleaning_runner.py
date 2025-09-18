@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
+"""批量数据清洗运行器。
+
+脚本不再硬编码敏感批次，必须通过命令行参数显式指定需要清洗的批次。
 """
-批量数据清洗运行器 - 专门处理G7-2025和G8-2025批次
-"""
-import sys
+import argparse
 import os
+import sys
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 import asyncio
 import time
 import datetime
@@ -12,30 +16,32 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from data_cleaning_service import DataCleaningService
 
-async def main():
+async def main(target_batches, database_url=None):
     """主函数 - 批量清洗指定批次"""
+    if not target_batches:
+        raise ValueError("未提供要清洗的批次代码")
+
     print("=== 批量数据清洗运行器 ===")
     print(f"开始时间: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"目标批次: {', '.join(target_batches)}")
     print("="*60)
-    
+
     # 创建数据库连接
-    DATABASE_URL = "mysql+pymysql://root:mysql_Lujing2022@117.72.14.166:23506/appraisal_test?charset=utf8mb4"
-    engine = create_engine(DATABASE_URL)
+    default_url = "mysql+pymysql://root:mysql_Lujing2022@117.72.14.166:23506/appraisal_test?charset=utf8mb4"
+    db_url = database_url or os.getenv("DATABASE_URL", default_url)
+    engine = create_engine(db_url)
     Session = sessionmaker(bind=engine)
     session = Session()
     
     # 创建清洗服务
     cleaning_service = DataCleaningService(session)
     
-    # 待清洗的批次列表
-    batches_to_clean = ['G7-2025', 'G8-2025']
-    
     total_start_time = time.time()
     all_results = {}
-    
+
     try:
-        for i, batch_code in enumerate(batches_to_clean, 1):
-            print(f"\n[{i}/{len(batches_to_clean)}] 开始处理批次: {batch_code}")
+        for i, batch_code in enumerate(target_batches, 1):
+            print(f"\n[{i}/{len(target_batches)}] 开始处理批次: {batch_code}")
             print("-" * 50)
             
             batch_start_time = time.time()
@@ -213,10 +219,18 @@ async def generate_final_report(session, all_results):
     print(f"\n{'='*80}")
     print(f"=== 最终清洗报告 ===")
     print(f"{'='*80}")
-    
+
     try:
+        if not all_results:
+            print("暂无批次结果，跳过汇总报告。")
+            return
+
+        batch_codes = list(all_results.keys())
+        placeholders = ', '.join(f":b{i}" for i in range(len(batch_codes)))
+
         # 查询所有批次的最终状态
-        final_query = text("""
+        final_query = text(
+            f"""
             SELECT 
                 batch_code,
                 COUNT(*) as total_records,
@@ -226,14 +240,16 @@ async def generate_final_report(session, all_results):
                 MAX(total_score) as max_score,
                 AVG(total_score) as avg_score
             FROM student_cleaned_scores 
-            WHERE batch_code IN ('G4-2025', 'G7-2025', 'G8-2025')
+            WHERE batch_code IN ({placeholders})
             GROUP BY batch_code
             ORDER BY batch_code
-        """)
-        
-        result = session.execute(final_query)
+        """
+        )
+
+        params = {f"b{i}": code for i, code in enumerate(batch_codes)}
+        result = session.execute(final_query, params)
         rows = result.fetchall()
-        
+
         print(f"\n【所有批次清洗状态】")
         total_all_records = 0
         for row in rows:
@@ -244,9 +260,10 @@ async def generate_final_report(session, all_results):
             min_score = float(row[4]) if row[4] else 0
             max_score = float(row[5]) if row[5] else 0
             avg_score = round(float(row[6]), 2) if row[6] else 0
-            
-            status = "✅ 已完成" if batch_code in ['G4-2025', 'G7-2025', 'G8-2025'] else "❌ 未处理"
-            
+
+            verification_success = all_results.get(batch_code, {}).get('verification', {}).get('success', False)
+            status = "✅ 已完成" if verification_success else "⚠️ 待复核"
+
             print(f"\n批次 {batch_code}: {status}")
             print(f"  记录数: {record_count:,} 条")
             print(f"  科目数: {subject_count} 个")
@@ -263,5 +280,24 @@ async def generate_final_report(session, all_results):
     except Exception as e:
         print(f"生成最终报告失败: {e}")
 
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="批量清洗指定批次的数据")
+    parser.add_argument(
+        "batches",
+        metavar="BATCH_CODE",
+        nargs="+",
+        help="需要清洗的批次代码（可一次提供多个）",
+    )
+    parser.add_argument(
+        "--database-url",
+        dest="database_url",
+        default=None,
+        help="可选，自定义数据库连接字符串，默认读取环境变量 DATABASE_URL",
+    )
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    args = parse_args()
+    asyncio.run(main(args.batches, database_url=args.database_url))

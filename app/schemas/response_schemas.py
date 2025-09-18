@@ -24,7 +24,7 @@ class BatchResponse(BaseModel):
 
 class TaskResponse(BaseModel):
     """任务响应模型"""
-    id: int
+    id: str
     batch_id: int
     status: TaskStatus
     progress: float = Field(..., ge=0.0, le=100.0, description="进度百分比")
@@ -106,7 +106,7 @@ class StatisticalAggregationResponse(BaseModel):
     
     class Config:
         from_attributes = True
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "id": 1,
                 "batch_code": "BATCH_2025_001",
@@ -164,7 +164,7 @@ class StatisticalMetadataResponse(BaseModel):
     
     class Config:
         from_attributes = True
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "id": 1,
                 "metadata_type": "grade_config",
@@ -202,7 +202,7 @@ class StatisticalHistoryResponse(BaseModel):
     
     class Config:
         from_attributes = True
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "id": 1,
                 "aggregation_id": 1,
@@ -237,7 +237,7 @@ class BatchStatisticsSummaryResponse(BaseModel):
     avg_calculation_duration: float
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "batch_code": "BATCH_2025_001",
                 "has_regional_data": True,
@@ -256,7 +256,7 @@ class SchoolStatisticsListResponse(BaseModel):
     schools: List[StatisticalAggregationResponse]
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "batch_code": "BATCH_2025_001",
                 "total_count": 50,
@@ -272,7 +272,7 @@ class StatisticsWithHistoryResponse(BaseModel):
     total_changes: int
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "aggregation": {},
                 "history": [],
@@ -288,7 +288,7 @@ class MetadataListResponse(BaseModel):
     metadata_items: List[StatisticalMetadataResponse]
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "metadata_type": "grade_config",
                 "total_count": 3,
@@ -305,7 +305,7 @@ class HistoryListResponse(BaseModel):
     history_records: List[StatisticalHistoryResponse]
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "batch_code": "BATCH_2025_001",
                 "aggregation_id": None,
@@ -323,7 +323,7 @@ class OperationResultResponse(BaseModel):
     data: Optional[Dict[str, Any]] = None
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "success": True,
                 "message": "操作成功完成",
@@ -343,7 +343,7 @@ class ErrorResponse(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.now)
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "error": "VALIDATION_ERROR",
                 "message": "请求参数验证失败",
@@ -364,7 +364,7 @@ class PaginatedResponse(BaseModel):
     total_pages: int = Field(..., description="总页数")
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "total": 150,
                 "page": 1,

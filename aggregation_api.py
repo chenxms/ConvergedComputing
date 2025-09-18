@@ -85,9 +85,11 @@ def _fetch_v12_regional(batch_code: str):
             if data.get('subjects'):
                 return data
         # 构建并保存
-        subjects = subjects_builder.build_regional_subjects(batch_code)
+        # 使用 v1.2 加强版（含问卷维度avg与题目分布）
+        subjects = subjects_builder.build_regional_subjects_v12(batch_code)
         result = {
             'schema_version': 'v1.2',
+            'data_version': 'v1.2',
             'batch_code': batch_code,
             'aggregation_level': 'REGIONAL',
             'subjects': subjects,
@@ -99,6 +101,7 @@ def _fetch_v12_regional(batch_code: str):
             'school_id': None,
             'school_name': None,
             'statistics_data': processed,
+            'data_version': 'v1.2',
             'calculation_status': CalculationStatus.COMPLETED,
         })
         return processed
@@ -118,9 +121,11 @@ def _fetch_v12_school(batch_code: str, school_code: str):
                 if data.get('subjects'):
                     return data
         # 构建并保存
-        subjects = subjects_builder.build_school_subjects(batch_code, school_code)
+        # 使用 v1.2 加强版（含regional_avg与学校级问卷题目分布）
+        subjects = subjects_builder.build_school_subjects_v12(batch_code, school_code)
         result = {
             'schema_version': 'v1.2',
+            'data_version': 'v1.2',
             'batch_code': batch_code,
             'aggregation_level': 'SCHOOL',
             'school_code': school_code,
@@ -133,6 +138,7 @@ def _fetch_v12_school(batch_code: str, school_code: str):
             'school_id': school_code,
             'school_name': None,
             'statistics_data': processed,
+            'data_version': 'v1.2',
             'calculation_status': CalculationStatus.COMPLETED,
         })
         return processed

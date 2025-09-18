@@ -1,7 +1,7 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.subjects_v12_api import router as subjects_v12_router
+from app.middleware.cors_config import setup_cors
 
 app = FastAPI(
     title="Subjects v1.2 API",
@@ -11,13 +11,8 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# 使用增强的CORS配置
+setup_cors(app)
 
 app.include_router(subjects_v12_router, prefix="/api/v12", tags=["Subjects v1.2"])
 

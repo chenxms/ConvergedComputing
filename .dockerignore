@@ -74,11 +74,11 @@ nginx.conf
 .env.*
 *.env
 
-# 测试相关
-tests/
-test_*.py
-*_test.py
-pytest.ini
+# 测试相关（注释掉以便容器内运行测试）
+# tests/
+# test_*.py
+# *_test.py
+# pytest.ini
 .coverage
 htmlcov/
 .tox/
@@ -106,7 +106,7 @@ investigate_*.py
 validate_*.py
 simple_*.py
 quick_*.py
-test_*.py
+# test_*.py
 final_*.py
 
 # 数据库相关
@@ -201,3 +201,20 @@ direct_*.py
 enhanced_*.py
 updated_*.py
 fixed_*.py
+ 
+# Re-include specific runtime scripts required in the image
+!run_single_subject_pipeline.py
+!run_full_batch_pipeline.py
+!enhanced_questionnaire_clean.py
+!fixed_questionnaire_clean.py
+!quick_questionnaire_clean.py
+!data_cleaning_service.py
+
+# Re-include new service directories that may have been excluded
+!app/services/data_quality_service.py
+!app/utils/data_validation.py
+
+# Exclude new deployment packages to reduce image size
+deployment_package_*/
+converged-computing*.tar.gz
+*.tar.gz

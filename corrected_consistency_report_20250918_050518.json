@@ -1,0 +1,444 @@
+{
+  "start_time": "2025-09-18 05:05:17.629472",
+  "regional_consistency": {
+    "metrics_count": 9,
+    "aggregation_count": 1,
+    "inconsistencies_count": 9,
+    "inconsistencies": [
+      {
+        "type": "missing_json_field",
+        "subject": "AI交互",
+        "field": "student_count",
+        "table_value": 1137,
+        "description": "JSON中缺少student_count字段"
+      },
+      {
+        "type": "missing_json_field",
+        "subject": "历史",
+        "field": "student_count",
+        "table_value": 13159,
+        "description": "JSON中缺少student_count字段"
+      },
+      {
+        "type": "missing_json_field",
+        "subject": "地理",
+        "field": "student_count",
+        "table_value": 13158,
+        "description": "JSON中缺少student_count字段"
+      },
+      {
+        "type": "missing_json_field",
+        "subject": "政治",
+        "field": "student_count",
+        "table_value": 13161,
+        "description": "JSON中缺少student_count字段"
+      },
+      {
+        "type": "missing_json_field",
+        "subject": "数学",
+        "field": "student_count",
+        "table_value": 13144,
+        "description": "JSON中缺少student_count字段"
+      },
+      {
+        "type": "missing_json_field",
+        "subject": "生物",
+        "field": "student_count",
+        "table_value": 13157,
+        "description": "JSON中缺少student_count字段"
+      },
+      {
+        "type": "missing_json_field",
+        "subject": "艺术",
+        "field": "student_count",
+        "table_value": 1945,
+        "description": "JSON中缺少student_count字段"
+      },
+      {
+        "type": "missing_json_field",
+        "subject": "英语",
+        "field": "student_count",
+        "table_value": 13152,
+        "description": "JSON中缺少student_count字段"
+      },
+      {
+        "type": "missing_json_field",
+        "subject": "语文",
+        "field": "student_count",
+        "table_value": 13154,
+        "description": "JSON中缺少student_count字段"
+      }
+    ]
+  },
+  "school_consistency": {
+    "sample_schools": [
+      "5029",
+      "5001",
+      "5015",
+      "5019",
+      "5043"
+    ],
+    "sample_subjects": [
+      "艺术",
+      "地理",
+      "政治"
+    ],
+    "rankings_count": 15,
+    "aggregations_count": 5,
+    "inconsistencies_count": 15,
+    "inconsistencies": [
+      {
+        "type": "null_value",
+        "school_id": "5001",
+        "subject": "地理",
+        "field": "rank",
+        "json_value": null,
+        "table_value": 13
+      },
+      {
+        "type": "null_value",
+        "school_id": "5001",
+        "subject": "政治",
+        "field": "rank",
+        "json_value": null,
+        "table_value": 15
+      },
+      {
+        "type": "null_value",
+        "school_id": "5001",
+        "subject": "艺术",
+        "field": "rank",
+        "json_value": null,
+        "table_value": 8
+      },
+      {
+        "type": "null_value",
+        "school_id": "5015",
+        "subject": "地理",
+        "field": "rank",
+        "json_value": null,
+        "table_value": 20
+      },
+      {
+        "type": "null_value",
+        "school_id": "5015",
+        "subject": "政治",
+        "field": "rank",
+        "json_value": null,
+        "table_value": 35
+      },
+      {
+        "type": "null_value",
+        "school_id": "5015",
+        "subject": "艺术",
+        "field": "rank",
+        "json_value": null,
+        "table_value": 27
+      },
+      {
+        "type": "null_value",
+        "school_id": "5019",
+        "subject": "地理",
+        "field": "rank",
+        "json_value": null,
+        "table_value": 41
+      },
+      {
+        "type": "null_value",
+        "school_id": "5019",
+        "subject": "政治",
+        "field": "rank",
+        "json_value": null,
+        "table_value": 36
+      },
+      {
+        "type": "null_value",
+        "school_id": "5019",
+        "subject": "艺术",
+        "field": "rank",
+        "json_value": null,
+        "table_value": 35
+      },
+      {
+        "type": "null_value",
+        "school_id": "5029",
+        "subject": "地理",
+        "field": "rank",
+        "json_value": null,
+        "table_value": 36
+      },
+      {
+        "type": "null_value",
+        "school_id": "5029",
+        "subject": "政治",
+        "field": "rank",
+        "json_value": null,
+        "table_value": 38
+      },
+      {
+        "type": "null_value",
+        "school_id": "5029",
+        "subject": "艺术",
+        "field": "rank",
+        "json_value": null,
+        "table_value": 39
+      },
+      {
+        "type": "null_value",
+        "school_id": "5043",
+        "subject": "地理",
+        "field": "rank",
+        "json_value": null,
+        "table_value": 8
+      },
+      {
+        "type": "null_value",
+        "school_id": "5043",
+        "subject": "政治",
+        "field": "rank",
+        "json_value": null,
+        "table_value": 9
+      },
+      {
+        "type": "null_value",
+        "school_id": "5043",
+        "subject": "艺术",
+        "field": "rank",
+        "json_value": null,
+        "table_value": 9
+      }
+    ]
+  },
+  "json_field_validation": {},
+  "data_completeness": {},
+  "field_mapping_analysis": {
+    "json_to_table": {
+      "avg": "avg_score",
+      "stddev": "std_score",
+      "difficulty": "difficulty_coefficient",
+      "max": "max_score_achieved",
+      "min": "min_score"
+    },
+    "available_json_fields": [
+      "avg",
+      "max",
+      "min",
+      "stddev",
+      "difficulty"
+    ],
+    "missing_json_fields": [
+      "student_count",
+      "score_rate"
+    ]
+  },
+  "summary": {
+    "end_time": "2025-09-18 05:05:18.775606",
+    "duration": "0:00:01.146136",
+    "total_issues": 24,
+    "regional_issues": 9,
+    "school_issues": 15,
+    "version_issues": 0,
+    "status": "ISSUES_FOUND",
+    "field_mapping_status": "ANALYZED"
+  },
+  "inconsistencies": [
+    {
+      "type": "missing_json_field",
+      "subject": "AI交互",
+      "field": "student_count",
+      "table_value": 1137,
+      "description": "JSON中缺少student_count字段"
+    },
+    {
+      "type": "missing_json_field",
+      "subject": "历史",
+      "field": "student_count",
+      "table_value": 13159,
+      "description": "JSON中缺少student_count字段"
+    },
+    {
+      "type": "missing_json_field",
+      "subject": "地理",
+      "field": "student_count",
+      "table_value": 13158,
+      "description": "JSON中缺少student_count字段"
+    },
+    {
+      "type": "missing_json_field",
+      "subject": "政治",
+      "field": "student_count",
+      "table_value": 13161,
+      "description": "JSON中缺少student_count字段"
+    },
+    {
+      "type": "missing_json_field",
+      "subject": "数学",
+      "field": "student_count",
+      "table_value": 13144,
+      "description": "JSON中缺少student_count字段"
+    },
+    {
+      "type": "missing_json_field",
+      "subject": "生物",
+      "field": "student_count",
+      "table_value": 13157,
+      "description": "JSON中缺少student_count字段"
+    },
+    {
+      "type": "missing_json_field",
+      "subject": "艺术",
+      "field": "student_count",
+      "table_value": 1945,
+      "description": "JSON中缺少student_count字段"
+    },
+    {
+      "type": "missing_json_field",
+      "subject": "英语",
+      "field": "student_count",
+      "table_value": 13152,
+      "description": "JSON中缺少student_count字段"
+    },
+    {
+      "type": "missing_json_field",
+      "subject": "语文",
+      "field": "student_count",
+      "table_value": 13154,
+      "description": "JSON中缺少student_count字段"
+    },
+    {
+      "type": "null_value",
+      "school_id": "5001",
+      "subject": "地理",
+      "field": "rank",
+      "json_value": null,
+      "table_value": 13
+    },
+    {
+      "type": "null_value",
+      "school_id": "5001",
+      "subject": "政治",
+      "field": "rank",
+      "json_value": null,
+      "table_value": 15
+    },
+    {
+      "type": "null_value",
+      "school_id": "5001",
+      "subject": "艺术",
+      "field": "rank",
+      "json_value": null,
+      "table_value": 8
+    },
+    {
+      "type": "null_value",
+      "school_id": "5015",
+      "subject": "地理",
+      "field": "rank",
+      "json_value": null,
+      "table_value": 20
+    },
+    {
+      "type": "null_value",
+      "school_id": "5015",
+      "subject": "政治",
+      "field": "rank",
+      "json_value": null,
+      "table_value": 35
+    },
+    {
+      "type": "null_value",
+      "school_id": "5015",
+      "subject": "艺术",
+      "field": "rank",
+      "json_value": null,
+      "table_value": 27
+    },
+    {
+      "type": "null_value",
+      "school_id": "5019",
+      "subject": "地理",
+      "field": "rank",
+      "json_value": null,
+      "table_value": 41
+    },
+    {
+      "type": "null_value",
+      "school_id": "5019",
+      "subject": "政治",
+      "field": "rank",
+      "json_value": null,
+      "table_value": 36
+    },
+    {
+      "type": "null_value",
+      "school_id": "5019",
+      "subject": "艺术",
+      "field": "rank",
+      "json_value": null,
+      "table_value": 35
+    },
+    {
+      "type": "null_value",
+      "school_id": "5029",
+      "subject": "地理",
+      "field": "rank",
+      "json_value": null,
+      "table_value": 36
+    },
+    {
+      "type": "null_value",
+      "school_id": "5029",
+      "subject": "政治",
+      "field": "rank",
+      "json_value": null,
+      "table_value": 38
+    },
+    {
+      "type": "null_value",
+      "school_id": "5029",
+      "subject": "艺术",
+      "field": "rank",
+      "json_value": null,
+      "table_value": 39
+    },
+    {
+      "type": "null_value",
+      "school_id": "5043",
+      "subject": "地理",
+      "field": "rank",
+      "json_value": null,
+      "table_value": 8
+    },
+    {
+      "type": "null_value",
+      "school_id": "5043",
+      "subject": "政治",
+      "field": "rank",
+      "json_value": null,
+      "table_value": 9
+    },
+    {
+      "type": "null_value",
+      "school_id": "5043",
+      "subject": "艺术",
+      "field": "rank",
+      "json_value": null,
+      "table_value": 9
+    }
+  ],
+  "data_versions": {
+    "version_stats": [
+      {
+        "aggregation_level": "REGIONAL",
+        "data_version": "v1.2",
+        "count": 1
+      },
+      {
+        "aggregation_level": "SCHOOL",
+        "data_version": "v1.2",
+        "count": 41
+      }
+    ],
+    "version_issues": []
+  }
+}

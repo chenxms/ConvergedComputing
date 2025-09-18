@@ -19,10 +19,14 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Tuple
 from decimal import Decimal
 from dataclasses import dataclass
+import json
+from collections import defaultdict
 
 from sqlalchemy import text
 
-from app.database.connection import get_db
+from app.database.connection import get_db, get_db_context
+from app.database.models import BatchDimensionDefinition
+from app.database.repositories import PrecomputedMetricsRepository, DataIntegrityError
 from app.utils.precision import round2, round2_json
 
 
@@ -34,259 +38,1122 @@ class SubjectInfo:
 
 class SubjectsBuilder:
     def __init__(self) -> None:
-        pass
+        # 维度名称缓存 {batch_code: {subject_name: {dimension_code: dimension_name}}}
+        self._dimension_name_cache: Dict[str, Dict[str, Dict[str, str]]] = {}
+        # 维度排名缓存 {batch_code: {school_id: {subject_name: {dimension_code: {...}}}}}
+        self._dimension_rank_cache: Dict[str, Dict[str, Dict[str, Dict[str, Any]]]] = {}
+        # 区域学校总数缓存 {(batch_code, subject_name): total_schools}
+        self._total_school_cache: Dict[Tuple[str, str], int] = {}
+        self._subject_metric_cache: Dict[Tuple[str, str], Dict[str, Any]] = {}
+        self._school_metric_cache: Dict[Tuple[str, str, str], Dict[str, Any]] = {}
+        self._cache_stats: Dict[str, int] = self._init_cache_stats()
+
+    def _init_cache_stats(self) -> Dict[str, int]:
+        return {
+            'dim_cache_hits': 0,
+            'dim_cache_misses': 0,
+            'dim_cache_fallbacks': 0,
+        }
+
+    def reset_cache_stats(self, clear_dimension_cache: bool = True) -> None:
+        """Reset cached statistics counters and optionally drop cached dimension ranks."""
+        self._cache_stats = self._init_cache_stats()
+        if clear_dimension_cache:
+            self._dimension_rank_cache.clear()
+        self._total_school_cache.clear()
+        self._subject_metric_cache.clear()
+        self._school_metric_cache.clear()
+
+    def get_cache_stats(self) -> Dict[str, int]:
+        """Return a shallow copy of current cache statistics."""
+        return dict(self._cache_stats)
+
+    def _record_cache_hit(self) -> None:
+        self._cache_stats['dim_cache_hits'] += 1
+
+    def _record_cache_miss(self) -> None:
+        self._cache_stats['dim_cache_misses'] += 1
+
+    def _record_cache_fallback(self) -> None:
+        self._cache_stats['dim_cache_fallbacks'] += 1
+
+    def _safe_load_json(self, payload: Any) -> Any:
+        """Safely decode JSON payloads that may already be parsed."""
+        if payload is None:
+            return None
+        if isinstance(payload, (dict, list)):
+            return payload
+        if isinstance(payload, (bytes, bytearray)):
+            try:
+                payload = payload.decode('utf-8')
+            except Exception:
+                return None
+        if isinstance(payload, str):
+            data = payload.strip()
+            if not data:
+                return None
+            try:
+                return json.loads(data)
+            except Exception:
+                return None
+        return None
+
+    
+    def _simplify_grade_distribution(self, grade_dist: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """将等级分布精简为 {counts, percentages} 结构。
+        兼容两种输入：
+        - 直接是 {counts, rates, percentages, labels}
+        - 或包含 distribution 键：{distribution: {...}}
+        返回 None 表示无法识别有效结构。
+        """
+        try:
+            dist = grade_dist.get('distribution') if isinstance(grade_dist, dict) and 'distribution' in grade_dist else grade_dist
+            if not isinstance(dist, dict):
+                return None
+            counts = dist.get('counts')
+            percentages = dist.get('percentages')
+            if isinstance(counts, dict) and isinstance(percentages, dict):
+                return {
+                    'counts': counts,
+                    'percentages': percentages,
+                }
+            # 兼容旧形态：每等级为 {count, percentage}
+            per_level = {k: v for k, v in dist.items() if isinstance(v, dict) and 'count' in v and 'percentage' in v}
+            if per_level:
+                return {
+                    'counts': {k: v.get('count') for k, v in per_level.items()},
+                    'percentages': {k: v.get('percentage') for k, v in per_level.items()},
+                }
+        except Exception:
+            return None
+        return None
+    
+    def _get_dimension_name(self, db, batch_code: str, subject_name: str, dimension_code: str) -> str:
+        """获取维度中文名称，带缓存机制"""
+        # 检查缓存
+        if (batch_code in self._dimension_name_cache and 
+            subject_name in self._dimension_name_cache[batch_code] and
+            dimension_code in self._dimension_name_cache[batch_code][subject_name]):
+            return self._dimension_name_cache[batch_code][subject_name][dimension_code]
+        
+        # 查询数据库
+        try:
+            dimension_def = db.query(BatchDimensionDefinition).filter(
+                BatchDimensionDefinition.batch_code == batch_code,
+                BatchDimensionDefinition.subject_name == subject_name,
+                BatchDimensionDefinition.dimension_code == dimension_code
+            ).first()
+            
+            dimension_name = dimension_def.dimension_name if dimension_def else dimension_code
+            
+            # 更新缓存
+            if batch_code not in self._dimension_name_cache:
+                self._dimension_name_cache[batch_code] = {}
+            if subject_name not in self._dimension_name_cache[batch_code]:
+                self._dimension_name_cache[batch_code][subject_name] = {}
+            self._dimension_name_cache[batch_code][subject_name][dimension_code] = dimension_name
+            
+            return dimension_name
+            
+        except Exception as e:
+            print(f"获取维度名称失败: batch_code={batch_code}, subject_name={subject_name}, dimension_code={dimension_code}, error={e}")
+            return dimension_code
+    
+    def _batch_load_dimension_names(self, db, batch_code: str, subject_name: str) -> Dict[str, str]:
+        """批量加载维度名称（优化性能）"""
+        try:
+            dimension_defs = db.query(BatchDimensionDefinition).filter(
+                BatchDimensionDefinition.batch_code == batch_code,
+                BatchDimensionDefinition.subject_name == subject_name
+            ).all()
+            
+            dimension_mapping = {}
+            for def_record in dimension_defs:
+                dimension_mapping[def_record.dimension_code] = def_record.dimension_name
+            
+            # 更新缓存
+            if batch_code not in self._dimension_name_cache:
+                self._dimension_name_cache[batch_code] = {}
+            if subject_name not in self._dimension_name_cache[batch_code]:
+                self._dimension_name_cache[batch_code][subject_name] = {}
+            
+            self._dimension_name_cache[batch_code][subject_name].update(dimension_mapping)
+            
+            return dimension_mapping
+            
+        except Exception as e:
+            print(f"批量加载维度名称失败: batch_code={batch_code}, subject_name={subject_name}, error={e}")
+            return {}
 
     def list_subjects(self, batch_code: str) -> List[SubjectInfo]:
-        with next(get_db()) as db:
-            rows = db.execute(
-                text(
-                    """
-                    SELECT DISTINCT subject_name, subject_type
-                    FROM student_cleaned_scores
-                    WHERE batch_code=:batch
-                    ORDER BY subject_name
-                    """
-                ),
-                {"batch": batch_code},
-            ).fetchall()
-        return [SubjectInfo(name=r[0], type=(r[1] or 'exam')) for r in rows]
+        """Return subjects using precomputed core metrics."""
+        with get_db_context() as db:
+            repo = PrecomputedMetricsRepository(db)
+            rows = repo.list_subjects(batch_code)
+        return [
+            SubjectInfo(name=row["subject_name"], type=(row["subject_type"] or "exam").lower())
+            for row in rows
+        ]
 
-    def build_regional_subjects(self, batch_code: str) -> List[Dict[str, Any]]:
+    def build_dimension_rank_cache(self, batch_code: str) -> Dict[str, Dict[str, Dict[str, Any]]]:
+        """Build a cache of per-school dimension averages and ranks for a batch."""
+        if batch_code in self._dimension_rank_cache:
+            return self._dimension_rank_cache[batch_code]
+
+        aggregates: Dict[Tuple[str, str], Dict[str, Dict[str, float]]] = defaultdict(
+            lambda: defaultdict(lambda: {'sum': 0.0, 'count': 0})
+        )
+        dimension_max_scores: Dict[Tuple[str, str], float] = {}
+
+        with get_db_context() as db:
+            sql = text(
+                """
+                SELECT scs.school_code,
+                       scs.subject_name,
+                       scs.dimension_scores,
+                       scs.dimension_max_scores
+                FROM student_cleaned_scores scs
+                JOIN school_master_data smd
+                  ON smd.batch_code COLLATE utf8mb4_unicode_ci = scs.batch_code COLLATE utf8mb4_unicode_ci
+                 AND smd.school_id COLLATE utf8mb4_unicode_ci = scs.school_code COLLATE utf8mb4_unicode_ci
+                 AND smd.status = 'ACTIVE'
+                WHERE scs.batch_code = :batch
+                  AND scs.subject_type IN ('exam','questionnaire')
+                  AND scs.dimension_scores IS NOT NULL
+                  AND scs.dimension_scores <> ''
+                """
+            )
+            rows = db.execute(sql, {"batch": batch_code}).fetchall()
+
+        for school_code, subject_name, dimension_scores_raw, dimension_max_raw in rows:
+            if not subject_name:
+                continue
+            subject = subject_name
+            school = str(school_code)
+            dimension_scores = self._safe_load_json(dimension_scores_raw)
+            dimension_max = self._safe_load_json(dimension_max_raw)
+            if not isinstance(dimension_scores, dict):
+                continue
+            for dim_code, payload in dimension_scores.items():
+                if not isinstance(payload, dict):
+                    continue
+                score = payload.get('score')
+                if score is None:
+                    continue
+                try:
+                    score_value = float(score)
+                except (TypeError, ValueError):
+                    continue
+                key = (subject, str(dim_code))
+                stats = aggregates[key][school]
+                stats['sum'] += score_value
+                stats['count'] += 1
+
+                if isinstance(dimension_max, dict):
+                    max_payload = dimension_max.get(dim_code)
+                    max_value = None
+                    if isinstance(max_payload, dict):
+                        max_value = max_payload.get('max_score') or max_payload.get('max')
+                    else:
+                        max_value = max_payload
+                    try:
+                        max_float = float(max_value) if max_value is not None else None
+                    except (TypeError, ValueError):
+                        max_float = None
+                    if max_float and max_float > 0:
+                        existing = dimension_max_scores.get(key)
+                        if not existing or max_float > existing:
+                            dimension_max_scores[key] = max_float
+
+        cache = defaultdict(lambda: defaultdict(dict))
+        for (subject_name, dim_code), per_school in aggregates.items():
+            averages = []
+            for school_id, stats in per_school.items():
+                if stats['count'] <= 0:
+                    continue
+                avg_value = stats['sum'] / stats['count']
+                averages.append((school_id, avg_value))
+            if not averages:
+                continue
+            averages.sort(key=lambda item: (-item[1], item[0]))
+            rank = 0
+            last_value = None
+            max_score = dimension_max_scores.get((subject_name, dim_code))
+            for index, (school_id, avg_value) in enumerate(averages):
+                if last_value is None or abs(avg_value - last_value) > 1e-9:
+                    rank = index + 1
+                    last_value = avg_value
+                score_rate = None
+                if max_score and max_score != 0:
+                    score_rate = round2((avg_value / max_score) * 100.0)
+                cache[school_id][subject_name][str(dim_code)] = {
+                    'avg': round2(avg_value),
+                    'rank': rank,
+                    'max_score': float(max_score) if max_score else None,
+                    'score_rate': score_rate,
+                }
+
+        final_cache: Dict[str, Dict[str, Dict[str, Any]]] = {
+            school: {subject: dict(dim_map) for subject, dim_map in subject_map.items()}
+            for school, subject_map in cache.items()
+        }
+        self._dimension_rank_cache[batch_code] = final_cache
+        return final_cache
+
+    def build_regional_subjects(self, batch_code: str, enhanced_stats: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         subjects: List[Dict[str, Any]] = []
         for s in self.list_subjects(batch_code):
-            subj: Dict[str, Any] = {
-                "subject_name": s.name,
-                "type": s.type,
-                "metrics": self._compute_subject_metrics(batch_code, s.name),
-                "school_rankings": self._compute_school_rankings(batch_code, s.name),
-            }
-            if s.type == 'questionnaire':
-                # 问卷维度/题目选项占比
-                dims_od = self._compute_questionnaire_dimension_option_distribution(batch_code, s.name)
-                qs_od = self._compute_questionnaire_question_option_distribution(batch_code, s.name)
-                if dims_od:
-                    subj.setdefault("dimensions", [])
-                    # 将按维度聚合的分布填入 dimensions 列表项
-                    for dim_code, dist in dims_od.items():
-                        subj["dimensions"].append({
-                            "code": dim_code,
-                            "name": dim_code,
-                            "option_distribution": dist,
-                        })
-                if qs_od:
-                    subj["questions"] = [
-                        {"question_id": qid, "option_distribution": dist} for qid, dist in qs_od.items()
-                    ]
-            subjects.append(round2_json(subj))
-        return subjects
-
-    def build_school_subjects(self, batch_code: str, school_code: str) -> List[Dict[str, Any]]:
-        subjects: List[Dict[str, Any]] = []
-        for s in self.list_subjects(batch_code):
-            metrics = self._compute_subject_metrics(batch_code, s.name, school_code)
-            region_rank = self._compute_school_region_rank(batch_code, s.name, school_code)
-            dims = self._compute_school_dimensions_with_rank(batch_code, s.name, school_code)
+            # 获取增强统计数据（如果提供）
+            subject_enhanced_stats = None
+            if enhanced_stats:
+                # 检查学业科目和非学业科目
+                academic_subjects = enhanced_stats.get('academic_subjects', {})
+                non_academic_subjects = enhanced_stats.get('non_academic_subjects', {})
+                subject_enhanced_stats = academic_subjects.get(s.name) or non_academic_subjects.get(s.name)
+            
+            metrics, grade_distribution = self._compute_subject_metrics(
+                batch_code,
+                s.name,
+                enhanced_stats=subject_enhanced_stats,
+            )
             subj: Dict[str, Any] = {
                 "subject_name": s.name,
                 "type": s.type,
                 "metrics": metrics,
-                **region_rank,
+                "school_rankings": self._compute_school_rankings(batch_code, s.name),
             }
-            if dims:
-                subj["dimensions"] = dims
+            if grade_distribution:
+                subj["grade_distribution"] = grade_distribution
+
+            if s.type == 'questionnaire':
+                try:
+                    with get_db_context() as db_tmp:
+                        dim_name_map = self._batch_load_dimension_names(db_tmp, batch_code, s.name)
+                except Exception:
+                    dim_name_map = {}
+
+                dim_entries: Dict[str, Dict[str, Any]] = {}
+                try:
+                    dims_questions = self._compute_questionnaire_dimension_question_option_distribution(batch_code, s.name)
+                except Exception as exc:
+                    print(f"维度题目分布计算失败: {exc}")
+                    dims_questions = {}
+                try:
+                    dims_od = self._compute_questionnaire_dimension_option_distribution(batch_code, s.name)
+                except Exception as exc:
+                    print(f"维度选项分布计算失败: {exc}")
+                    dims_od = {}
+
+                for dim_code, dist in dims_od.items():
+                    entry = dim_entries.setdefault(
+                        dim_code,
+                        {
+                            "code": dim_code,
+                            "name": dim_name_map.get(dim_code, dim_code),
+                        },
+                    )
+                    entry["option_distribution"] = dist
+
+                for dim_code, question_map in dims_questions.items():
+                    entry = dim_entries.setdefault(
+                        dim_code,
+                        {
+                            "code": dim_code,
+                            "name": dim_name_map.get(dim_code, dim_code),
+                        },
+                    )
+                    entry["questions"] = [
+                        {"question_id": qid, "option_distribution": dist}
+                        for qid, dist in question_map.items()
+                    ]
+
+                if dim_entries:
+                    subj["dimensions"] = [dim_entries[key] for key in sorted(dim_entries.keys())]
+
+                try:
+                    qs_od = self._compute_questionnaire_question_option_distribution(batch_code, s.name)
+                except Exception as exc:
+                    print(f"题目选项分布计算失败: {exc}")
+                    qs_od = {}
+                if qs_od:
+                    subj["questions"] = [
+                        {"question_id": qid, "option_distribution": dist}
+                        for qid, dist in qs_od.items()
+                    ]
             subjects.append(round2_json(subj))
         return subjects
 
+    def build_regional_subjects_v12(self, batch_code: str, enhanced_stats: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+        """在原有区域subjects基础上，按方案B增强问卷科目：
+        - 维度avg（区域）
+        - 维度下按题目归组的选项分布
+        - 继续保留顶层 questions 以兼容
+        区域层不外露 p10/p50/p90/discrimination/grade_distribution 顶层字段。
+        """
+        subjects = self.build_regional_subjects(batch_code, enhanced_stats=enhanced_stats)
+        for subj in subjects:
+            try:
+                # 清退区域级不应外露的顶层字段
+                
+                if subj.get("type") != "questionnaire":
+                    continue
+                subject_name = subj.get("subject_name")
+                # 维度中文名映射
+                with get_db_context() as db_tmp:
+                    dim_name_map = self._batch_load_dimension_names(db_tmp, batch_code, subject_name)
+                # 区域维度均分
+                dim_avg_map = self._compute_regional_dimension_avgs(batch_code, subject_name)
+                # 维度 -> 题目选项分布（区域）
+                try:
+                    dims_questions = self._compute_questionnaire_dimension_question_option_distribution(batch_code, subject_name)
+                except Exception as e:
+                    print(f"按维度题目分布计算失败（忽略，继续输出avg等）: {e}")
+                    dims_questions = {}
+                # 维度 -> 聚合选项分布（兼容）
+                try:
+                    dims_od = self._compute_questionnaire_dimension_option_distribution(batch_code, subject_name)
+                except Exception as e:
+                    print(f"维度聚合分布计算失败（忽略）: {e}")
+                    dims_od = {}
+                # 顶层题目选项分布（兼容）
+                qs_od = self._compute_questionnaire_question_option_distribution(batch_code, subject_name)
+
+                dim_codes = set(dim_avg_map.keys()) | set(dims_questions.keys()) | set(dims_od.keys())
+                dims_list: List[Dict[str, Any]] = []
+                for dim_code in sorted(dim_codes):
+                    dim_entry: Dict[str, Any] = {
+                        "code": dim_code,
+                        "name": dim_name_map.get(dim_code, dim_code),
+                    }
+                    if dim_code in dim_avg_map:
+                        dim_entry["avg"] = dim_avg_map[dim_code]
+                    if dim_code in dims_od:
+                        dim_entry["option_distribution"] = dims_od[dim_code]
+                    if dim_code in dims_questions:
+                        dim_entry["questions"] = [
+                            {"question_id": qid, "option_distribution": dist}
+                            for qid, dist in dims_questions[dim_code].items()
+                        ]
+                    dims_list.append(dim_entry)
+                if dims_list:
+                    subj["dimensions"] = dims_list
+                # v1.2规范: 顶层questions[]已移除，题目选项分布改用独立API查询
+            except Exception as e:
+                print(f"增强问卷区域subjects失败: {e}")
+        return subjects
+
+    def build_school_subjects(
+        self,
+        batch_code: str,
+        school_code: str,
+        enhanced_stats: Optional[Dict[str, Any]] = None,
+        precomputed_ranks: Optional[Dict[str, Any]] = None,
+        precomputed_dim_ranks: Optional[Dict[str, Dict[str, Any]]] = None,
+    ) -> List[Dict[str, Any]]:
+        subjects: List[Dict[str, Any]] = []
+        rank_cache = precomputed_ranks or {}
+        dim_cache = precomputed_dim_ranks or {}
+
+        for s in self.list_subjects(batch_code):
+            subject_enhanced_stats = None
+            if enhanced_stats:
+                if s.name in enhanced_stats:
+                    subject_enhanced_stats = enhanced_stats[s.name]
+                else:
+                    academic_subjects = enhanced_stats.get('academic_subjects', {})
+                    non_academic_subjects = enhanced_stats.get('non_academic_subjects', {})
+                    subject_enhanced_stats = academic_subjects.get(s.name) or non_academic_subjects.get(s.name)
+
+            metrics, grade_distribution = self._compute_subject_metrics(
+                batch_code,
+                s.name,
+                school_code,
+                enhanced_stats=subject_enhanced_stats,
+            )
+
+            region_rank = self._compute_school_region_rank(
+                batch_code,
+                s.name,
+                school_code,
+                precomputed_rank=rank_cache.get(s.name),
+            )
+
+            dims = self._compute_school_dimensions_with_rank(
+                batch_code,
+                s.name,
+                school_code,
+                enhanced_stats=subject_enhanced_stats,
+                precomputed_dim_ranks=dim_cache.get(s.name),
+            )
+            if region_rank.get('region_rank') is not None:
+                metrics['rank'] = int(region_rank['region_rank'])
+
+            subj: Dict[str, Any] = {
+                "subject_name": s.name,
+                "type": s.type,
+                "metrics": metrics,
+            }
+            if grade_distribution:
+                subj["grade_distribution"] = grade_distribution
+            if dims:
+                subj["dimensions"] = dims
+
+            if s.type == 'questionnaire':
+                try:
+                    qs_school = self._compute_questionnaire_question_option_distribution_school(
+                        batch_code, s.name, school_code
+                    )
+                except Exception as exc:
+                    print(f"学校题目选项分布计算失败: {exc}")
+                    qs_school = {}
+                if qs_school:
+                    subj["questions"] = [
+                        {"question_id": qid, "option_distribution": dist}
+                        for qid, dist in qs_school.items()
+                    ]
+
+            subjects.append(round2_json(subj))
+        return subjects
+    def build_school_subjects_v12(
+        self,
+        batch_code: str,
+        school_code: str,
+        enhanced_stats: Optional[Dict[str, Any]] = None,
+        precomputed_ranks: Optional[Dict[str, Any]] = None,
+        precomputed_dim_ranks: Optional[Dict[str, Dict[str, Any]]] = None,
+    ) -> List[Dict[str, Any]]:
+        """v1.2 version of school-level subjects builder."""
+        subjects = self.build_school_subjects(
+            batch_code,
+            school_code,
+            enhanced_stats=enhanced_stats,
+            precomputed_ranks=precomputed_ranks,
+            precomputed_dim_ranks=precomputed_dim_ranks,
+        )
+        for subj in subjects:
+            try:
+                if isinstance(subj.get("dimensions"), list):
+                    for d in subj["dimensions"]:
+                        d.pop("regional_avg", None)
+
+            except Exception as e:
+                print(f"School subjects v1.2 cleanup failed: {e}")
+        return subjects
     # --- Internals ---
 
-    def _compute_subject_metrics(self, batch_code: str, subject_name: str, school_code: Optional[str] = None) -> Dict[str, Any]:
-        where = ["batch_code = :batch", "subject_name = :subject", "subject_type IN ('exam','questionnaire')"]
-        params: Dict[str, Any] = {"batch": batch_code, "subject": subject_name}
+    
+
+
+
+    def _compute_subject_metrics(
+        self,
+        batch_code: str,
+        subject_name: str,
+        school_code: Optional[str] = None,
+        enhanced_stats: Optional[Dict[str, Any]] = None,
+    ) -> Tuple[Dict[str, Any], Optional[Dict[str, Any]]]:
+        """Load subject-level metrics and return (metrics, grade_distribution)."""
+        cache_key: Tuple[str, ...]
+        cache_store: Dict[Tuple[str, ...], Dict[str, Any]]
         if school_code:
-            where.append("school_code = :school")
-            params["school"] = school_code
-        where_clause = " AND ".join(where)
-        sql = text(
-            f"""
-            SELECT 
-                ROUND(AVG(total_score), 2) AS avg,
-                ROUND(STDDEV_POP(total_score), 2) AS stddev,
-                ROUND(MAX(total_score), 2) AS max,
-                ROUND(MIN(total_score), 2) AS min,
-                ROUND(MAX(max_score), 2) AS max_score
-            FROM student_cleaned_scores
-            WHERE {where_clause}
-            """
-        )
-        with next(get_db()) as db:
-            row = db.execute(sql, params).fetchone()
-        avg = float(row[0] or 0)
-        stddev = float(row[1] or 0)
-        max_v = float(row[2] or 0)
-        min_v = float(row[3] or 0)
-        max_score = float(row[4] or 0)
-        difficulty = round2((avg / max_score) if max_score else 0)
-        return {
-            "avg": round2(avg),
-            "stddev": round2(stddev),
-            "max": round2(max_v),
-            "min": round2(min_v),
-            "difficulty": difficulty,
-        }
+            cache_key = (batch_code, subject_name, school_code)
+            cache_store = self._school_metric_cache
+        else:
+            cache_key = (batch_code, subject_name)
+            cache_store = self._subject_metric_cache
+
+        cached = cache_store.get(cache_key)
+        if cached is None:
+            try:
+                with get_db_context() as db:
+                    repo = PrecomputedMetricsRepository(db)
+                    if school_code:
+                        record = repo.get_subject_school_metric(batch_code, subject_name, school_code)
+                    else:
+                        record = repo.get_subject_metric(batch_code, subject_name)
+            except DataIntegrityError as exc:
+                scope = f"{batch_code}/{subject_name}"
+                if school_code:
+                    scope = f"{scope}/{school_code}"
+                raise ValueError(f"Precomputed metrics missing for {scope}") from exc
+
+            subject_type = (getattr(record, 'subject_type', None) or 'exam').lower()
+
+            avg = float(getattr(record, 'avg_score', 0) or 0)
+            stddev = float(getattr(record, 'std_score', 0) or 0)
+            max_v = float(getattr(record, 'max_score_achieved', 0) or 0)
+            min_v = float(getattr(record, 'min_score', 0) or 0)
+            full_score = float(getattr(record, 'max_score', 0) or 0)
+            student_count = int(getattr(record, 'student_count', 0) or 0)
+            score_rate_value = getattr(record, 'score_rate', None)
+            difficulty_value = getattr(record, 'difficulty_coefficient', None)
+
+            base_metrics: Dict[str, Any] = {
+                "avg": round2(avg),
+                "stddev": round2(stddev),
+                "max": round2(max_v),
+                "min": round2(min_v),
+                "subject_full_score": round2(full_score),
+                "student_count": student_count,
+                "score_rate": round2(score_rate_value or ((avg / full_score) * 100.0 if full_score else 0.0)),
+            }
+
+            if subject_type != 'questionnaire':
+                difficulty = difficulty_value
+                if difficulty is None and full_score:
+                    difficulty = (avg / full_score) if full_score else None
+                if difficulty is not None:
+                    base_metrics['difficulty'] = round2(difficulty)
+
+            cache_payload = dict(base_metrics)
+            cache_payload['__subject_type'] = subject_type
+            cache_store[cache_key] = cache_payload
+        else:
+            cache_payload = dict(cached)
+            subject_type = str(cache_payload.pop('__subject_type', 'exam'))
+            base_metrics = cache_payload
+
+        metrics = dict(base_metrics)
+        grade_distribution: Optional[Dict[str, Any]] = None
+
+        if enhanced_stats:
+            percentiles = enhanced_stats.get('percentiles') or {}
+            if isinstance(percentiles, dict) and percentiles:
+                pct_struct = {
+                    'P10': round2(percentiles.get('P10', 0)),
+                    'P50': round2(percentiles.get('P50', 0)),
+                    'P90': round2(percentiles.get('P90', 0)),
+                }
+                metrics['percentiles'] = pct_struct
+                metrics['p10'] = pct_struct['P10']
+                metrics['p50'] = pct_struct['P50']
+                metrics['p90'] = pct_struct['P90']
+
+            statistical_indicators = enhanced_stats.get('statistical_indicators') or {}
+            discr = statistical_indicators.get('discrimination_index')
+            if discr is None:
+                discr_payload = enhanced_stats.get('discrimination')
+                if isinstance(discr_payload, dict):
+                    discr = discr_payload.get('discrimination_index') or discr_payload.get('value')
+                elif discr_payload is not None:
+                    discr = discr_payload
+            if discr is not None:
+                metrics['discrimination'] = round2(discr)
+
+            grade_payload = enhanced_stats.get('grade_distribution')
+            if isinstance(grade_payload, dict):
+                simplified = self._simplify_grade_distribution(grade_payload)
+                if simplified:
+                    grade_distribution = simplified
+                    percentages = simplified.get('percentages') or {}
+                    mapping = {
+                        'fail': ('rate_fail', 'fail_rate'),
+                        'pass': ('rate_pass', 'pass_rate'),
+                        'good': ('rate_good', 'good_rate'),
+                        'excellent': ('rate_excellent', 'excellent_rate'),
+                    }
+                    for grade_key, (enhanced_key, legacy_key) in mapping.items():
+                        value = percentages.get(grade_key)
+                        if value is None:
+                            continue
+                        rounded = round2(value)
+                        metrics[enhanced_key] = rounded
+                        metrics[legacy_key] = rounded
+
+        if subject_type != 'questionnaire' and 'difficulty' not in metrics:
+            avg_val = metrics.get('avg')
+            full_score_val = metrics.get('subject_full_score')
+            try:
+                if avg_val is not None and full_score_val:
+                    metrics['difficulty'] = round2(float(avg_val) / float(full_score_val))
+            except Exception:
+                pass
+
+        if 'score_rate' not in metrics:
+            avg_val = metrics.get('avg')
+            full_score_val = metrics.get('subject_full_score')
+            try:
+                metrics['score_rate'] = round2((float(avg_val) / float(full_score_val)) * 100.0 if full_score_val else 0.0)
+            except Exception:
+                metrics['score_rate'] = round2(0.0)
+
+        metrics.setdefault('student_count', base_metrics.get('student_count', 0))
+        metrics.setdefault('subject_full_score', base_metrics.get('subject_full_score', 0))
+
+        if subject_type != 'questionnaire':
+            fallback_rates = {
+                'fail': getattr(record, 'fail_rate', None),
+                'pass': getattr(record, 'pass_rate', None),
+                'good': getattr(record, 'good_rate', None),
+                'excellent': getattr(record, 'excellent_rate', None),
+            }
+            if any(v is not None for v in fallback_rates.values()):
+                for grade_key, rate_val in fallback_rates.items():
+                    if rate_val is None:
+                        continue
+                    rounded = round2(rate_val)
+                    metrics[f'rate_{grade_key}'] = rounded
+                    metrics[f'{grade_key}_rate'] = rounded
+                if grade_distribution is None:
+                    student_total = metrics.get('student_count', student_count) or 0
+                    counts = {}
+                    percentages = {}
+                    for grade_key, rate_val in fallback_rates.items():
+                        rate_val = float(rate_val or 0)
+                        percentages[grade_key] = round2(rate_val)
+                        counts[grade_key] = round2(student_total * rate_val) if student_total else 0
+                    grade_distribution = {
+                        'counts': counts,
+                        'percentages': percentages,
+                    }
+
+        return metrics, grade_distribution
 
     def _compute_school_rankings(self, batch_code: str, subject_name: str) -> List[Dict[str, Any]]:
-        sql = text(
-            """
-            SELECT school_code,
-                   MAX(school_name) AS school_name,
-                   ROUND(AVG(total_score), 2) AS avg,
-                   DENSE_RANK() OVER (ORDER BY AVG(total_score) DESC, school_code ASC) AS rnk
-            FROM student_cleaned_scores
-            WHERE batch_code = :batch AND subject_name = :subject
-              AND subject_type IN ('exam','questionnaire')
-            GROUP BY school_code
-            ORDER BY avg DESC, school_code ASC
-            """
-        )
-        with next(get_db()) as db:
-            rows = db.execute(sql, {"batch": batch_code, "subject": subject_name}).fetchall()
-        return [
-            {"school_code": r[0], "school_name": r[1], "avg": float(r[2] or 0), "rank": int(r[3])}
-            for r in rows
-        ]
+        try:
+            with get_db_context() as db:
+                repo = PrecomputedMetricsRepository(db)
+                rows = repo.list_subject_school_rankings(batch_code, subject_name)
+        except DataIntegrityError as exc:
+            raise ValueError(
+                f"Precomputed school rankings missing for {batch_code}/{subject_name}"
+            ) from exc
 
-    def _compute_school_region_rank(self, batch_code: str, subject_name: str, school_code: str) -> Dict[str, Any]:
+        enriched: List[Dict[str, Any]] = []
+        for row in rows:
+            entry: Dict[str, Any] = {
+                "school_id": row.school_code,
+                "school_name": row.school_name,
+                "avg": round2(getattr(row, 'avg_score', 0) or 0),
+                "score_rate": round2(getattr(row, 'score_rate', 0) or 0),
+                "rank": int(getattr(row, 'rank', 0) or 0),
+            }
+            total_schools = getattr(row, 'total_schools', None)
+            if total_schools is not None:
+                try:
+                    entry['total_schools'] = int(total_schools)
+                except Exception:
+                    pass
+            student_count = getattr(row, 'student_count', None)
+            if student_count is not None:
+                try:
+                    entry['student_count'] = int(student_count)
+                except Exception:
+                    pass
+            enriched.append(entry)
+        return enriched
+
+
+
+
+    def _get_total_active_schools(self, batch_code: str, subject_name: str) -> int:
+        key = (batch_code, subject_name)
+        if key in self._total_school_cache:
+            return self._total_school_cache[key]
+
+        try:
+            with get_db_context() as db:
+                repo = PrecomputedMetricsRepository(db)
+                total = repo.get_total_active_schools(batch_code, subject_name)
+        except DataIntegrityError as exc:
+            raise ValueError(
+                f"Total school count missing for {batch_code}/{subject_name}"
+            ) from exc
+
+        total_int = int(total)
+        self._total_school_cache[key] = total_int
+        return total_int
+    def _compute_school_region_rank(
+        self,
+        batch_code: str,
+        subject_name: str,
+        school_code: str,
+        precomputed_rank: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        if isinstance(precomputed_rank, dict):
+            rank_value = precomputed_rank.get('rank')
+            total_value = precomputed_rank.get('total_schools')
+            try:
+                rank_int = int(rank_value) if rank_value is not None else None
+            except (TypeError, ValueError):
+                rank_int = None
+            if total_value is None:
+                total_int = self._get_total_active_schools(batch_code, subject_name)
+            else:
+                try:
+                    total_int = int(total_value)
+                except (TypeError, ValueError):
+                    total_int = self._get_total_active_schools(batch_code, subject_name)
+            return {"region_rank": rank_int, "total_schools": total_int}
+
         sql = text(
             """
             WITH ranks AS (
-              SELECT school_code,
-                     DENSE_RANK() OVER (ORDER BY AVG(total_score) DESC, school_code ASC) AS r
-              FROM student_cleaned_scores
-              WHERE batch_code = :batch AND subject_name = :subject
-                AND subject_type IN ('exam','questionnaire')
-              GROUP BY school_code
+              SELECT scs.school_code,
+                     DENSE_RANK() OVER (ORDER BY AVG(scs.total_score) DESC, scs.school_code ASC) AS r
+              FROM student_cleaned_scores scs
+              JOIN school_master_data smd 
+                ON smd.batch_code COLLATE utf8mb4_unicode_ci = scs.batch_code
+               AND smd.school_id COLLATE utf8mb4_unicode_ci = scs.school_code
+               AND smd.status = 'ACTIVE'
+              WHERE scs.batch_code = :batch AND scs.subject_name = :subject
+                AND scs.subject_type IN ('exam','questionnaire')
+              GROUP BY scs.school_code
             )
             SELECT r AS region_rank,
-                   (SELECT COUNT(DISTINCT school_code)
-                      FROM student_cleaned_scores
-                      WHERE batch_code = :batch AND subject_name = :subject
-                        AND subject_type IN ('exam','questionnaire')) AS total_schools
+                   (SELECT COUNT(DISTINCT scs2.school_code)
+                      FROM student_cleaned_scores scs2
+                      JOIN school_master_data smd2 
+                        ON smd2.batch_code COLLATE utf8mb4_unicode_ci = scs2.batch_code COLLATE utf8mb4_unicode_ci
+                       AND smd2.school_id COLLATE utf8mb4_unicode_ci = scs2.school_code COLLATE utf8mb4_unicode_ci
+                       AND smd2.status = 'ACTIVE'
+                      WHERE scs2.batch_code = :batch AND scs2.subject_name = :subject
+                        AND scs2.subject_type IN ('exam','questionnaire')) AS total_schools
             FROM ranks WHERE school_code = :school
             """
         )
-        with next(get_db()) as db:
+        with get_db_context() as db:
             row = db.execute(sql, {"batch": batch_code, "subject": subject_name, "school": school_code}).fetchone()
         if not row:
-            return {"region_rank": None, "total_schools": 0}
-        return {"region_rank": int(row[0] or 0), "total_schools": int(row[1] or 0)}
+            total = self._get_total_active_schools(batch_code, subject_name)
+            return {"region_rank": None, "total_schools": total}
+
+        region_rank = int(row[0]) if row[0] is not None else None
+        total_schools_val = row[1]
+        if total_schools_val is not None:
+            try:
+                total_schools = int(total_schools_val)
+            except (TypeError, ValueError):
+                total_schools = self._get_total_active_schools(batch_code, subject_name)
+        else:
+            total_schools = self._get_total_active_schools(batch_code, subject_name)
+        self._total_school_cache[(batch_code, subject_name)] = total_schools
+
+        return {"region_rank": region_rank, "total_schools": total_schools}
 
     def _discover_dimension_codes(self, batch_code: str, subject_name: str) -> List[str]:
-        # 探测维度编码（从学生维度JSON中抽取）
+        """???????? JSON ???????????"""
         sql = text(
             """
             SELECT dimension_scores
             FROM student_cleaned_scores
-            WHERE batch_code=:batch AND subject_name=:subject
+            WHERE batch_code=:batch
+              AND subject_name=:subject
               AND subject_type IN ('exam','questionnaire')
-              AND dimension_scores IS NOT NULL AND dimension_scores != ''
-            LIMIT 200
+              AND dimension_scores IS NOT NULL
+              AND dimension_scores != ''
+            LIMIT 500
             """
         )
         codes: Dict[str, int] = {}
-        import json
-        with next(get_db()) as db:
-            for (ds_json,) in db.execute(sql, {"batch": batch_code, "subject": subject_name}).fetchall():
+        with get_db_context() as db:
+            rows = db.execute(sql, {"batch": batch_code, "subject": subject_name}).fetchall()
+        for (payload,) in rows:
+            if payload is None:
+                continue
+            raw = payload
+            if isinstance(raw, (bytes, bytearray)):
                 try:
-                    ds = json.loads(ds_json) if isinstance(ds_json, str) else (ds_json or {})
+                    raw = raw.decode('utf-8')
                 except Exception:
-                    ds = {}
-                if isinstance(ds, dict):
-                    for code in ds.keys():
-                        codes[code] = 1
-        return list(codes.keys())
-
-    def _compute_school_dimensions_with_rank(self, batch_code: str, subject_name: str, school_code: str) -> List[Dict[str, Any]]:
-        dims_out: List[Dict[str, Any]] = []
-        dim_codes = self._discover_dimension_codes(batch_code, subject_name)
-        if not dim_codes:
-            return dims_out
-        with next(get_db()) as db:
-            for dim in dim_codes:
-                sql_rank = text(
-                    f"""
-                    WITH per_school AS (
-                      SELECT school_code,
-                             AVG(CAST(JSON_UNQUOTE(JSON_EXTRACT(CAST(dimension_scores AS JSON), '$."{dim}".score')) AS DECIMAL(10,4))) AS dim_avg
-                      FROM student_cleaned_scores
-                      WHERE batch_code=:batch AND subject_name=:subject
-                        AND subject_type IN ('exam','questionnaire')
-                        AND JSON_EXTRACT(CAST(dimension_scores AS JSON), '$."{dim}".score') IS NOT NULL
-                      GROUP BY school_code
-                    )
-                    SELECT 
-                      (SELECT ROUND(dim_avg, 2) FROM per_school WHERE school_code=:school) AS my_avg,
-                      (SELECT DENSE_RANK() OVER (ORDER BY dim_avg DESC, school_code ASC) FROM per_school WHERE school_code=:school) AS my_rank
-                    """
-                )
-                row = db.execute(sql_rank, {"batch": batch_code, "subject": subject_name, "school": school_code}).fetchone()
-                if not row:
+                    raw = raw.decode('utf-8', errors='ignore')
+            if isinstance(raw, str):
+                try:
+                    parsed = json.loads(raw)
+                except Exception:
                     continue
-                dim_avg = float(row[0]) if row[0] is not None else None
-                dim_rank = int(row[1]) if row[1] is not None else None
-                # 估算维度满分（可选）：以该维度 max_score 的平均值为准
-                sql_max = text(
-                    f"""
-                    SELECT ROUND(AVG(CAST(JSON_UNQUOTE(JSON_EXTRACT(CAST(dimension_max_scores AS JSON), '$."{dim}"')) AS DECIMAL(10,4))), 2) AS max_score
-                    FROM student_cleaned_scores
-                    WHERE batch_code=:batch AND subject_name=:subject
-                      AND subject_type IN ('exam','questionnaire')
-                      AND JSON_EXTRACT(CAST(dimension_max_scores AS JSON), '$."{dim}"') IS NOT NULL
-                    """
-                )
-                max_row = db.execute(sql_max, {"batch": batch_code, "subject": subject_name}).fetchone()
-                max_score = float(max_row[0]) if max_row and max_row[0] is not None else None
-                score_rate = round2((dim_avg / max_score * 100.0) if (dim_avg is not None and max_score) else None)
-                dims_out.append({
-                    "code": dim,
-                    "name": dim,
-                    "avg": round2(dim_avg) if dim_avg is not None else None,
-                    "score_rate": score_rate,
-                    "rank": dim_rank,
-                })
-        return dims_out
+            elif isinstance(raw, dict):
+                parsed = raw
+            else:
+                continue
+            if isinstance(parsed, dict):
+                for key in parsed.keys():
+                    codes[str(key)] = 1
+        return sorted(codes.keys())
 
-    def _compute_questionnaire_dimension_option_distribution(self, batch_code: str, subject_name: str) -> Dict[str, List[Dict[str, Any]]]:
-        # 需要 question_dimension_mapping 提供维度映射
-        # 获取量表标签映射（option_level -> option_label）
-        label_map = self._get_scale_label_map(batch_code, subject_name)
-        sql = text(
-            """
-            SELECT qdm.dimension_code,
-                   qqd.option_level,
-                   ROUND(SUM(qqd.count) * 100.0 /
-                         SUM(SUM(qqd.count)) OVER (PARTITION BY qdm.dimension_code), 2) AS pct
-            FROM questionnaire_option_distribution qqd
-            JOIN question_dimension_mapping qdm
-              ON qdm.batch_code=qqd.batch_code
-             AND qdm.subject_name=qqd.subject_name
-             AND qdm.question_id=qqd.question_id
-            WHERE qqd.batch_code=:batch AND qqd.subject_name=:subject
-            GROUP BY qdm.dimension_code, qqd.option_level
-            ORDER BY qdm.dimension_code, qqd.option_level
+    def _compute_school_dimensions_with_rank(
+            self,
+            batch_code: str,
+            subject_name: str,
+            school_code: str,
+            enhanced_stats: Optional[Dict[str, Any]] = None,
+            precomputed_dim_ranks: Optional[Dict[str, Any]] = None,
+        ) -> List[Dict[str, Any]]:
+            dims_out: List[Dict[str, Any]] = []
+            dim_cache = precomputed_dim_ranks or {}
+
+            dimension_keys: set[str] = set()
+            if isinstance(dim_cache, dict):
+                dimension_keys.update(str(key) for key in dim_cache.keys())
+            if isinstance(enhanced_stats, dict):
+                dims_stats_map = enhanced_stats.get('dimensions', {})
+                if isinstance(dims_stats_map, dict):
+                    dimension_keys.update(str(key) for key in dims_stats_map.keys())
+            else:
+                dims_stats_map = {}
+            if not dimension_keys:
+                discovered = self._discover_dimension_codes(batch_code, subject_name)
+                dimension_keys.update(str(key) for key in discovered)
+            if not dimension_keys:
+                return dims_out
+
+            with get_db_context() as db:
+                dimension_name_mapping = self._batch_load_dimension_names(db, batch_code, subject_name)
+                max_score_map: Dict[str, float] = {}
+                try:
+                    sql_bdd = text(
+                        """
+                        SELECT dimension_code, dimension_max_score
+                        FROM batch_dimension_definition
+                        WHERE batch_code=:batch AND subject_name=:subject AND dimension_max_score IS NOT NULL
+                        """
+                    )
+                    rows_bdd = db.execute(sql_bdd, {"batch": batch_code, "subject": subject_name}).fetchall()
+                    for dc, ms in rows_bdd:
+                        try:
+                            max_score_map[str(dc)] = float(ms)
+                        except Exception:
+                            continue
+                except Exception:
+                    pass
+
+                for dim in sorted(dimension_keys):
+                    dim_str = str(dim)
+                    cache_entry = dim_cache.get(dim_str) if isinstance(dim_cache, dict) else None
+                    dim_avg: Optional[float] = None
+                    dim_rank: Optional[int] = None
+                    max_score: Optional[float] = max_score_map.get(dim_str)
+                    score_rate: Optional[float] = None
+
+                    if isinstance(cache_entry, dict):
+                        self._record_cache_hit()
+                        cached_avg = cache_entry.get('avg')
+                        cached_rank = cache_entry.get('rank')
+                        cached_max = cache_entry.get('max_score')
+                        cached_rate = cache_entry.get('score_rate')
+                        try:
+                            dim_avg = float(cached_avg) if cached_avg is not None else None
+                        except (TypeError, ValueError):
+                            dim_avg = None
+                        try:
+                            dim_rank = int(cached_rank) if cached_rank is not None else None
+                        except (TypeError, ValueError):
+                            dim_rank = None
+                        try:
+                            if cached_max is not None:
+                                max_score = float(cached_max)
+                        except (TypeError, ValueError):
+                            pass
+                        try:
+                            if cached_rate is not None:
+                                score_rate = round2(cached_rate)
+                        except Exception:
+                            score_rate = None
+                        if dim_avg is None or dim_rank is None:
+                            self._record_cache_fallback()
+                    else:
+                        self._record_cache_miss()
+
+                    if dim_avg is None or dim_rank is None:
+                        dim_avg, dim_rank, max_score = self._compute_dimension_stats_from_db(
+                            db,
+                            batch_code,
+                            subject_name,
+                            school_code,
+                            dim_str,
+                            max_score_map,
+                        )
+                        if dim_avg is None and dim_rank is None:
+                            continue
+                        score_rate = round2((dim_avg / max_score * 100.0) if (dim_avg is not None and max_score) else None)
+                    elif score_rate is None and max_score:
+                        score_rate = round2((dim_avg / max_score * 100.0) if dim_avg is not None else None)
+
+                    dimension_name = dimension_name_mapping.get(dim_str, dim_str)
+                    dim_result: Dict[str, Any] = {
+                        "code": dim_str,
+                        "name": dimension_name,
+                        "avg": round2(dim_avg) if dim_avg is not None else None,
+                        "score_rate": score_rate,
+                        "rank": dim_rank,
+                    }
+
+                    dim_enhanced = {}
+                    if isinstance(dims_stats_map, dict):
+                        dim_enhanced = dims_stats_map.get(dim_str, {}) or {}
+                    if isinstance(dim_enhanced, dict) and dim_enhanced:
+                        indicators = dim_enhanced.get('statistical_indicators')
+                        if isinstance(indicators, dict):
+                            if 'difficulty_coefficient' in indicators:
+                                dim_result['difficulty'] = round2(indicators.get('difficulty_coefficient'))
+                            if 'discrimination_index' in indicators:
+                                dim_result['discrimination'] = round2(indicators.get('discrimination_index'))
+                        percentiles = dim_enhanced.get('percentiles')
+                        if isinstance(percentiles, dict):
+                            dim_result['percentiles'] = {
+                                'P10': round2(percentiles.get('P10', 0)),
+                                'P50': round2(percentiles.get('P50', 0)),
+                                'P90': round2(percentiles.get('P90', 0)),
+                            }
+
+                    dims_out.append(dim_result)
+            return dims_out
+
+    def _compute_dimension_stats_from_db(
+        self,
+        db,
+        batch_code: str,
+        subject_name: str,
+        school_code: str,
+        dimension_code: str,
+        max_score_map: Dict[str, float],
+        ) -> Tuple[Optional[float], Optional[int], Optional[float]]:
+        sql_rank = text(
+            f"""
+            WITH per_school AS (
+              SELECT scs.school_code,
+                     ROUND(AVG(CAST(JSON_UNQUOTE(JSON_EXTRACT(CAST(scs.dimension_scores AS JSON), '$."{dimension_code}".score')) AS DECIMAL(10,4))), 2) AS dim_avg
+              FROM student_cleaned_scores scs
+              JOIN school_master_data smd 
+                ON smd.batch_code COLLATE utf8mb4_unicode_ci = scs.batch_code
+               AND smd.school_id COLLATE utf8mb4_unicode_ci = scs.school_code
+               AND smd.status = 'ACTIVE'
+              WHERE scs.batch_code=:batch AND scs.subject_name=:subject
+                AND scs.subject_type IN ('exam','questionnaire')
+                AND JSON_EXTRACT(CAST(scs.dimension_scores AS JSON), '$."{dimension_code}".score') IS NOT NULL
+              GROUP BY scs.school_code
+            ), ranked AS (
+              SELECT school_code, dim_avg,
+                     DENSE_RANK() OVER (ORDER BY dim_avg DESC, school_code ASC) AS rnk
+              FROM per_school
+            )
+            SELECT dim_avg, rnk FROM ranked WHERE school_code=:school
             """
         )
-        out: Dict[str, List[Dict[str, Any]]] = {}
-        with next(get_db()) as db:
-            rows = db.execute(sql, {"batch": batch_code, "subject": subject_name}).fetchall()
-        for r in rows:
-            dim = r[0]
-            lvl = int(r[1])
-            out.setdefault(dim, []).append({
-                "option_level": lvl,
-                "option_label": label_map.get(lvl),
-                "pct": float(r[2])
-            })
-        return out
+        row = db.execute(sql_rank, {"batch": batch_code, "subject": subject_name, "school": school_code}).fetchone()
+        if row:
+            dim_avg = float(row[0]) if row[0] is not None else None
+            dim_rank = int(row[1]) if row[1] is not None else None
+        else:
+            dim_avg = None
+            dim_rank = None
+    
+        if dim_avg is None:
+            try:
+                sql_rank_q = text(
+                    """
+                    WITH per_school AS (
+                      SELECT qqs.school_id AS school_code,
+                             ROUND(AVG(qqs.original_score), 2) AS dim_avg
+                      FROM questionnaire_question_scores qqs
+                      JOIN question_dimension_mapping qdm
+                        ON qdm.batch_code COLLATE utf8mb4_unicode_ci = qqs.batch_code COLLATE utf8mb4_unicode_ci
+                       AND qdm.question_id COLLATE utf8mb4_unicode_ci = qqs.question_id COLLATE utf8mb4_unicode_ci
+                      JOIN school_master_data smd 
+                        ON smd.batch_code COLLATE utf8mb4_unicode_ci = qqs.batch_code COLLATE utf8mb4_unicode_ci
+                       AND smd.school_id COLLATE utf8mb4_unicode_ci = qqs.school_id COLLATE utf8mb4_unicode_ci
+                       AND smd.status = 'ACTIVE'
+                      WHERE qqs.batch_code COLLATE utf8mb4_unicode_ci = CAST(:batch AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+                        AND qqs.subject_name COLLATE utf8mb4_unicode_ci = CAST(:subject AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+                        AND qdm.subject_name COLLATE utf8mb4_unicode_ci = CAST(:subject AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+                        AND qdm.dimension_code COLLATE utf8mb4_unicode_ci = CAST(:dim AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+                      GROUP BY qqs.school_id
+                    ), ranked AS (
+                      SELECT school_code, dim_avg,
+                             DENSE_RANK() OVER (ORDER BY dim_avg DESC, school_code ASC) AS rnk
+                      FROM per_school
+                    )
+                    SELECT dim_avg, rnk FROM ranked WHERE school_code=:school
+                    """
+                )
+                row_q = db.execute(sql_rank_q, {"batch": batch_code, "subject": subject_name, "school": school_code, "dim": dimension_code}).fetchone()
+                if row_q:
+                    dim_avg = float(row_q[0]) if row_q[0] is not None else None
+                    dim_rank = int(row_q[1]) if row_q[1] is not None else None
+            except Exception:
+                pass
+    
+        max_score = max_score_map.get(dimension_code)
+        if max_score is None or max_score == 0.0:
+            sql_max = text(
+                f"""
+                SELECT ROUND(AVG(CAST(JSON_UNQUOTE(JSON_EXTRACT(CAST(scs.dimension_max_scores AS JSON), '$."{dimension_code}".max_score')) AS DECIMAL(10,4))), 2) AS max_score
+                FROM student_cleaned_scores scs
+                JOIN school_master_data smd 
+                  ON smd.batch_code COLLATE utf8mb4_unicode_ci = scs.batch_code
+                 AND smd.school_id COLLATE utf8mb4_unicode_ci = scs.school_code
+                 AND smd.status = 'ACTIVE'
+                WHERE scs.batch_code=:batch AND scs.subject_name=:subject
+                  AND scs.subject_type IN ('exam','questionnaire')
+                  AND JSON_EXTRACT(CAST(scs.dimension_max_scores AS JSON), '$."{dimension_code}".max_score') IS NOT NULL
+                """
+            )
+            max_row = db.execute(sql_max, {"batch": batch_code, "subject": subject_name}).fetchone()
+            if max_row and max_row[0] is not None:
+                try:
+                    max_score = float(max_row[0])
+                except (TypeError, ValueError):
+                    max_score = None
+    
+        if (max_score is None or max_score == 0.0) and dimension_code in max_score_map:
+            max_score = max_score_map[dimension_code]
+    
+        if max_score is None or max_score == 0.0:
+            try:
+                sql_max2 = text(
+                    """
+                    SELECT SUM(sqc.max_score) AS dim_max
+                    FROM subject_question_config sqc
+                    JOIN question_dimension_mapping qdm
+                      ON qdm.batch_code = sqc.batch_code
+                     AND qdm.subject_name = sqc.subject_name
+                     AND qdm.question_id = sqc.question_id
+                    WHERE sqc.batch_code=:batch AND sqc.subject_name=:subject AND qdm.dimension_code=:dim
+                    """
+                )
+                max_row2 = db.execute(sql_max2, {"batch": batch_code, "subject": subject_name, "dim": dimension_code}).fetchone()
+                if max_row2 and max_row2[0] is not None:
+                    try:
+                        max_score = float(max_row2[0])
+                    except (TypeError, ValueError):
+                        max_score = None
+            except Exception:
+                pass
+    
+        return dim_avg, dim_rank, max_score
+    def _compute_questionnaire_dimension_option_distribution(self, batch_code: str, subject_name: str) -> Dict[str, List[Dict[str, Any]]]:
+            # 需要 question_dimension_mapping 提供维度映射
+            # 获取量表标签映射（option_level -> option_label）
+            label_map = self._get_scale_label_map(batch_code, subject_name)
+            sql = text(
+                """
+                SELECT qdm.dimension_code,
+                       qqd.option_level,
+                       ROUND(SUM(qqd.count) * 100.0 /
+                             SUM(SUM(qqd.count)) OVER (PARTITION BY qdm.dimension_code), 2) AS pct
+                FROM questionnaire_option_distribution qqd
+                JOIN question_dimension_mapping qdm
+                  ON qdm.batch_code COLLATE utf8mb4_unicode_ci = qqd.batch_code COLLATE utf8mb4_unicode_ci
+                 AND qdm.question_id COLLATE utf8mb4_unicode_ci = qqd.question_id COLLATE utf8mb4_unicode_ci
+                WHERE qqd.batch_code COLLATE utf8mb4_unicode_ci = CAST(:batch AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+                  AND qqd.subject_name COLLATE utf8mb4_unicode_ci = CAST(:subject AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+                  AND qdm.subject_name COLLATE utf8mb4_unicode_ci = CAST(:subject AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+                GROUP BY qdm.dimension_code, qqd.option_level
+                ORDER BY qdm.dimension_code, qqd.option_level
+                """
+            )
+            out: Dict[str, List[Dict[str, Any]]] = {}
+            with get_db_context() as db:
+                rows = db.execute(sql, {"batch": batch_code, "subject": subject_name}).fetchall()
+            for r in rows:
+                dim = r[0]
+                lvl = int(r[1])
+                out.setdefault(dim, []).append({
+                    "option_level": lvl,
+                    "option_label": label_map.get(lvl),
+                    "pct": float(r[2])
+                })
+            return out
 
     def _compute_questionnaire_question_option_distribution(self, batch_code: str, subject_name: str) -> Dict[str, List[Dict[str, Any]]]:
         # 获取量表标签映射（option_level -> option_label）
@@ -297,12 +1164,13 @@ class SubjectsBuilder:
                    option_level,
                    ROUND(count * 100.0 / SUM(count) OVER (PARTITION BY question_id), 2) AS pct
             FROM questionnaire_option_distribution
-            WHERE batch_code=:batch AND subject_name=:subject
+            WHERE batch_code COLLATE utf8mb4_unicode_ci = CAST(:batch AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+              AND subject_name COLLATE utf8mb4_unicode_ci = CAST(:subject AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
             ORDER BY question_id, option_level
             """
         )
         out: Dict[str, List[Dict[str, Any]]] = {}
-        with next(get_db()) as db:
+        with get_db_context() as db:
             rows = db.execute(sql, {"batch": batch_code, "subject": subject_name}).fetchall()
         for r in rows:
             qid = r[0]
@@ -312,6 +1180,146 @@ class SubjectsBuilder:
                 "option_label": label_map.get(lvl),
                 "pct": float(r[2])
             })
+        return out
+
+    def _compute_questionnaire_dimension_question_option_distribution(self, batch_code: str, subject_name: str) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
+        """按维度归组题目选项分布（区域级）。
+        返回结构：{ dimension_code: { question_id: [ {option_level, option_label, pct}, ... ] } }
+        """
+        label_map = self._get_scale_label_map(batch_code, subject_name)
+        sql = text(
+            """
+            SELECT qdm.dimension_code,
+                   qqd.question_id,
+                   qqd.option_level,
+                   ROUND(SUM(qqd.count) * 100.0 /
+                         NULLIF(SUM(SUM(qqd.count)) OVER (PARTITION BY qqd.question_id), 0), 2) AS pct
+            FROM questionnaire_option_distribution qqd
+            JOIN question_dimension_mapping qdm
+              ON qdm.batch_code COLLATE utf8mb4_unicode_ci = qqd.batch_code COLLATE utf8mb4_unicode_ci
+             AND qdm.question_id COLLATE utf8mb4_unicode_ci = qqd.question_id COLLATE utf8mb4_unicode_ci
+            WHERE qqd.batch_code COLLATE utf8mb4_unicode_ci = CAST(:batch AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+              AND qqd.subject_name COLLATE utf8mb4_unicode_ci = CAST(:subject AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+              AND qdm.subject_name COLLATE utf8mb4_unicode_ci = CAST(:subject AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+            GROUP BY qdm.dimension_code, qqd.question_id, qqd.option_level
+            ORDER BY qdm.dimension_code, qqd.question_id, qqd.option_level
+            """
+        )
+        out: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}
+        with get_db_context() as db:
+            rows = db.execute(sql, {"batch": batch_code, "subject": subject_name}).fetchall()
+        for r in rows:
+            dim = r[0]
+            qid = r[1]
+            lvl = int(r[2])
+            out.setdefault(dim, {}).setdefault(qid, []).append({
+                "option_level": lvl,
+                "option_label": label_map.get(lvl),
+                "pct": float(r[3]) if r[3] is not None else None
+            })
+        return out
+
+    def _compute_questionnaire_question_option_distribution_school(self, batch_code: str, subject_name: str, school_code: str) -> Dict[str, List[Dict[str, Any]]]:
+        """学校级：题目选项分布（问卷）。
+        返回 {question_id: [ {option_level, option_label, pct}, ... ]}
+        说明：不依赖 questionnaire_option_distribution（其为全区域聚合表，不含school_id），
+             直接基于 questionnaire_question_scores 明细按学校聚合计算。
+        """
+        label_map = self._get_scale_label_map(batch_code, subject_name)
+        sql = text(
+            """
+            SELECT 
+                qqs.question_id,
+                GREATEST(
+                    1, 
+                    LEAST(
+                        qqs.scale_level,
+                        ROUND(COALESCE(qqs.original_score,0) / NULLIF(qqs.max_score,0) * qqs.scale_level, 0)
+                    )
+                ) AS option_level,
+                ROUND(
+                    COUNT(*) * 100.0 / NULLIF(SUM(COUNT(*)) OVER (PARTITION BY qqs.question_id), 0),
+                    2
+                ) AS pct
+            FROM questionnaire_question_scores qqs
+            WHERE qqs.batch_code = :batch
+              AND qqs.subject_name = :subject
+              AND qqs.school_id = :school
+            GROUP BY qqs.question_id, qqs.scale_level, qqs.original_score, qqs.max_score
+            ORDER BY qqs.question_id, option_level
+            """
+        )
+        out: Dict[str, List[Dict[str, Any]]] = {}
+        with get_db_context() as db:
+            rows = db.execute(sql, {"batch": batch_code, "subject": subject_name, "school": school_code}).fetchall()
+        for r in rows:
+            qid = r[0]
+            lvl = int(r[1])
+            out.setdefault(qid, []).append({
+                "option_level": lvl,
+                "option_label": label_map.get(lvl),
+                "pct": float(r[2]) if r[2] is not None else None
+            })
+        return out
+
+    def _compute_regional_dimension_avgs(self, batch_code: str, subject_name: str) -> Dict[str, float]:
+        """计算区域级维度平均分（基于 student_cleaned_scores.dimension_scores），限定 ACTIVE 学校。
+        返回 {dimension_code: avg}
+        """
+        dim_codes = self._discover_dimension_codes(batch_code, subject_name)
+        out: Dict[str, float] = {}
+        with get_db_context() as db:
+            # 逐维度尝试：先 JSON，再回退问卷明细
+            if dim_codes:
+                for dim in dim_codes:
+                    dim_avg_val = None
+                    try:
+                        sql = text(
+                            f"""
+                            SELECT ROUND(AVG(CAST(JSON_UNQUOTE(JSON_EXTRACT(CAST(scs.dimension_scores AS JSON), '$."{dim}".score')) AS DECIMAL(10,4))), 2) AS dim_avg
+                            FROM student_cleaned_scores scs
+                            JOIN school_master_data smd 
+                              ON smd.batch_code COLLATE utf8mb4_unicode_ci = scs.batch_code
+                             AND smd.school_id COLLATE utf8mb4_unicode_ci = scs.school_code
+                             AND smd.status = 'ACTIVE'
+                            WHERE scs.batch_code=:batch AND scs.subject_name=:subject
+                              AND scs.subject_type IN ('exam','questionnaire')
+                              AND JSON_EXTRACT(CAST(scs.dimension_scores AS JSON), '$."{dim}".score') IS NOT NULL
+                            """
+                        )
+                        row = db.execute(sql, {"batch": batch_code, "subject": subject_name}).fetchone()
+                        if row and row[0] is not None:
+                            dim_avg_val = float(row[0])
+                    except Exception:
+                        dim_avg_val = None
+
+                    if dim_avg_val is None:
+                        try:
+                            sql2 = text(
+                                """
+                                SELECT ROUND(AVG(qqs.original_score), 2) AS dim_avg
+                                FROM questionnaire_question_scores qqs
+                                JOIN question_dimension_mapping qdm
+                                  ON qdm.batch_code COLLATE utf8mb4_unicode_ci = qqs.batch_code COLLATE utf8mb4_unicode_ci
+                                 AND qdm.question_id COLLATE utf8mb4_unicode_ci = qqs.question_id COLLATE utf8mb4_unicode_ci
+                                JOIN school_master_data smd 
+                                  ON smd.batch_code COLLATE utf8mb4_unicode_ci = qqs.batch_code COLLATE utf8mb4_unicode_ci
+                                 AND smd.school_id COLLATE utf8mb4_unicode_ci = qqs.school_id COLLATE utf8mb4_unicode_ci
+                                 AND smd.status = 'ACTIVE'
+                                WHERE qqs.batch_code COLLATE utf8mb4_unicode_ci = CAST(:batch AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+                                  AND qqs.subject_name COLLATE utf8mb4_unicode_ci = CAST(:subject AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+                                  AND qdm.subject_name COLLATE utf8mb4_unicode_ci = CAST(:subject AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+                                  AND qdm.dimension_code COLLATE utf8mb4_unicode_ci = CAST(:dim AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+                                """
+                            )
+                            row2 = db.execute(sql2, {"batch": batch_code, "subject": subject_name, "dim": dim}).fetchone()
+                            if row2 and row2[0] is not None:
+                                dim_avg_val = float(row2[0])
+                        except Exception:
+                            dim_avg_val = None
+
+                    if dim_avg_val is not None:
+                        out[str(dim)] = dim_avg_val
         return out
 
     def _get_scale_label_map(self, batch_code: str, subject_name: str) -> Dict[int, str]:
@@ -328,7 +1336,7 @@ class SubjectsBuilder:
             LIMIT 1
             """
         )
-        with next(get_db()) as db:
+        with get_db_context() as db:
             row = db.execute(sql_pick, {"batch": batch_code, "subject": subject_name}).fetchone()
             opts = []
             if row:

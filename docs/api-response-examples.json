@@ -1,0 +1,543 @@
+{
+  "_comment": "v1.2 API 真实响应示例数据",
+  "_version": "1.2",
+  "_generated": "2025-09-09",
+  
+  "regional_data_example": {
+    "success": true,
+    "message": "v1.2 区域级 subjects 已生成 G4-2025",
+    "data": {
+      "schema_version": "v1.2",
+      "batch_code": "G4-2025",
+      "aggregation_level": "REGIONAL", 
+      "subjects": [
+        {
+          "subject_name": "数学",
+          "type": "exam",
+          "metrics": {
+            "avg": 82.15,
+            "stddev": 11.02,
+            "max": 100.00,
+            "min": 35.50,
+            "difficulty": 0.82
+          },
+          "school_rankings": [
+            {
+              "school_code": "S001",
+              "school_name": "第一中学",
+              "avg": 88.32,
+              "rank": 1
+            },
+            {
+              "school_code": "S002", 
+              "school_name": "第二中学",
+              "avg": 86.75,
+              "rank": 2
+            },
+            {
+              "school_code": "S003",
+              "school_name": "第三中学", 
+              "avg": 84.20,
+              "rank": 3
+            },
+            {
+              "school_code": "S004",
+              "school_name": "实验小学",
+              "avg": 79.85,
+              "rank": 4
+            },
+            {
+              "school_code": "S005",
+              "school_name": "希望小学",
+              "avg": 76.50,
+              "rank": 5
+            }
+          ],
+          "dimensions": [
+            {
+              "code": "ALG",
+              "name": "代数",
+              "max_score": 50.00,
+              "avg": 41.23,
+              "score_rate": 82.46,
+              "rank": 3
+            },
+            {
+              "code": "GEO", 
+              "name": "几何",
+              "max_score": 30.00,
+              "avg": 24.75,
+              "score_rate": 82.50,
+              "rank": 2
+            },
+            {
+              "code": "STAT",
+              "name": "统计",
+              "max_score": 20.00,
+              "avg": 16.17,
+              "score_rate": 80.85,
+              "rank": 4
+            }
+          ]
+        },
+        {
+          "subject_name": "语文",
+          "type": "exam", 
+          "metrics": {
+            "avg": 79.32,
+            "stddev": 9.85,
+            "max": 98.50,
+            "min": 42.00,
+            "difficulty": 0.79
+          },
+          "school_rankings": [
+            {
+              "school_code": "S002",
+              "school_name": "第二中学",
+              "avg": 85.20,
+              "rank": 1
+            },
+            {
+              "school_code": "S001",
+              "school_name": "第一中学", 
+              "avg": 83.45,
+              "rank": 2
+            },
+            {
+              "school_code": "S003",
+              "school_name": "第三中学",
+              "avg": 78.90,
+              "rank": 3
+            }
+          ],
+          "dimensions": [
+            {
+              "code": "READ",
+              "name": "阅读理解",
+              "max_score": 40.00,
+              "avg": 32.15,
+              "score_rate": 80.38,
+              "rank": 2
+            },
+            {
+              "code": "COMP",
+              "name": "作文",
+              "max_score": 35.00,
+              "avg": 27.85,
+              "score_rate": 79.57,
+              "rank": 3
+            },
+            {
+              "code": "LANG",
+              "name": "语言基础",
+              "max_score": 25.00,
+              "avg": 19.32,
+              "score_rate": 77.28,
+              "rank": 4
+            }
+          ]
+        },
+        {
+          "subject_name": "学习满意度问卷",
+          "type": "questionnaire",
+          "metrics": {
+            "avg": 76.40,
+            "stddev": 8.50,
+            "max": 100.00,
+            "min": 40.00,
+            "difficulty": 0.76
+          },
+          "school_rankings": [
+            {
+              "school_code": "S001",
+              "school_name": "第一中学",
+              "avg": 80.12,
+              "rank": 1
+            },
+            {
+              "school_code": "S004",
+              "school_name": "实验小学",
+              "avg": 78.95,
+              "rank": 2
+            },
+            {
+              "school_code": "S002",
+              "school_name": "第二中学",
+              "avg": 75.80,
+              "rank": 3
+            }
+          ],
+          "dimensions": [
+            {
+              "code": "SAT",
+              "name": "学习满意度",
+              "avg": 78.20,
+              "score_rate": 78.20,
+              "rank": 2,
+              "option_distribution": [
+                {
+                  "option_level": 5,
+                  "option_label": "非常满意",
+                  "pct": 33.33
+                },
+                {
+                  "option_level": 4,
+                  "option_label": "满意",
+                  "pct": 41.67
+                },
+                {
+                  "option_level": 3,
+                  "option_label": "一般",
+                  "pct": 16.67
+                },
+                {
+                  "option_level": 2,
+                  "option_label": "不满意",
+                  "pct": 6.67
+                },
+                {
+                  "option_level": 1,
+                  "option_label": "很不满意",
+                  "pct": 1.66
+                }
+              ]
+            },
+            {
+              "code": "ENV",
+              "name": "学习环境",
+              "avg": 74.85,
+              "score_rate": 74.85,
+              "rank": 3,
+              "option_distribution": [
+                {
+                  "option_level": 5,
+                  "option_label": "非常满意",
+                  "pct": 28.50
+                },
+                {
+                  "option_level": 4,
+                  "option_label": "满意", 
+                  "pct": 45.25
+                },
+                {
+                  "option_level": 3,
+                  "option_label": "一般",
+                  "pct": 20.00
+                },
+                {
+                  "option_level": 2,
+                  "option_label": "不满意",
+                  "pct": 5.50
+                },
+                {
+                  "option_level": 1,
+                  "option_label": "很不满意",
+                  "pct": 0.75
+                }
+              ]
+            }
+          ],
+          "questions": [
+            {
+              "question_id": "Q1",
+              "option_distribution": [
+                {
+                  "option_level": 5,
+                  "option_label": "非常满意",
+                  "pct": 30.00
+                },
+                {
+                  "option_level": 4,
+                  "option_label": "满意",
+                  "pct": 45.00
+                },
+                {
+                  "option_level": 3,
+                  "option_label": "一般",
+                  "pct": 20.00
+                },
+                {
+                  "option_level": 2,
+                  "option_label": "不满意",
+                  "pct": 4.00
+                },
+                {
+                  "option_level": 1,
+                  "option_label": "很不满意",
+                  "pct": 1.00
+                }
+              ]
+            },
+            {
+              "question_id": "Q2",
+              "option_distribution": [
+                {
+                  "option_level": 5,
+                  "option_label": "非常满意",
+                  "pct": 35.50
+                },
+                {
+                  "option_level": 4,
+                  "option_label": "满意",
+                  "pct": 38.25
+                },
+                {
+                  "option_level": 3,
+                  "option_label": "一般",
+                  "pct": 18.75
+                },
+                {
+                  "option_level": 2,
+                  "option_label": "不满意",
+                  "pct": 6.25
+                },
+                {
+                  "option_level": 1,
+                  "option_label": "很不满意",
+                  "pct": 1.25
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "code": 200
+  },
+
+  "school_data_example": {
+    "success": true,
+    "message": "v1.2 学校级 subjects 已生成",
+    "data": {
+      "schema_version": "v1.2", 
+      "batch_code": "G4-2025",
+      "aggregation_level": "SCHOOL",
+      "school_code": "S001",
+      "subjects": [
+        {
+          "subject_name": "数学",
+          "type": "exam",
+          "metrics": {
+            "avg": 88.32,
+            "stddev": 8.95,
+            "max": 100.00,
+            "min": 65.50,
+            "difficulty": 0.88
+          },
+          "region_rank": 1,
+          "total_schools": 57,
+          "dimensions": [
+            {
+              "code": "ALG",
+              "name": "代数",
+              "max_score": 50.00,
+              "avg": 44.75,
+              "score_rate": 89.50,
+              "rank": 1
+            },
+            {
+              "code": "GEO",
+              "name": "几何", 
+              "max_score": 30.00,
+              "avg": 26.20,
+              "score_rate": 87.33,
+              "rank": 2
+            },
+            {
+              "code": "STAT",
+              "name": "统计",
+              "max_score": 20.00,
+              "avg": 17.37,
+              "score_rate": 86.85,
+              "rank": 3
+            }
+          ]
+        },
+        {
+          "subject_name": "语文",
+          "type": "exam",
+          "metrics": {
+            "avg": 83.45,
+            "stddev": 7.82,
+            "max": 98.50,
+            "min": 58.00,
+            "difficulty": 0.83
+          },
+          "region_rank": 2,
+          "total_schools": 57,
+          "dimensions": [
+            {
+              "code": "READ",
+              "name": "阅读理解",
+              "max_score": 40.00,
+              "avg": 34.25,
+              "score_rate": 85.63,
+              "rank": 2
+            },
+            {
+              "code": "COMP",
+              "name": "作文",
+              "max_score": 35.00,
+              "avg": 29.85,
+              "score_rate": 85.29,
+              "rank": 3
+            },
+            {
+              "code": "LANG",
+              "name": "语言基础",
+              "max_score": 25.00,
+              "avg": 19.35,
+              "score_rate": 77.40,
+              "rank": 8
+            }
+          ]
+        },
+        {
+          "subject_name": "学习满意度问卷",
+          "type": "questionnaire",
+          "metrics": {
+            "avg": 80.12,
+            "stddev": 6.75,
+            "max": 95.00,
+            "min": 55.00,
+            "difficulty": 0.80
+          },
+          "region_rank": 1,
+          "total_schools": 57,
+          "dimensions": [
+            {
+              "code": "SAT",
+              "name": "学习满意度",
+              "avg": 82.50,
+              "score_rate": 82.50,
+              "rank": 1,
+              "option_distribution": [
+                {
+                  "option_level": 5,
+                  "option_label": "非常满意",
+                  "pct": 45.00
+                },
+                {
+                  "option_level": 4,
+                  "option_label": "满意",
+                  "pct": 35.00
+                },
+                {
+                  "option_level": 3,
+                  "option_label": "一般",
+                  "pct": 15.00
+                },
+                {
+                  "option_level": 2,
+                  "option_label": "不满意",
+                  "pct": 4.00
+                },
+                {
+                  "option_level": 1,
+                  "option_label": "很不满意",
+                  "pct": 1.00
+                }
+              ]
+            },
+            {
+              "code": "ENV",
+              "name": "学习环境",
+              "avg": 77.75,
+              "score_rate": 77.75,
+              "rank": 1,
+              "option_distribution": [
+                {
+                  "option_level": 5,
+                  "option_label": "非常满意",
+                  "pct": 38.50
+                },
+                {
+                  "option_level": 4,
+                  "option_label": "满意",
+                  "pct": 42.75
+                },
+                {
+                  "option_level": 3,
+                  "option_label": "一般",
+                  "pct": 15.25
+                },
+                {
+                  "option_level": 2,
+                  "option_label": "不满意",
+                  "pct": 3.00
+                },
+                {
+                  "option_level": 1,
+                  "option_label": "很不满意",
+                  "pct": 0.50
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "code": 200
+  },
+
+  "materialize_response_example": {
+    "success": true,
+    "message": "v1.2 subjects 全量生成完成",
+    "data": {
+      "batch_code": "G4-2025",
+      "schools_materialized": 165
+    },
+    "code": 200
+  },
+
+  "error_examples": {
+    "batch_not_found": {
+      "success": false,
+      "message": "批次 G5-2025 不存在或无数据",
+      "data": null,
+      "code": 404
+    },
+    
+    "school_not_found": {
+      "success": false,
+      "message": "学校 S999 在批次 G4-2025 中不存在",
+      "data": null,
+      "code": 404
+    },
+    
+    "server_error": {
+      "success": false,
+      "message": "服务器内部错误，请稍后重试",
+      "data": null,
+      "code": 500
+    },
+    
+    "timeout_error": {
+      "success": false,
+      "message": "请求超时，数据生成中，请稍后重试",
+      "data": null,
+      "code": 408
+    }
+  },
+
+  "_usage_notes": {
+    "precision": "所有数值保留2位小数",
+    "percentage_range": "百分比范围为0-100，保留2位小数",
+    "ranking": "排名从1开始，rank字段为1-based",
+    "chinese_support": "完整支持中文字符，使用UTF-8编码",
+    "option_distribution": "选项分布百分比总和应约等于100.00",
+    "school_rankings": "按平均分降序排列，可能存在并列排名",
+    "dimensions": "考试维度有max_score，问卷维度有option_distribution",
+    "schema_version": "当前固定为v1.2，前端应检查此字段"
+  },
+
+  "_frontend_tips": {
+    "data_validation": "接收数据前检查success字段和schema_version",
+    "number_formatting": "使用toFixed(2)格式化显示数值",
+    "color_coding": "根据排名百分位数应用不同颜色",
+    "empty_handling": "妥善处理空数组和null值",
+    "responsive_design": "考虑移动端显示优化",
+    "loading_states": "提供友好的加载和错误提示",
+    "caching": "合理缓存API响应，避免重复请求"
+  }
+}

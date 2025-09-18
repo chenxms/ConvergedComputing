@@ -1,21 +1,26 @@
-# 数据库连接配置
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import QueuePool
-import os
-import logging
-from typing import Generator, Optional
-from contextlib import contextmanager
+﻿"""Database connection helpers and session utilities."""
 
-from .cache import create_cache_manager, StatisticalDataCache
+from __future__ import annotations
+
+import logging
+import os
+import time
+from contextlib import contextmanager
+from typing import Any, Dict, Generator, Optional
+
+from sqlalchemy import create_engine, text
+from sqlalchemy.engine import Engine
+from sqlalchemy.orm import Session, declarative_base, sessionmaker
+from sqlalchemy.pool import QueuePool
+
+from .cache import StatisticalDataCache, create_cache_manager
 from .monitoring import DatabaseConnectionMonitor
 
-# 日志配置
+# Configure module level logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# 优先使用完整的 DATABASE_URL，其次拼装各组件
+# Build database URL from environment variables when not provided directly
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     DATABASE_HOST = os.getenv("DATABASE_HOST", "117.72.14.166")
@@ -29,64 +34,67 @@ if not DATABASE_URL:
         "?charset=utf8mb4"
     )
 
-# 优化的数据库连接配置
+# Initialise SQLAlchemy engine and session factory
 engine = create_engine(
     DATABASE_URL,
     poolclass=QueuePool,
-    pool_size=25,                    # 增加连接池大小
-    max_overflow=35,                 # 增加最大溢出连接
-    pool_pre_ping=True,              # 连接健康检查
-    pool_recycle=3600,               # 连接回收时间(1小时)
-    query_cache_size=1200,           # SQL查询缓存
-    echo=False,                      # 生产环境关闭SQL日志
-    future=True,                     # 启用SQLAlchemy 2.0特性
+    pool_size=25,
+    max_overflow=35,
+    pool_pre_ping=True,
+    pool_recycle=1800,
+    echo=False,
+    future=True,
     connect_args={
         "charset": "utf8mb4",
         "connect_timeout": 30,
-        "read_timeout": 300,
-        "write_timeout": 300,
+        "read_timeout": 900,
+        "write_timeout": 900,
         "autocommit": False,
-    }
+    },
 )
 
-# 创建会话工厂
 SessionLocal = sessionmaker(
-    autocommit=False, 
-    autoflush=False, 
+    autocommit=False,
+    expire_on_commit=False,
+    autoflush=False,
     bind=engine,
-    future=True
+    future=True,
 )
 
-# 全局连接监控器
 connection_monitor = DatabaseConnectionMonitor()
 
-# 全局缓存管理器
-cache_manager: Optional[StatisticalDataCache] = None
-
 try:
-    cache_manager = create_cache_manager()
-except Exception as e:
-    logger.warning(f"Failed to initialize cache manager: {str(e)}")
+    cache_manager: Optional[StatisticalDataCache] = create_cache_manager()
+except Exception as exc:  # pragma: no cover - defensive guard
+    logger.warning("Failed to initialize cache manager: %s", exc)
     cache_manager = None
 
-# 创建声明性基类
 Base = declarative_base()
 
 
-def get_db() -> Generator:
-    """获取数据库会话"""
-    import time
-    
+def _tune_session(session: Session) -> None:
+    """Apply session level timeout tuning to reduce idle disconnects."""
+    try:
+        session.execute(text("SET SESSION wait_timeout=900"))
+        session.execute(text("SET SESSION interactive_timeout=900"))
+        session.execute(text("SET SESSION net_read_timeout=900"))
+        session.execute(text("SET SESSION net_write_timeout=900"))
+    except Exception:  # pragma: no cover - best effort tuning
+        pass
+
+
+def get_db() -> Generator[Session, None, None]:
+    """Yield a database session and capture connection metrics."""
     start_time = time.time()
     db = SessionLocal()
     connection_time = time.time() - start_time
-    
     connection_monitor.record_connection_created(connection_time)
-    
+
     try:
+        _tune_session(db)
         yield db
-    except Exception as e:
-        logger.error(f"Database session error: {str(e)}")
+    except Exception as exc:
+        logger.error("Database session error: %s", exc)
         connection_monitor.record_connection_error()
         db.rollback()
         raise
@@ -96,21 +104,19 @@ def get_db() -> Generator:
 
 
 @contextmanager
-def get_db_context():
-    """上下文管理器方式获取数据库连接"""
-    import time
-    
+def get_db_context() -> Generator[Session, None, None]:
+    """Context manager wrapper around `get_db` for synchronous flows."""
     start_time = time.time()
     db = SessionLocal()
     connection_time = time.time() - start_time
-    
     connection_monitor.record_connection_created(connection_time)
-    
+
     try:
+        _tune_session(db)
         yield db
         db.commit()
-    except Exception as e:
-        logger.error(f"Database transaction error: {str(e)}")
+    except Exception as exc:
+        logger.error("Database transaction error: %s", exc)
         connection_monitor.record_connection_error()
         db.rollback()
         raise
@@ -120,110 +126,116 @@ def get_db_context():
 
 
 def get_cache_manager() -> Optional[StatisticalDataCache]:
-    """获取缓存管理器"""
+    """Expose the lazily instantiated statistical cache manager."""
     return cache_manager
 
 
-def get_connection_stats() -> dict:
-    """获取连接统计信息"""
+def get_connection_stats() -> Dict[str, Any]:
+    """Return aggregated connection metrics captured by the monitor."""
     return connection_monitor.get_connection_stats()
 
 
 def test_connection() -> bool:
-    """测试数据库连接"""
+    """Probe the database connection with a lightweight SELECT."""
     try:
-        from sqlalchemy import text
         with engine.connect() as connection:
-            result = connection.execute(text("SELECT 1"))
-            logger.info("Database connection successful")
-            return True
-    except Exception as e:
-        logger.error(f"Database connection failed: {str(e)}")
+            connection.execute(text("SELECT 1"))
+        logger.info("Database connection successful")
+        return True
+    except Exception as exc:
+        logger.error("Database connection failed: %s", exc)
         return False
 
 
-def create_tables():
-    """创建所有表"""
+def create_tables() -> None:
+    """Create all mapped tables if they do not already exist."""
     try:
         Base.metadata.create_all(bind=engine)
         logger.info("All tables created successfully")
-    except Exception as e:
-        logger.error(f"Failed to create tables: {str(e)}")
+    except Exception as exc:
+        logger.error("Failed to create tables: %s", exc)
         raise
 
 
-def get_database_info() -> dict:
-    """获取数据库信息"""
+def get_database_info() -> Dict[str, Any]:
+    """Collect lightweight metadata about the current database pool."""
     try:
         with engine.connect() as conn:
-            result = conn.execute("SELECT VERSION()")
+            result = conn.execute(text("SELECT VERSION()"))
             db_version = result.fetchone()[0]
-            
-            pool = engine.pool
-            
-            return {
-                "database_version": db_version,
-                "pool_size": pool.size(),
-                "checked_in": pool.checkedin(),
-                "checked_out": pool.checkedout(),
-                "overflow": pool.overflow(),
-                "invalid": pool.invalid()
-            }
-    except Exception as e:
-        logger.error(f"Failed to get database info: {str(e)}")
-        return {"error": str(e)}
+
+        pool = engine.pool
+        return {
+            "database_version": db_version,
+            "pool_size": pool.size(),
+            "checked_in": pool.checkedin(),
+            "checked_out": pool.checkedout(),
+            "overflow": pool.overflow(),
+            "invalid": pool.invalid(),
+        }
+    except Exception as exc:
+        logger.error("Failed to get database info: %s", exc)
+        return {"error": str(exc)}
 
 
-def check_database_health() -> dict:
-    """检查数据库健康状态"""
-    health_info = {
+def check_database_health() -> Dict[str, Any]:
+    """Return a structured health snapshot for operational monitoring."""
+    health_info: Dict[str, Any] = {
         "status": "unknown",
         "connection_test": False,
         "response_time_ms": 0,
         "pool_info": {},
         "connection_stats": {},
-        "cache_info": {}
+        "cache_info": {},
     }
-    
+
     try:
-        # 测试数据库连接
-        import time
         start_time = time.time()
-        
         connection_test = test_connection()
-        response_time = (time.time() - start_time) * 1000
-        
-        health_info.update({
-            "status": "healthy" if connection_test else "unhealthy",
-            "connection_test": connection_test,
-            "response_time_ms": response_time,
-            "pool_info": get_database_info(),
-            "connection_stats": get_connection_stats()
-        })
-        
-        # 检查缓存状态
+        response_time_ms = (time.time() - start_time) * 1000
+
+        health_info.update(
+            {
+                "status": "healthy" if connection_test else "unhealthy",
+                "connection_test": connection_test,
+                "response_time_ms": response_time_ms,
+                "pool_info": get_database_info(),
+                "connection_stats": get_connection_stats(),
+            }
+        )
+
         if cache_manager:
             try:
                 cache_stats = cache_manager.get_cache_stats()
                 health_info["cache_info"] = {
                     "status": "available",
-                    "stats": cache_stats
+                    "stats": cache_stats,
                 }
-            except Exception as e:
+            except Exception as exc:  # pragma: no cover - cache optional
                 health_info["cache_info"] = {
                     "status": "error",
-                    "error": str(e)
+                    "error": str(exc),
                 }
         else:
-            health_info["cache_info"] = {
-                "status": "disabled"
-            }
-            
-    except Exception as e:
-        health_info.update({
-            "status": "error",
-            "error": str(e)
-        })
-        logger.error(f"Database health check failed: {str(e)}")
-    
+            health_info["cache_info"] = {"status": "disabled"}
+
+    except Exception as exc:
+        health_info.update({"status": "error", "error": str(exc)})
+        logger.error("Database health check failed: %s", exc)
+
     return health_info
+
+
+def get_database_engine() -> Engine:
+    """Legacy helper exposing the SQLAlchemy engine instance."""
+    return engine
+
+
+def get_session_factory() -> sessionmaker[Session]:
+    """Return the configured session factory for backward compatibility."""
+    return SessionLocal
+
+
+def get_db_session() -> Generator[Session, None, None]:
+    """Provide a session generator compatible with old dependency usage."""
+    yield from get_db()

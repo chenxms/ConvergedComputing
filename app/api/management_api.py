@@ -17,6 +17,7 @@ from ..services.batch_service import BatchService
 from ..services.task_manager import TaskManager
 from ..database.connection import SessionLocal, get_db
 from ..database.enums import AggregationLevel, CalculationStatus
+from .feature_flags import ensure_data_task_trigger_enabled
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -327,6 +328,7 @@ async def start_cleaning_task(
 ):
     """触发批次数据清洗任务（exam/interaction/questionnaire），返回任务ID用于前端轮询。"""
     try:
+        ensure_data_task_trigger_enabled("批次数据清洗")
         task = await task_manager.start_cleaning_task(
             batch_code=batch_code,
             background_tasks=background_tasks
