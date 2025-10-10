@@ -27,7 +27,28 @@ class DataCleaningService:
             self.exclude_zero_total_scores = env_val in {"1", "true", "yes", "on"}
         else:
             self.exclude_zero_total_scores = bool(exclude_zero_total_scores)
+        self._questionnaire_keywords = ('问卷', '调查', '满意度', '测评', 'survey', 'questionnaire')
+        self._questionnaire_normalized = {kw.lower() for kw in self._questionnaire_keywords}
     
+    def _normalize_subject_type(self, subject_name: str, subject_type: str, instrument_id: Optional[str]) -> str:
+        subject_type_value = (subject_type or '').strip().lower() if subject_type else ''
+        if subject_type_value == 'questionnaire':
+            return 'questionnaire'
+        instrument_value = ''
+        if instrument_id:
+            instrument_value = str(instrument_id).strip().lower()
+            if any(token in instrument_value for token in ('likert', 'survey', 'questionnaire', '问卷')):
+                return 'questionnaire'
+        name_value = (subject_name or '').strip()
+        name_lower = name_value.lower()
+        for kw in self._questionnaire_keywords:
+            if kw and kw in name_value:
+                return 'questionnaire'
+        for kw in getattr(self, '_questionnaire_normalized', ()):
+            if kw and kw in name_lower:
+                return 'questionnaire'
+        return subject_type_value if subject_type_value else 'exam'
+
     async def clean_batch_scores(self, batch_code: str) -> Dict[str, Any]:
         """清洗批次分数数据"""
         status_label = "开启" if self.exclude_zero_total_scores else "关闭"
@@ -270,9 +291,9 @@ class DataCleaningService:
             query = text("""
                 SELECT 
                     subject_name,
-                    SUM(CASE WHEN question_type_enum IN ('exam','interaction') THEN max_score ELSE 0 END) as total_max_score,
-                    SUM(CASE WHEN question_type_enum IN ('exam','interaction') THEN 1 ELSE 0 END) as question_count,
-                    MAX(question_type_enum) as subject_type,
+                    SUM(COALESCE(max_score, 0)) as total_max_score,
+                    COUNT(*) as question_count,
+                    MAX(question_type_enum) as question_type_enum,
                     MAX(instrument_id) as instrument_id
                 FROM subject_question_config 
                 WHERE batch_code = :batch_code
@@ -283,23 +304,26 @@ class DataCleaningService:
             result = self.db_session.execute(query, {'batch_code': batch_code})
             subjects = []
             for row in result.fetchall():
-                subject_type = row[3] if row[3] else 'exam'  # 默认为考试类型
-                is_questionnaire = subject_type == 'questionnaire'
-                
+                subject_name = row[0]
+                total_max = float(row[1]) if row[1] else 0.0
+                question_total = int(row[2]) if row[2] else 0
+                question_type_enum = (row[3] or '').strip().lower() if row[3] else ''
+                instrument_id = row[4] if row[4] else None
+                subject_type = self._normalize_subject_type(subject_name, question_type_enum, instrument_id)
+                is_questionnaire = subject_type == "questionnaire"
                 subjects.append({
-                    'subject_name': row[0],
-                    'max_score': float(row[1]) if row[1] else 100.0,
-                    'question_count': int(row[2]) if row[2] else 0,
-                    'subject_type': subject_type,
-                    'is_questionnaire': is_questionnaire,
-                    'instrument_id': row[4] if row[4] else None
+                    "subject_name": subject_name,
+                    "max_score": total_max,
+                    "question_count": question_total,
+                    "subject_type": subject_type,
+                    "question_type_enum": question_type_enum,
+                    "is_questionnaire": is_questionnaire,
+                    "instrument_id": instrument_id
                 })
-                
                 if is_questionnaire:
-                    print(f"  问卷科目: {row[0]} (量表ID: {row[4]})")
+                    print(f"  问卷科目: {subject_name} (量表ID: {instrument_id or 'N/A'})")
                 else:
-                    print(f"  考试科目: {row[0]} (满分: {row[1]})")
-            
+                    print(f"  考试科目: {subject_name} (满分: {total_max})")
             return subjects
             
         except Exception as e:
@@ -346,7 +370,17 @@ class DataCleaningService:
                     ssd.student_id,
                     ssd.student_name,
                     ssd.school_id, 
-                    COALESCE(smd.school_id, ssd.school_code) AS school_code,
+                    COALESCE(
+                        smd.school_id,
+                        CASE
+                            WHEN ssd.school_id IS NOT NULL AND ssd.school_id REGEXP '^[0-9]+(\\.0+)?$'
+                                THEN CAST(CAST(ssd.school_id AS DECIMAL(20,0)) AS CHAR)
+                            WHEN ssd.school_id IS NOT NULL THEN ssd.school_id
+                            WHEN ssd.school_code IS NOT NULL AND ssd.school_code REGEXP '^[0-9]+(\\.0+)?$'
+                                THEN CAST(CAST(ssd.school_code AS DECIMAL(20,0)) AS CHAR)
+                            ELSE ssd.school_code
+                        END
+                    ) AS school_code,
                     COALESCE(smd.standard_school_name, ssd.school_name) AS school_name,
                     ssd.class_name,
                     ssd.subject_id,
@@ -355,7 +389,16 @@ class DataCleaningService:
                 FROM student_score_detail ssd
                 INNER JOIN school_master_data smd 
                     ON smd.batch_code COLLATE utf8mb4_unicode_ci = ssd.batch_code COLLATE utf8mb4_unicode_ci
-                    AND smd.school_id COLLATE utf8mb4_unicode_ci = COALESCE(ssd.school_id, ssd.school_code) COLLATE utf8mb4_unicode_ci
+                    AND smd.school_id COLLATE utf8mb4_unicode_ci = (
+                        CASE
+                            WHEN ssd.school_id IS NOT NULL AND ssd.school_id REGEXP '^[0-9]+(\\.0+)?$'
+                                THEN CAST(CAST(ssd.school_id AS DECIMAL(20,0)) AS CHAR)
+                            WHEN ssd.school_id IS NOT NULL THEN ssd.school_id
+                            WHEN ssd.school_code IS NOT NULL AND ssd.school_code REGEXP '^[0-9]+(\\.0+)?$'
+                                THEN CAST(CAST(ssd.school_code AS DECIMAL(20,0)) AS CHAR)
+                            ELSE ssd.school_code
+                        END
+                    ) COLLATE utf8mb4_unicode_ci
                     AND smd.status = 'ACTIVE'
                 WHERE ssd.batch_code = :batch_code 
                     AND ssd.subject_name = :subject_name
@@ -590,7 +633,7 @@ class DataCleaningService:
                         FROM subject_question_config
                         WHERE batch_code = :batch_code
                           AND subject_name = :subject_name
-                          AND question_type_enum = 'questionnaire'
+                          AND question_type_enum IN ('questionnaire','exam')
                           AND (
                               question_id = :dimension_code OR
                               question_id LIKE CONCAT(:dimension_code, '-%') OR
@@ -764,13 +807,13 @@ class DataCleaningService:
                         WHEN sqc.instrument_id LIKE '%5%' THEN 5
                         ELSE 4
                     END AS scale_level,
-                    sqc.instrument_id AS instrument_type,
+                    COALESCE(sqc.instrument_id, 'LIKERT_AUTO') AS instrument_type,
                     0 AS is_reverse
                 FROM student_score_detail ssd
                 JOIN subject_question_config sqc
                   ON BINARY sqc.batch_code = BINARY ssd.batch_code
                  AND BINARY sqc.subject_name = BINARY ssd.subject_name
-                 AND sqc.question_type_enum = 'questionnaire'
+                 AND sqc.question_type_enum IN ('questionnaire','exam')
                 WHERE BINARY ssd.batch_code = BINARY :batch_code
                   AND BINARY ssd.subject_name = BINARY :subject_name
                   AND JSON_EXTRACT(ssd.subject_scores, CONCAT('$."', sqc.question_id, '"')) IS NOT NULL
@@ -783,7 +826,49 @@ class DataCleaningService:
             ), {'batch_code': batch_code, 'subject_name': subject_name}).scalar() or 0
             result['cleaned_records'] = int(cnt_detail)
 
+            # 2.1) 归一化并补齐问卷明细中的 school_id，确保后续按校聚合可用
+            self.db_session.execute(text(
+                """
+                UPDATE questionnaire_question_scores
+                   SET school_id = CASE
+                        WHEN school_id IS NULL OR school_id = '' THEN NULL
+                        ELSE school_id
+                   END
+                 WHERE batch_code = :batch_code AND subject_name = :subject_name
+                """
+            ), {'batch_code': batch_code, 'subject_name': subject_name})
+
+            # 若仍存在空的 school_id，尝试用 student_score_detail 的 school_id/school_code 回填（去除尾随小数）
+            self.db_session.execute(text(
+                """
+                UPDATE questionnaire_question_scores qqs
+                JOIN (
+                    SELECT ssd.student_id,
+                           CASE
+                               WHEN ssd.school_id IS NOT NULL AND ssd.school_id REGEXP '^[0-9]+(\\.0+)?$'
+                                   THEN CAST(CAST(ssd.school_id AS DECIMAL(20,0)) AS CHAR)
+                               WHEN ssd.school_id IS NOT NULL THEN ssd.school_id
+                               WHEN ssd.school_code IS NOT NULL AND ssd.school_code REGEXP '^[0-9]+(\\.0+)?$'
+                                   THEN CAST(CAST(ssd.school_code AS DECIMAL(20,0)) AS CHAR)
+                               ELSE ssd.school_code
+                           END AS norm_school_id
+                      FROM student_score_detail ssd
+                     WHERE BINARY ssd.batch_code = BINARY :batch_code
+                       AND BINARY ssd.subject_name = BINARY :subject_name
+                ) src ON src.student_id = qqs.student_id
+                 SET qqs.school_id = COALESCE(qqs.school_id, src.norm_school_id)
+               WHERE BINARY qqs.batch_code = BINARY :batch_code
+                 AND BINARY qqs.subject_name = BINARY :subject_name
+                 AND (qqs.school_id IS NULL OR qqs.school_id = '')
+                """
+            ), {'batch_code': batch_code, 'subject_name': subject_name})
+
             # 3) 物化选项分布
+            # 清理历史分布，避免重复键冲突与脏数据
+            self.db_session.execute(text(
+                "DELETE FROM questionnaire_option_distribution WHERE batch_code = :batch_code AND subject_name = :subject_name"
+            ), {'batch_code': batch_code, 'subject_name': subject_name})
+
             self.db_session.execute(text(
                 """
                 INSERT INTO questionnaire_option_distribution
@@ -815,7 +900,7 @@ class DataCleaningService:
                     FROM questionnaire_question_scores qqs
                     WHERE BINARY qqs.batch_code = BINARY :batch_code
                       AND BINARY qqs.subject_name = BINARY :subject_name
-                      AND qqs.school_id IS NOT NULL
+                      AND qqs.school_id IS NOT NULL AND qqs.school_id <> ''
                     GROUP BY qqs.batch_code, qqs.school_id, qqs.subject_name, qqs.question_id,
                              GREATEST(
                                 1,
@@ -835,8 +920,8 @@ class DataCleaningService:
                     FROM questionnaire_question_scores qqs
                     WHERE BINARY qqs.batch_code = BINARY :batch_code
                       AND BINARY qqs.subject_name = BINARY :subject_name
-                      AND qqs.school_id IS NOT NULL
-                    GROUP BY qqs.batch_code, qqs.school_id, qqs.subject_name, qqs.question_id
+                      AND qqs.school_id IS NOT NULL AND qqs.school_id <> ''
+                GROUP BY qqs.batch_code, qqs.school_id, qqs.subject_name, qqs.question_id
                 ) t
                   ON t.batch_code = d.batch_code
                  AND t.school_id = d.school_id
@@ -858,7 +943,7 @@ class DataCleaningService:
                 FROM subject_question_config
                 WHERE BINARY batch_code = BINARY :batch_code
                   AND BINARY subject_name = BINARY :subject_name
-                  AND question_type_enum = 'questionnaire'
+                  AND question_type_enum IN ('questionnaire','exam')
                 """
             ), {'batch_code': batch_code, 'subject_name': subject_name}).fetchone()
             questionnaire_max_score = float(max_score_row[0]) if max_score_row and max_score_row[0] else 0.0
@@ -869,7 +954,7 @@ class DataCleaningService:
                 FROM subject_question_config
                 WHERE BINARY batch_code = BINARY :batch_code
                   AND BINARY subject_name = BINARY :subject_name
-                  AND question_type_enum = 'questionnaire'
+                  AND question_type_enum IN ('questionnaire','exam')
                 """
             ), {'batch_code': batch_code, 'subject_name': subject_name}).fetchone()
             question_count_value = int(question_count_row[0]) if question_count_row and question_count_row[0] else 0
@@ -879,7 +964,17 @@ class DataCleaningService:
                     ssd.student_id,
                     ssd.student_name,
                     ssd.school_id,
-                    COALESCE(smd.school_id, ssd.school_code) AS school_code,
+                    COALESCE(
+                        smd.school_id,
+                        CASE
+                            WHEN ssd.school_id IS NOT NULL AND ssd.school_id REGEXP '^[0-9]+(\\.0+)?$'
+                                THEN CAST(CAST(ssd.school_id AS DECIMAL(20,0)) AS CHAR)
+                            WHEN ssd.school_id IS NOT NULL THEN ssd.school_id
+                            WHEN ssd.school_code IS NOT NULL AND ssd.school_code REGEXP '^[0-9]+(\\.0+)?$'
+                                THEN CAST(CAST(ssd.school_code AS DECIMAL(20,0)) AS CHAR)
+                            ELSE ssd.school_code
+                        END
+                    ) AS school_code,
                     COALESCE(smd.standard_school_name, ssd.school_name) AS school_name,
                     ssd.class_name,
                     ssd.subject_id,
@@ -887,7 +982,16 @@ class DataCleaningService:
                 FROM student_score_detail ssd
                 INNER JOIN school_master_data smd 
                     ON smd.batch_code COLLATE utf8mb4_unicode_ci = ssd.batch_code COLLATE utf8mb4_unicode_ci
-                    AND smd.school_id COLLATE utf8mb4_unicode_ci = COALESCE(ssd.school_id, ssd.school_code) COLLATE utf8mb4_unicode_ci
+                    AND smd.school_id COLLATE utf8mb4_unicode_ci = (
+                        CASE
+                            WHEN ssd.school_id IS NOT NULL AND ssd.school_id REGEXP '^[0-9]+(\\.0+)?$'
+                                THEN CAST(CAST(ssd.school_id AS DECIMAL(20,0)) AS CHAR)
+                            WHEN ssd.school_id IS NOT NULL THEN ssd.school_id
+                            WHEN ssd.school_code IS NOT NULL AND ssd.school_code REGEXP '^[0-9]+(\\.0+)?$'
+                                THEN CAST(CAST(ssd.school_code AS DECIMAL(20,0)) AS CHAR)
+                            ELSE ssd.school_code
+                        END
+                    ) COLLATE utf8mb4_unicode_ci
                     AND smd.status = 'ACTIVE'
                 WHERE ssd.batch_code = :batch_code 
                     AND ssd.subject_name = :subject_name
@@ -922,7 +1026,7 @@ class DataCleaningService:
                 SELECT question_id
                 FROM subject_question_config
                 WHERE batch_code=:batch_code AND subject_name=:subject_name
-                  AND question_type_enum = 'questionnaire'
+                  AND question_type_enum IN ('questionnaire','exam')
             """)
             qids = self.db_session.execute(qid_query, {
                 'batch_code': batch_code,
@@ -1440,7 +1544,7 @@ async def _create_questionnaire_summary_total(self, batch_code: str, subject_nam
             FROM subject_question_config
             WHERE batch_code = :batch_code
               AND subject_name = :subject_name
-              AND question_type_enum = 'questionnaire'
+              AND question_type_enum IN ('questionnaire','exam')
             """
         )
         rows = self.db_session.execute(qc_query, {

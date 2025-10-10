@@ -22,6 +22,40 @@ logger = logging.getLogger(__name__)
 
 # Build database URL from environment variables when not provided directly
 DATABASE_URL = os.getenv("DATABASE_URL")
+
+# Sanitize potential whitespace in query string keys/values to avoid issues like
+# "TypeError: Connection.__init__() got an unexpected keyword argument ' charset'"
+# caused by a malformed URL such as "...? charset=utf8mb4".
+def _sanitize_database_url(url: Optional[str]) -> Optional[str]:
+    if not url:
+        return url
+    try:
+        if "?" not in url:
+            return url
+        base, _, query = url.partition("?")
+        parts = []
+        for item in query.split("&"):
+            item = item.strip()
+            if not item:
+                continue
+            if "=" in item:
+                k, v = item.split("=", 1)
+                k = k.strip()
+                v = v.strip()
+                # Normalize common param aliases
+                if k.lower().replace("_", "") == "charset":
+                    k = "charset"
+                parts.append(f"{k}={v}")
+            else:
+                parts.append(item)
+        return base + ("?" + "&".join(parts) if parts else "")
+    except Exception:
+        # Best-effort sanitization; fallback to original URL on any parsing errors.
+        return url
+
+# Apply sanitization early
+DATABASE_URL = _sanitize_database_url(DATABASE_URL)
+
 if not DATABASE_URL:
     DATABASE_HOST = os.getenv("DATABASE_HOST", "117.72.14.166")
     DATABASE_PORT = os.getenv("DATABASE_PORT", "23506")
@@ -33,22 +67,26 @@ if not DATABASE_URL:
         f"@{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_NAME}"
         "?charset=utf8mb4"
     )
+else:
+    # Ensure any provided URL is sanitized
+    DATABASE_URL = _sanitize_database_url(DATABASE_URL)
 
 # Initialise SQLAlchemy engine and session factory
 engine = create_engine(
     DATABASE_URL,
     poolclass=QueuePool,
-    pool_size=25,
-    max_overflow=35,
+    pool_size=10,  # 减少连接池大小，避免过多连接
+    max_overflow=15,  # 减少溢出连接
     pool_pre_ping=True,
-    pool_recycle=1800,
+    pool_recycle=600,  # 减少连接回收时间(10分钟)
+    pool_timeout=20,  # 添加连接池超时
     echo=False,
     future=True,
     connect_args={
         "charset": "utf8mb4",
-        "connect_timeout": 30,
-        "read_timeout": 900,
-        "write_timeout": 900,
+        "connect_timeout": 10,  # 减少连接超时
+        "read_timeout": 300,  # 保持5分钟读取超时，适合复杂查询
+        "write_timeout": 180,  # 保持3分钟写入超时
         "autocommit": False,
     },
 )

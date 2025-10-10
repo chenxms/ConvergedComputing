@@ -1,0 +1,248 @@
+{
+  "timestamp": "2025-09-19T14:06:21.267733",
+  "overall_status": "READY",
+  "summary": {
+    "passed": 12,
+    "failed": 0,
+    "warnings": 0
+  },
+  "environment": {
+    "G7_DB_HOST": "not_set",
+    "G7_DB_PORT": "not_set",
+    "G7_DB_NAME": "not_set",
+    "G7_DB_PASSWORD": "not_set"
+  },
+  "details": [
+    {
+      "script": "G7守卫模式切换工具",
+      "path": "D:\\myproject\\后端\\ConvergedComputing\\scripts\\g7_guard_switch.py",
+      "required": true,
+      "status": "[PASS]",
+      "file_check": {
+        "path": "D:\\myproject\\后端\\ConvergedComputing\\scripts\\g7_guard_switch.py",
+        "description": "G7守卫模式切换工具",
+        "exists": true,
+        "size": 11542,
+        "modified": "2025-09-19T12:34:54.555681"
+      },
+      "syntax_check": {
+        "valid": true,
+        "error": null
+      },
+      "details": {
+        "info": "文件大小: 11542 bytes"
+      }
+    },
+    {
+      "script": "Bash一键执行脚本",
+      "path": "D:\\myproject\\后端\\ConvergedComputing\\scripts\\run_g7_relaunch.sh",
+      "required": true,
+      "status": "[PASS]",
+      "file_check": {
+        "path": "D:\\myproject\\后端\\ConvergedComputing\\scripts\\run_g7_relaunch.sh",
+        "description": "Bash一键执行脚本",
+        "exists": true,
+        "size": 1943,
+        "modified": "2025-09-19T13:43:41.804168"
+      },
+      "syntax_check": null,
+      "details": {
+        "info": "文件大小: 1943 bytes"
+      }
+    },
+    {
+      "script": "PowerShell一键执行脚本",
+      "path": "D:\\myproject\\后端\\ConvergedComputing\\scripts\\run_g7_relaunch.ps1",
+      "required": true,
+      "status": "[PASS]",
+      "file_check": {
+        "path": "D:\\myproject\\后端\\ConvergedComputing\\scripts\\run_g7_relaunch.ps1",
+        "description": "PowerShell一键执行脚本",
+        "exists": true,
+        "size": 1668,
+        "modified": "2025-09-19T13:43:59.425938"
+      },
+      "syntax_check": null,
+      "details": {
+        "info": "文件大小: 1668 bytes"
+      }
+    },
+    {
+      "script": "干净版SQL备份脚本",
+      "path": "D:\\myproject\\后端\\ConvergedComputing\\backup_G7_2025_stats_clean.sql",
+      "required": true,
+      "status": "[PASS]",
+      "file_check": {
+        "path": "D:\\myproject\\后端\\ConvergedComputing\\backup_G7_2025_stats_clean.sql",
+        "description": "干净版SQL备份脚本",
+        "exists": true,
+        "size": 2822,
+        "modified": "2025-09-19T12:36:25.364984"
+      },
+      "syntax_check": null,
+      "details": {
+        "info": "文件大小: 2822 bytes"
+      }
+    },
+    {
+      "script": "预检查套件",
+      "path": "D:\\myproject\\后端\\ConvergedComputing\\g7_precheck_suite.py",
+      "required": true,
+      "status": "[PASS]",
+      "file_check": {
+        "path": "D:\\myproject\\后端\\ConvergedComputing\\g7_precheck_suite.py",
+        "description": "预检查套件",
+        "exists": true,
+        "size": 15204,
+        "modified": "2025-09-19T12:36:40.503383"
+      },
+      "syntax_check": {
+        "valid": true,
+        "error": null
+      },
+      "details": {
+        "info": "文件大小: 15204 bytes"
+      }
+    },
+    {
+      "script": "流水线包装器",
+      "path": "D:\\myproject\\后端\\ConvergedComputing\\run_g7_pipeline_wrapper.py",
+      "required": true,
+      "status": "[PASS]",
+      "file_check": {
+        "path": "D:\\myproject\\后端\\ConvergedComputing\\run_g7_pipeline_wrapper.py",
+        "description": "流水线包装器",
+        "exists": true,
+        "size": 5717,
+        "modified": "2025-09-19T10:14:36.002510"
+      },
+      "syntax_check": {
+        "valid": true,
+        "error": null
+      },
+      "details": {
+        "info": "文件大小: 5717 bytes"
+      }
+    },
+    {
+      "script": "数据验证工具",
+      "path": "D:\\myproject\\后端\\ConvergedComputing\\validate_g7_data.py",
+      "required": true,
+      "status": "[PASS]",
+      "file_check": {
+        "path": "D:\\myproject\\后端\\ConvergedComputing\\validate_g7_data.py",
+        "description": "数据验证工具",
+        "exists": true,
+        "size": 36727,
+        "modified": "2025-09-19T03:31:13.962658"
+      },
+      "syntax_check": {
+        "valid": true,
+        "error": null
+      },
+      "details": {
+        "info": "文件大小: 36727 bytes"
+      }
+    },
+    {
+      "script": "增强守卫核心",
+      "path": "D:\\myproject\\后端\\ConvergedComputing\\scripts\\enhanced_g7_guard.py",
+      "required": true,
+      "status": "[PASS]",
+      "file_check": {
+        "path": "D:\\myproject\\后端\\ConvergedComputing\\scripts\\enhanced_g7_guard.py",
+        "description": "增强守卫核心",
+        "exists": true,
+        "size": 22442,
+        "modified": "2025-09-19T03:46:07.055776"
+      },
+      "syntax_check": {
+        "valid": true,
+        "error": null
+      },
+      "details": {
+        "info": "文件大小: 22442 bytes"
+      }
+    },
+    {
+      "script": "触发器验证工具",
+      "path": "D:\\myproject\\后端\\ConvergedComputing\\scripts\\validate_g7_triggers.py",
+      "required": true,
+      "status": "[PASS]",
+      "file_check": {
+        "path": "D:\\myproject\\后端\\ConvergedComputing\\scripts\\validate_g7_triggers.py",
+        "description": "触发器验证工具",
+        "exists": true,
+        "size": 21577,
+        "modified": "2025-09-19T03:47:22.528349"
+      },
+      "syntax_check": {
+        "valid": true,
+        "error": null
+      },
+      "details": {
+        "info": "文件大小: 21577 bytes"
+      }
+    },
+    {
+      "script": "旧流水线进程检查",
+      "path": "D:\\myproject\\后端\\ConvergedComputing\\check_no_active_old_pipeline.py",
+      "required": true,
+      "status": "[PASS]",
+      "file_check": {
+        "path": "D:\\myproject\\后端\\ConvergedComputing\\check_no_active_old_pipeline.py",
+        "description": "旧流水线进程检查",
+        "exists": true,
+        "size": 12301,
+        "modified": "2025-09-19T03:26:35.954296"
+      },
+      "syntax_check": {
+        "valid": true,
+        "error": null
+      },
+      "details": {
+        "info": "文件大小: 12301 bytes"
+      }
+    },
+    {
+      "script": "磁盘空间检查",
+      "path": "D:\\myproject\\后端\\ConvergedComputing\\check_disk_space.py",
+      "required": true,
+      "status": "[PASS]",
+      "file_check": {
+        "path": "D:\\myproject\\后端\\ConvergedComputing\\check_disk_space.py",
+        "description": "磁盘空间检查",
+        "exists": true,
+        "size": 13215,
+        "modified": "2025-09-19T03:27:31.166221"
+      },
+      "syntax_check": {
+        "valid": true,
+        "error": null
+      },
+      "details": {
+        "info": "文件大小: 13215 bytes"
+      }
+    },
+    {
+      "script": "数据库锁状态检查",
+      "path": "D:\\myproject\\后端\\ConvergedComputing\\check_db_locks_enhanced.py",
+      "required": true,
+      "status": "[PASS]",
+      "file_check": {
+        "path": "D:\\myproject\\后端\\ConvergedComputing\\check_db_locks_enhanced.py",
+        "description": "数据库锁状态检查",
+        "exists": true,
+        "size": 24125,
+        "modified": "2025-09-19T03:34:51.378683"
+      },
+      "syntax_check": {
+        "valid": true,
+        "error": null
+      },
+      "details": {
+        "info": "文件大小: 24125 bytes"
+      }
+    }
+  ]
+}

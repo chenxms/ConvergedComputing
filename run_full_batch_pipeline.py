@@ -18,6 +18,7 @@ import os
 import sys
 import asyncio
 from typing import Tuple
+from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
@@ -27,10 +28,30 @@ from app.database.enums import AggregationLevel as DBAggregationLevel, Calculati
 from app.services.calculation_service import CalculationService
 
 
+def _sanitize_db_url(url: str) -> str:
+    """Sanitize whitespace in query keys/values (e.g., "? charset=")"""
+    try:
+        if not url or "?" not in url:
+            return url
+        parts = urlsplit(url)
+        # Normalize query: trim spaces around keys/values and canonicalize charset
+        q = []
+        for k, v in parse_qsl(parts.query, keep_blank_values=True):
+            k = (k or "").strip()
+            v = (v or "").strip()
+            if k.lower().replace("_", "") == "charset":
+                k = "charset"
+            q.append((k, v))
+        new_query = urlencode(q)
+        return urlunsplit((parts.scheme, parts.netloc, parts.path, new_query, parts.fragment))
+    except Exception:
+        return url
+
+
 def _get_db_url() -> str:
     url = os.getenv("DATABASE_URL")
     if url and url.strip():
-        return url
+        return _sanitize_db_url(url)
     # 兼容默认连接（如未设置环境变量）
     return "mysql+pymysql://root:mysql_Lujing2022@117.72.14.166:23506/appraisal_test?charset=utf8mb4"
 
@@ -58,6 +79,14 @@ async def materialize_subjects_v12(batch_code: str) -> Tuple[int, int]:
         total = summary.get('total_schools', 0)
         if not total:
             total = ok
+        # 打印被跳过科目（若有）
+        try:
+            meta = (results.get('regional_statistics') or {}).get('calculation_metadata') or {}
+            skipped = meta.get('skipped_subjects') or []
+            if skipped:
+                print(f"[提示] 以下科目清洗数据缺失，已在统计阶段跳过：{', '.join(map(str, skipped))}")
+        except Exception:
+            pass
         print(f'[汇聚] 增强计算完成：学校成功 {ok}/{total}')
         return ok, total
     finally:

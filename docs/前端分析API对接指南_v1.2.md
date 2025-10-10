@@ -1,4 +1,4 @@
-# 前端分析 API 对接指南（v1.2）
+﻿# 前端分析 API 对接指南（v1.2）
 
 面向前端/AI 开发工程师的对接文档，覆盖学科汇聚、维度、问卷题目选项分布等常用数据拉取方式与渲染要点。按本文即可直接编写页面与图表渲染逻辑。
 
@@ -41,11 +41,11 @@
     "schema_version": "v1.2",
     "data_version": "v1.2",
     "batch_code": "G4-2025",
-    "aggregation_level": "REGIONAL", // 或 "SCHOOL"
+    "aggregation_level": "REGIONAL",
     "subjects": [
       {
         "subject_name": "数学",
-        "type": "exam", // 或 "questionnaire"
+        "type": "exam",
         "metrics": {
           "avg": 78.53,
           "stddev": 12.36,
@@ -54,8 +54,7 @@
           "difficulty": 0.79,
           "discrimination": 0.52,
           "percentiles": { "P10": 56.0, "P50": 80.0, "P90": 95.0 },
-          "subject_full_score": 100.0,
-          "rank": 8 // 学校级有效；区域级无 rank
+          "subject_full_score": 100.0
         },
         "school_rankings": [
           { "school_id": "5044", "school_name": "一小", "avg": 85.12, "rank": 1 },
@@ -63,17 +62,30 @@
         ],
         "dimensions": [
           {
-            "code": "D-CUR",
-            "name": "好奇心",
+            "code": "M-CUR",
+            "name": "核心素养",
             "avg": 82.35,
             "score_rate": 0.82,
-            "rank": 5, // 学校级有效；区域级无 rank
             "option_distribution": [
               { "option_level": 1, "option_label": "非常不符合", "pct": 5.21 },
               { "option_level": 2, "option_label": "不符合",     "pct": 12.45 },
               { "option_level": 3, "option_label": "一般",       "pct": 30.29 },
               { "option_level": 4, "option_label": "符合",       "pct": 36.10 },
               { "option_level": 5, "option_label": "非常符合",   "pct": 15.95 }
+            ],
+            "questions": [
+              {
+                "question_id": "23_8",
+                "question_name": "能独立完成整数四则运算",
+                "score": 3.52,
+                "score_rate": 70.4,
+                "option_distribution": [
+                  { "option_level": 1, "option_label": "非常不同意", "pct": 6.12 },
+                  { "option_level": 2, "option_label": "不同意",     "pct": 18.03 },
+                  { "option_level": 3, "option_label": "同意",       "pct": 40.65 },
+                  { "option_level": 4, "option_label": "非常同意",   "pct": 35.20 }
+                ]
+              }
             ]
           }
         ]
@@ -83,7 +95,18 @@
 }
 ```
 
-### 2.3 前端常用渲染映射
+### 2.3 新旧结构对照（重点更新）
+
+| 关注点 | 旧版（v1.1 及以前） | 新版（v1.2 当前） | 迁移建议 |
+| --- | --- | --- | --- |
+| 问卷题目选项 | 顶层 `subjects[].questions[]` 独立列出 | 题目随维度落在 `subjects[].dimensions[].questions[]`，每题带 `question_id`/`question_name`/`score`/`score_rate`/`option_distribution` | 展示问卷题目时，按维度向下渲染；无需再读取顶层 `questions` |
+| 问卷维度排名 | 区域维度附带 `school_rankings` | 区域维度不再返回排名，学校维度仍有 `rank` | 区域排名只展示学科层结果；维度排名改读学校接口 |
+| 题目标签来源 | 仅部分题目有 `question_name` | 若题库缺失标题则回退 `question_id` | 前端可判空后显示编号 |
+| 旧版兼容 | `/api/v12` 路由不变 | 响应结构升级，老字段均在本表说明 | 切换时比对字段即可 |
+
+> 若仍需按题目全量检索（跨维度），可继续使用第 3 节的问卷分布接口。
+
+### 2.4 前端常用渲染映射（更新后）
 
 - 学科卡片（区域/学校）
   - 标题：`subject_name`
@@ -91,7 +114,7 @@
   - 关键指标：`metrics.avg`、`metrics.difficulty`、`metrics.stddev`、`metrics.min`/`metrics.max`
   - 百分位（区域级）：`metrics.percentiles.P10/P50/P90`
   - 学校名次（学校级）：`metrics.rank`
-- 学校排名榜（区域级）：`school_rankings` 按 `rank` 升序渲染
+- 学校排名榜（区域级）：`school_rankings` 按 `rank` 升序渲染（维度层不再附带排名）
 - 维度雷达/条形图（考试/问卷）
   - 名称：`dimensions[].name`
   - 数值：`dimensions[].avg` 或 `dimensions[].score_rate * 100`
@@ -99,12 +122,18 @@
 - 问卷维度选项分布（堆叠条/环图）
   - 数据源：`dimensions[].option_distribution`
   - 显示：`option_label`（若为空可回退为 `选项{option_level}`），占比：`pct`
+- 问卷题目选项（随维度渲染）
+  - 数据源：`dimensions[].questions[]`
+  - 字段：`question_name`（若为空可用 `question_id`）、`score`、`score_rate`、`option_distribution`
+  - 建议：按维度折叠/展开题目，保持与旧版 UI 一致
 
-> 提示：问卷“题目级”的选项分布不在 subjects 内嵌，需使用第 3 节的问卷分布 API。
+> 如需跨维度的题目汇总或历史结构，可继续调用第 3 节的问卷分布 API。
 
 ---
 
 ## 3. 问卷题目选项分布 API
+
+> 说明：自 v1.2 起，题目选项已随维度一起返回在 `/api/v12` 的 subjects 响应中。本节接口仅在需要跨维度汇总、对比历史结构或排查数据时使用。
 
 - 区域级：`GET /api/v1/questionnaire-distributions/{batch_code}/{subject_name}/regional`
 - 学校级：`GET /api/v1/questionnaire-distributions/{batch_code}/{subject_name}/school/{school_id}`
@@ -248,3 +277,4 @@ curl "http://localhost:8000/api/v1/questionnaire-distributions/G4-2025/问卷/sc
 
 - 2025-09-13：统一对外端口为 8000（可选 subjects 独立服务为 8001，仅在需要时启用）；修复中文乱码；补充 CORS 与前端代理指引。
 
+- 2025-09-19：同步 v1.2 汇聚结构调整——问卷题目改随维度输出、区域维度排名精简、保留 legacy API 说明。

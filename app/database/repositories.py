@@ -1941,7 +1941,8 @@ class DataAdapterRepository(BaseRepository):
                     question_type_enum,
                     COUNT(*) as question_count,
                     SUM(max_score) as total_max_score,
-                    MAX(max_score) as single_question_max_score
+                    MAX(max_score) as single_question_max_score,
+                    MAX(instrument_id) as instrument_id
                 FROM subject_question_config
                 WHERE batch_code = :batch_code
                 GROUP BY subject_name, subject, question_type_enum
@@ -1961,7 +1962,8 @@ class DataAdapterRepository(BaseRepository):
                         'max_score': float(row.total_max_score) if row.total_max_score else 100.0,
                         'question_count': row.question_count,
                         'question_type_enum': row.question_type_enum,
-                        'subject_code': getattr(row, 'subject', row.subject_name)
+                        'subject_code': getattr(row, 'subject', row.subject_name),
+                        'instrument_id': getattr(row, 'instrument_id', None)
                     })
             except OperationalError as oe:
                 # 鑻ユ姤 Unknown column 'subject'锛屾敼鐢ㄤ笉鍚?subject 鍒楃殑鏌ヨ
@@ -1973,7 +1975,8 @@ class DataAdapterRepository(BaseRepository):
                         question_type_enum,
                         COUNT(*) as question_count,
                         SUM(max_score) as total_max_score,
-                        MAX(max_score) as single_question_max_score
+                        MAX(max_score) as single_question_max_score,
+                        MAX(instrument_id) as instrument_id
                     FROM subject_question_config
                     WHERE batch_code = :batch_code
                     GROUP BY subject_name, question_type_enum
@@ -2292,6 +2295,21 @@ class PrecomputedMetricsRepository(BaseRepository):
 
         return rows
 
+    def _normalize_school_code(self, value: Any) -> str:
+        """将可能带小数的学校编码规范为纯数字字符串（去除尾部.0...）。"""
+        try:
+            s = str(value).strip()
+            if not s:
+                return s
+            # 仅当小数部分全为0时进行截断，例如 5001.0 / 5001.000 -> 5001
+            if "." in s:
+                head, tail = s.split(".", 1)
+                if tail and set(tail) <= {"0"} and head.lstrip("-+").isdigit():
+                    return head
+            return s
+        except Exception:
+            return str(value)
+
     def get_subject_school_metric(
         self, batch_code: str, subject_name: str, school_code: str
     ) -> SubjectSchoolRanking:
@@ -2308,6 +2326,24 @@ class PrecomputedMetricsRepository(BaseRepository):
         except Exception as exc:
             self._handle_db_error(exc, "precomputed.get_subject_school_metric")
             raise
+
+        if record is None:
+            # 兼容异常场景：school_code 被误转换为浮点字符串（如 5001.0）
+            norm = self._normalize_school_code(school_code)
+            if norm != school_code:
+                try:
+                    record = (
+                        self.db.query(SubjectSchoolRanking)
+                        .filter(
+                            SubjectSchoolRanking.batch_code == batch_code,
+                            SubjectSchoolRanking.subject_name == subject_name,
+                            SubjectSchoolRanking.school_code == norm,
+                        )
+                        .one_or_none()
+                    )
+                except Exception as exc:
+                    self._handle_db_error(exc, "precomputed.get_subject_school_metric(norm)")
+                    raise
 
         if record is None:
             raise DataIntegrityError(

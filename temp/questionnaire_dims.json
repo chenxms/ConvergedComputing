@@ -1,0 +1,1916 @@
+{
+  "CZL-czx": {
+    "dimension_code": "CZL-czx",
+    "dimension_name": "创造力-创造性",
+    "max_score": 12.0,
+    "question_count": 0,
+    "question_ids": [],
+    "basic_stats": {
+      "name": "创造力-创造性",
+      "avg_score": 5.922942206654991,
+      "std_score": 2.515023903647996,
+      "min_score": 0.0,
+      "max_score_achieved": 12.0,
+      "student_count": 1142,
+      "score_rate": 0.49357851722124924
+    },
+    "percentiles": {
+      "P10": 3.0,
+      "P25": 4.0,
+      "P50": 6.0,
+      "P75": 7.0,
+      "P90": 9.0,
+      "IQR": 3.0
+    },
+    "educational_metrics": {
+      "difficulty_coefficient": 0.49357851722124924,
+      "pass_rate": 0.2434325744308231,
+      "excellent_rate": 0.063922942206655,
+      "average_score_rate": 0.49357851722124924
+    },
+    "discrimination": {
+      "discrimination_index": 0.5075757575757575,
+      "interpretation": "excellent"
+    }
+  },
+  "CZL-hqx": {
+    "dimension_code": "CZL-hqx",
+    "dimension_name": "创造力-好奇心",
+    "max_score": 36.0,
+    "question_count": 0,
+    "question_ids": [],
+    "basic_stats": {
+      "name": "创造力-好奇心",
+      "avg_score": 26.798598949211907,
+      "std_score": 5.0586115742365285,
+      "min_score": 9.0,
+      "max_score_achieved": 36.0,
+      "student_count": 1142,
+      "score_rate": 0.7444055263669974
+    },
+    "percentiles": {
+      "P10": 21.0,
+      "P25": 24.0,
+      "P50": 27.0,
+      "P75": 30.0,
+      "P90": 33.0,
+      "IQR": 6.0
+    },
+    "educational_metrics": {
+      "difficulty_coefficient": 0.7444055263669974,
+      "pass_rate": 0.8782837127845884,
+      "excellent_rate": 0.22591943957968477,
+      "average_score_rate": 0.7444055263669974
+    },
+    "discrimination": {
+      "discrimination_index": 0.3376623376623376,
+      "interpretation": "good"
+    }
+  },
+  "CZL-kf": {
+    "dimension_code": "CZL-kf",
+    "dimension_name": "创造力-开放",
+    "max_score": 20.0,
+    "question_count": 0,
+    "question_ids": [],
+    "basic_stats": {
+      "name": "创造力-开放",
+      "avg_score": 15.772329246935202,
+      "std_score": 3.472542303198761,
+      "min_score": 0.0,
+      "max_score_achieved": 20.0,
+      "student_count": 1142,
+      "score_rate": 0.7886164623467601
+    },
+    "percentiles": {
+      "P10": 12.0,
+      "P25": 14.0,
+      "P50": 15.0,
+      "P75": 19.0,
+      "P90": 20.0,
+      "IQR": 5.0
+    },
+    "educational_metrics": {
+      "difficulty_coefficient": 0.7886164623467601,
+      "pass_rate": 0.9054290718038529,
+      "excellent_rate": 0.4106830122591944,
+      "average_score_rate": 0.7886164623467601
+    },
+    "discrimination": {
+      "discrimination_index": 0.4150974025974025,
+      "interpretation": "excellent"
+    }
+  },
+  "CZL-mmjs": {
+    "dimension_code": "CZL-mmjs",
+    "dimension_name": "创造力-冒险精神",
+    "max_score": 12.0,
+    "question_count": 0,
+    "question_ids": [],
+    "basic_stats": {
+      "name": "创造力-冒险精神",
+      "avg_score": 8.832749562171628,
+      "std_score": 1.8457272748117564,
+      "min_score": 0.0,
+      "max_score_achieved": 12.0,
+      "student_count": 1142,
+      "score_rate": 0.7360624635143024
+    },
+    "percentiles": {
+      "P10": 7.0,
+      "P25": 8.0,
+      "P50": 9.0,
+      "P75": 10.0,
+      "P90": 11.0,
+      "IQR": 2.0
+    },
+    "educational_metrics": {
+      "difficulty_coefficient": 0.7360624635143024,
+      "pass_rate": 0.8239929947460596,
+      "excellent_rate": 0.17600700525394045,
+      "average_score_rate": 0.7360624635143024
+    },
+    "discrimination": {
+      "discrimination_index": 0.36066017316017307,
+      "interpretation": "good"
+    }
+  },
+  "CZL-xxl": {
+    "dimension_code": "CZL-xxl",
+    "dimension_name": "创造力-想象力",
+    "max_score": 16.0,
+    "question_count": 0,
+    "question_ids": [],
+    "basic_stats": {
+      "name": "创造力-想象力",
+      "avg_score": 10.514886164623467,
+      "std_score": 2.24120580244334,
+      "min_score": 0.0,
+      "max_score_achieved": 16.0,
+      "student_count": 1142,
+      "score_rate": 0.6571803852889667
+    },
+    "percentiles": {
+      "P10": 8.0,
+      "P25": 9.0,
+      "P50": 10.0,
+      "P75": 12.0,
+      "P90": 13.0,
+      "IQR": 3.0
+    },
+    "educational_metrics": {
+      "difficulty_coefficient": 0.6571803852889667,
+      "pass_rate": 0.7408056042031523,
+      "excellent_rate": 0.06830122591943957,
+      "average_score_rate": 0.6571803852889667
+    },
+    "discrimination": {
+      "discrimination_index": 0.32345779220779225,
+      "interpretation": "good"
+    }
+  },
+  "CZL-zl": {
+    "dimension_code": "CZL-zl",
+    "dimension_name": "创造力-智力开放",
+    "max_score": 16.0,
+    "question_count": 0,
+    "question_ids": [],
+    "basic_stats": {
+      "name": "创造力-智力开放",
+      "avg_score": 11.983362521891419,
+      "std_score": 3.014525728975249,
+      "min_score": 0.0,
+      "max_score_achieved": 16.0,
+      "student_count": 1142,
+      "score_rate": 0.7489601576182137
+    },
+    "percentiles": {
+      "P10": 8.0,
+      "P25": 10.0,
+      "P50": 12.0,
+      "P75": 14.0,
+      "P90": 16.0,
+      "IQR": 4.0
+    },
+    "educational_metrics": {
+      "difficulty_coefficient": 0.7489601576182137,
+      "pass_rate": 0.7950963222416813,
+      "excellent_rate": 0.31961471103327493,
+      "average_score_rate": 0.7489601576182137
+    },
+    "discrimination": {
+      "discrimination_index": 0.4669237012987013,
+      "interpretation": "excellent"
+    }
+  },
+  "CZX-jthj": {
+    "dimension_code": "CZX-jthj",
+    "dimension_name": "创造性-家庭环境",
+    "max_score": 20.0,
+    "question_count": 0,
+    "question_ids": [],
+    "basic_stats": {
+      "name": "创造性-家庭环境",
+      "avg_score": 16.21628721541156,
+      "std_score": 3.359236101369534,
+      "min_score": 0.0,
+      "max_score_achieved": 20.0,
+      "student_count": 1142,
+      "score_rate": 0.8108143607705779
+    },
+    "percentiles": {
+      "P10": 12.0,
+      "P25": 15.0,
+      "P50": 16.0,
+      "P75": 20.0,
+      "P90": 20.0,
+      "IQR": 5.0
+    },
+    "educational_metrics": {
+      "difficulty_coefficient": 0.8108143607705779,
+      "pass_rate": 0.9211908931698775,
+      "excellent_rate": 0.44833625218914186,
+      "average_score_rate": 0.8108143607705779
+    },
+    "discrimination": {
+      "discrimination_index": 0.389448051948052,
+      "interpretation": "good"
+    }
+  },
+  "CZX-tbhj": {
+    "dimension_code": "CZX-tbhj",
+    "dimension_name": "创造性-同伴环境",
+    "max_score": 12.0,
+    "question_count": 0,
+    "question_ids": [],
+    "basic_stats": {
+      "name": "创造性-同伴环境",
+      "avg_score": 10.033274956217163,
+      "std_score": 2.03017023754045,
+      "min_score": 0.0,
+      "max_score_achieved": 12.0,
+      "student_count": 1142,
+      "score_rate": 0.8361062463514303
+    },
+    "percentiles": {
+      "P10": 8.0,
+      "P25": 9.0,
+      "P50": 10.0,
+      "P75": 12.0,
+      "P90": 12.0,
+      "IQR": 3.0
+    },
+    "educational_metrics": {
+      "difficulty_coefficient": 0.8361062463514303,
+      "pass_rate": 0.9150612959719789,
+      "excellent_rate": 0.46935201401050786,
+      "average_score_rate": 0.8361062463514303
+    },
+    "discrimination": {
+      "discrimination_index": 0.35633116883116883,
+      "interpretation": "good"
+    }
+  },
+  "CZX-xxhj": {
+    "dimension_code": "CZX-xxhj",
+    "dimension_name": "创造性-学校环境",
+    "max_score": 12.0,
+    "question_count": 0,
+    "question_ids": [],
+    "basic_stats": {
+      "name": "创造性-学校环境",
+      "avg_score": 9.683012259194395,
+      "std_score": 2.2730464328163538,
+      "min_score": 0.0,
+      "max_score_achieved": 12.0,
+      "student_count": 1142,
+      "score_rate": 0.8069176882661996
+    },
+    "percentiles": {
+      "P10": 7.0,
+      "P25": 9.0,
+      "P50": 9.0,
+      "P75": 12.0,
+      "P90": 12.0,
+      "IQR": 3.0
+    },
+    "educational_metrics": {
+      "difficulty_coefficient": 0.8069176882661996,
+      "pass_rate": 0.8458844133099825,
+      "excellent_rate": 0.4159369527145359,
+      "average_score_rate": 0.8069176882661996
+    },
+    "discrimination": {
+      "discrimination_index": 0.42775974025974023,
+      "interpretation": "excellent"
+    }
+  },
+  "CZX-zwxn": {
+    "dimension_code": "CZX-zwxn",
+    "dimension_name": "创造性-自我效能",
+    "max_score": 20.0,
+    "question_count": 0,
+    "question_ids": [],
+    "basic_stats": {
+      "name": "创造性-自我效能",
+      "avg_score": 14.211033274956216,
+      "std_score": 3.9084776036915914,
+      "min_score": 0.0,
+      "max_score_achieved": 20.0,
+      "student_count": 1142,
+      "score_rate": 0.7105516637478109
+    },
+    "percentiles": {
+      "P10": 10.0,
+      "P25": 12.0,
+      "P50": 15.0,
+      "P75": 17.0,
+      "P90": 20.0,
+      "IQR": 5.0
+    },
+    "educational_metrics": {
+      "difficulty_coefficient": 0.7105516637478109,
+      "pass_rate": 0.7618213660245184,
+      "excellent_rate": 0.2600700525394046,
+      "average_score_rate": 0.7105516637478109
+    },
+    "discrimination": {
+      "discrimination_index": 0.4892857142857142,
+      "interpretation": "excellent"
+    }
+  },
+  "CZXHJ-xnhd": {
+    "dimension_code": "CZXHJ-xnhd",
+    "dimension_name": "创造性环境-校内活动",
+    "max_score": 35.0,
+    "question_count": 0,
+    "question_ids": [],
+    "basic_stats": {
+      "name": "创造性环境-校内活动",
+      "avg_score": 17.689141856392293,
+      "std_score": 7.3002854541225535,
+      "min_score": 0.0,
+      "max_score_achieved": 35.0,
+      "student_count": 1142,
+      "score_rate": 0.5054040530397798
+    },
+    "percentiles": {
+      "P10": 8.0,
+      "P25": 13.0,
+      "P50": 16.0,
+      "P75": 21.0,
+      "P90": 28.0,
+      "IQR": 8.0
+    },
+    "educational_metrics": {
+      "difficulty_coefficient": 0.5054040530397798,
+      "pass_rate": 0.3318739054290718,
+      "excellent_rate": 0.06567425569176882,
+      "average_score_rate": 0.5054040530397798
+    },
+    "discrimination": {
+      "discrimination_index": 0.5046382189239332,
+      "interpretation": "excellent"
+    }
+  },
+  "CZXHJ-xwhd": {
+    "dimension_code": "CZXHJ-xwhd",
+    "dimension_name": "创造性环境-校外活动",
+    "max_score": 35.0,
+    "question_count": 0,
+    "question_ids": [],
+    "basic_stats": {
+      "name": "创造性环境-校外活动",
+      "avg_score": 16.600700525394046,
+      "std_score": 7.474286592695357,
+      "min_score": 0.0,
+      "max_score_achieved": 35.0,
+      "student_count": 1142,
+      "score_rate": 0.47430572929697273
+    },
+    "percentiles": {
+      "P10": 7.0,
+      "P25": 11.0,
+      "P50": 15.0,
+      "P75": 21.0,
+      "P90": 28.0,
+      "IQR": 10.0
+    },
+    "educational_metrics": {
+      "difficulty_coefficient": 0.47430572929697273,
+      "pass_rate": 0.29772329246935203,
+      "excellent_rate": 0.05691768826619965,
+      "average_score_rate": 0.47430572929697273
+    },
+    "discrimination": {
+      "discrimination_index": 0.5187384044526903,
+      "interpretation": "excellent"
+    }
+  },
+  "TDRW-wjnlcd": {
+    "dimension_code": "TDRW-wjnlcd",
+    "dimension_name": "填答任务-问卷努力程度",
+    "max_score": 30.0,
+    "question_count": 0,
+    "question_ids": [],
+    "basic_stats": {
+      "name": "填答任务-问卷努力程度",
+      "avg_score": 23.63047285464098,
+      "std_score": 5.892259330817959,
+      "min_score": 0.0,
+      "max_score_achieved": 30.0,
+      "student_count": 1142,
+      "score_rate": 0.7876824284880327
+    },
+    "percentiles": {
+      "P10": 15.0,
+      "P25": 20.0,
+      "P50": 25.0,
+      "P75": 28.0,
+      "P90": 30.0,
+      "IQR": 8.0
+    },
+    "educational_metrics": {
+      "difficulty_coefficient": 0.7876824284880327,
+      "pass_rate": 0.8546409807355516,
+      "excellent_rate": 0.45183887915936954,
+      "average_score_rate": 0.7876824284880327
+    },
+    "discrimination": {
+      "discrimination_index": 0.4607142857142857,
+      "interpretation": "excellent"
+    }
+  },
+  "_option_distributions": {
+    "21_1": {
+      "question_id": "21_1",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 51,
+          "percentage": 4.75
+        },
+        "2": {
+          "student_count": 79,
+          "percentage": 7.36
+        },
+        "3": {
+          "student_count": 506,
+          "percentage": 47.11
+        },
+        "4": {
+          "student_count": 438,
+          "percentage": 40.78
+        }
+      }
+    },
+    "21_2": {
+      "question_id": "21_2",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 82,
+          "percentage": 7.64
+        },
+        "2": {
+          "student_count": 224,
+          "percentage": 20.86
+        },
+        "3": {
+          "student_count": 467,
+          "percentage": 43.48
+        },
+        "4": {
+          "student_count": 301,
+          "percentage": 28.03
+        }
+      }
+    },
+    "21_3": {
+      "question_id": "21_3",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 58,
+          "percentage": 5.4
+        },
+        "2": {
+          "student_count": 163,
+          "percentage": 15.18
+        },
+        "3": {
+          "student_count": 460,
+          "percentage": 42.83
+        },
+        "4": {
+          "student_count": 393,
+          "percentage": 36.59
+        }
+      }
+    },
+    "21_4": {
+      "question_id": "21_4",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 41,
+          "percentage": 3.82
+        },
+        "2": {
+          "student_count": 107,
+          "percentage": 9.96
+        },
+        "3": {
+          "student_count": 454,
+          "percentage": 42.27
+        },
+        "4": {
+          "student_count": 472,
+          "percentage": 43.95
+        }
+      }
+    },
+    "21_5": {
+      "question_id": "21_5",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 60,
+          "percentage": 5.59
+        },
+        "2": {
+          "student_count": 280,
+          "percentage": 26.07
+        },
+        "3": {
+          "student_count": 444,
+          "percentage": 41.34
+        },
+        "4": {
+          "student_count": 290,
+          "percentage": 27.0
+        }
+      }
+    },
+    "21_6": {
+      "question_id": "21_6",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 94,
+          "percentage": 8.75
+        },
+        "2": {
+          "student_count": 253,
+          "percentage": 23.56
+        },
+        "3": {
+          "student_count": 421,
+          "percentage": 39.2
+        },
+        "4": {
+          "student_count": 306,
+          "percentage": 28.49
+        }
+      }
+    },
+    "21_7": {
+      "question_id": "21_7",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 484,
+          "percentage": 45.07
+        },
+        "2": {
+          "student_count": 307,
+          "percentage": 28.58
+        },
+        "3": {
+          "student_count": 163,
+          "percentage": 15.18
+        },
+        "4": {
+          "student_count": 120,
+          "percentage": 11.17
+        }
+      }
+    },
+    "21_8": {
+      "question_id": "21_8",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 46,
+          "percentage": 4.28
+        },
+        "2": {
+          "student_count": 132,
+          "percentage": 12.29
+        },
+        "3": {
+          "student_count": 431,
+          "percentage": 40.13
+        },
+        "4": {
+          "student_count": 465,
+          "percentage": 43.3
+        }
+      }
+    },
+    "21_9": {
+      "question_id": "21_9",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 31,
+          "percentage": 2.89
+        },
+        "2": {
+          "student_count": 77,
+          "percentage": 7.17
+        },
+        "3": {
+          "student_count": 468,
+          "percentage": 43.58
+        },
+        "4": {
+          "student_count": 498,
+          "percentage": 46.37
+        }
+      }
+    },
+    "22_1": {
+      "question_id": "22_1",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 49,
+          "percentage": 4.56
+        },
+        "2": {
+          "student_count": 49,
+          "percentage": 4.56
+        },
+        "3": {
+          "student_count": 453,
+          "percentage": 42.18
+        },
+        "4": {
+          "student_count": 523,
+          "percentage": 48.7
+        }
+      }
+    },
+    "22_2": {
+      "question_id": "22_2",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 49,
+          "percentage": 4.56
+        },
+        "2": {
+          "student_count": 167,
+          "percentage": 15.55
+        },
+        "3": {
+          "student_count": 486,
+          "percentage": 45.25
+        },
+        "4": {
+          "student_count": 372,
+          "percentage": 34.64
+        }
+      }
+    },
+    "22_3": {
+      "question_id": "22_3",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 49,
+          "percentage": 4.56
+        },
+        "2": {
+          "student_count": 124,
+          "percentage": 11.55
+        },
+        "3": {
+          "student_count": 459,
+          "percentage": 42.74
+        },
+        "4": {
+          "student_count": 442,
+          "percentage": 41.15
+        }
+      }
+    },
+    "22_4": {
+      "question_id": "22_4",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 60,
+          "percentage": 5.59
+        },
+        "2": {
+          "student_count": 201,
+          "percentage": 18.72
+        },
+        "3": {
+          "student_count": 477,
+          "percentage": 44.41
+        },
+        "4": {
+          "student_count": 336,
+          "percentage": 31.28
+        }
+      }
+    },
+    "22_5": {
+      "question_id": "22_5",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 55,
+          "percentage": 5.12
+        },
+        "2": {
+          "student_count": 164,
+          "percentage": 15.27
+        },
+        "3": {
+          "student_count": 483,
+          "percentage": 44.97
+        },
+        "4": {
+          "student_count": 372,
+          "percentage": 34.64
+        }
+      }
+    },
+    "22_6": {
+      "question_id": "22_6",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 84,
+          "percentage": 7.82
+        },
+        "2": {
+          "student_count": 260,
+          "percentage": 24.21
+        },
+        "3": {
+          "student_count": 417,
+          "percentage": 38.83
+        },
+        "4": {
+          "student_count": 313,
+          "percentage": 29.14
+        }
+      }
+    },
+    "22_7": {
+      "question_id": "22_7",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 100,
+          "percentage": 9.31
+        },
+        "2": {
+          "student_count": 242,
+          "percentage": 22.53
+        },
+        "3": {
+          "student_count": 416,
+          "percentage": 38.73
+        },
+        "4": {
+          "student_count": 316,
+          "percentage": 29.42
+        }
+      }
+    },
+    "22_8": {
+      "question_id": "22_8",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 73,
+          "percentage": 6.8
+        },
+        "2": {
+          "student_count": 263,
+          "percentage": 24.49
+        },
+        "3": {
+          "student_count": 430,
+          "percentage": 40.04
+        },
+        "4": {
+          "student_count": 308,
+          "percentage": 28.68
+        }
+      }
+    },
+    "22_9": {
+      "question_id": "22_9",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 37,
+          "percentage": 3.45
+        },
+        "2": {
+          "student_count": 87,
+          "percentage": 8.1
+        },
+        "3": {
+          "student_count": 475,
+          "percentage": 44.23
+        },
+        "4": {
+          "student_count": 475,
+          "percentage": 44.23
+        }
+      }
+    },
+    "23_1": {
+      "question_id": "23_1",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 461,
+          "percentage": 42.92
+        },
+        "2": {
+          "student_count": 358,
+          "percentage": 33.33
+        },
+        "3": {
+          "student_count": 183,
+          "percentage": 17.04
+        },
+        "4": {
+          "student_count": 72,
+          "percentage": 6.7
+        }
+      }
+    },
+    "23_10": {
+      "question_id": "23_10",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 562,
+          "percentage": 52.33
+        },
+        "2": {
+          "student_count": 259,
+          "percentage": 24.12
+        },
+        "3": {
+          "student_count": 173,
+          "percentage": 16.11
+        },
+        "4": {
+          "student_count": 80,
+          "percentage": 7.45
+        }
+      }
+    },
+    "23_2": {
+      "question_id": "23_2",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 255,
+          "percentage": 23.74
+        },
+        "2": {
+          "student_count": 283,
+          "percentage": 26.35
+        },
+        "3": {
+          "student_count": 365,
+          "percentage": 33.99
+        },
+        "4": {
+          "student_count": 171,
+          "percentage": 15.92
+        }
+      }
+    },
+    "23_3": {
+      "question_id": "23_3",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 65,
+          "percentage": 6.05
+        },
+        "2": {
+          "student_count": 134,
+          "percentage": 12.48
+        },
+        "3": {
+          "student_count": 526,
+          "percentage": 48.98
+        },
+        "4": {
+          "student_count": 349,
+          "percentage": 32.5
+        }
+      }
+    },
+    "23_4": {
+      "question_id": "23_4",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 49,
+          "percentage": 4.56
+        },
+        "2": {
+          "student_count": 164,
+          "percentage": 15.27
+        },
+        "3": {
+          "student_count": 485,
+          "percentage": 45.16
+        },
+        "4": {
+          "student_count": 376,
+          "percentage": 35.01
+        }
+      }
+    },
+    "23_5": {
+      "question_id": "23_5",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 233,
+          "percentage": 21.69
+        },
+        "2": {
+          "student_count": 330,
+          "percentage": 30.73
+        },
+        "3": {
+          "student_count": 322,
+          "percentage": 29.98
+        },
+        "4": {
+          "student_count": 189,
+          "percentage": 17.6
+        }
+      }
+    },
+    "23_6": {
+      "question_id": "23_6",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 61,
+          "percentage": 5.68
+        },
+        "2": {
+          "student_count": 180,
+          "percentage": 16.76
+        },
+        "3": {
+          "student_count": 517,
+          "percentage": 48.14
+        },
+        "4": {
+          "student_count": 316,
+          "percentage": 29.42
+        }
+      }
+    },
+    "23_7": {
+      "question_id": "23_7",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 54,
+          "percentage": 5.03
+        },
+        "2": {
+          "student_count": 92,
+          "percentage": 8.57
+        },
+        "3": {
+          "student_count": 354,
+          "percentage": 32.96
+        },
+        "4": {
+          "student_count": 574,
+          "percentage": 53.45
+        }
+      }
+    },
+    "23_8": {
+      "question_id": "23_8",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 275,
+          "percentage": 25.61
+        },
+        "2": {
+          "student_count": 398,
+          "percentage": 37.06
+        },
+        "3": {
+          "student_count": 248,
+          "percentage": 23.09
+        },
+        "4": {
+          "student_count": 153,
+          "percentage": 14.25
+        }
+      }
+    },
+    "23_9": {
+      "question_id": "23_9",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 484,
+          "percentage": 45.07
+        },
+        "2": {
+          "student_count": 308,
+          "percentage": 28.68
+        },
+        "3": {
+          "student_count": 185,
+          "percentage": 17.23
+        },
+        "4": {
+          "student_count": 97,
+          "percentage": 9.03
+        }
+      }
+    },
+    "24_1": {
+      "question_id": "24_1",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 79,
+          "percentage": 7.36
+        },
+        "2": {
+          "student_count": 314,
+          "percentage": 29.24
+        },
+        "3": {
+          "student_count": 443,
+          "percentage": 41.25
+        },
+        "4": {
+          "student_count": 238,
+          "percentage": 22.16
+        }
+      }
+    },
+    "24_2": {
+      "question_id": "24_2",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 75,
+          "percentage": 6.98
+        },
+        "2": {
+          "student_count": 291,
+          "percentage": 27.09
+        },
+        "3": {
+          "student_count": 454,
+          "percentage": 42.27
+        },
+        "4": {
+          "student_count": 254,
+          "percentage": 23.65
+        }
+      }
+    },
+    "24_3": {
+      "question_id": "24_3",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 81,
+          "percentage": 7.54
+        },
+        "2": {
+          "student_count": 263,
+          "percentage": 24.49
+        },
+        "3": {
+          "student_count": 441,
+          "percentage": 41.06
+        },
+        "4": {
+          "student_count": 289,
+          "percentage": 26.91
+        }
+      }
+    },
+    "24_4": {
+      "question_id": "24_4",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 68,
+          "percentage": 6.33
+        },
+        "2": {
+          "student_count": 284,
+          "percentage": 26.44
+        },
+        "3": {
+          "student_count": 446,
+          "percentage": 41.53
+        },
+        "4": {
+          "student_count": 276,
+          "percentage": 25.7
+        }
+      }
+    },
+    "24_5": {
+      "question_id": "24_5",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 82,
+          "percentage": 7.64
+        },
+        "2": {
+          "student_count": 284,
+          "percentage": 26.44
+        },
+        "3": {
+          "student_count": 427,
+          "percentage": 39.76
+        },
+        "4": {
+          "student_count": 281,
+          "percentage": 26.16
+        }
+      }
+    },
+    "25_1": {
+      "question_id": "25_1",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 41,
+          "percentage": 3.82
+        },
+        "2": {
+          "student_count": 143,
+          "percentage": 13.31
+        },
+        "3": {
+          "student_count": 505,
+          "percentage": 47.02
+        },
+        "4": {
+          "student_count": 385,
+          "percentage": 35.85
+        }
+      }
+    },
+    "25_10": {
+      "question_id": "25_10",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 50,
+          "percentage": 4.66
+        },
+        "2": {
+          "student_count": 141,
+          "percentage": 13.13
+        },
+        "3": {
+          "student_count": 434,
+          "percentage": 40.41
+        },
+        "4": {
+          "student_count": 449,
+          "percentage": 41.81
+        }
+      }
+    },
+    "25_11": {
+      "question_id": "25_11",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 60,
+          "percentage": 5.59
+        },
+        "2": {
+          "student_count": 144,
+          "percentage": 13.41
+        },
+        "3": {
+          "student_count": 442,
+          "percentage": 41.15
+        },
+        "4": {
+          "student_count": 428,
+          "percentage": 39.85
+        }
+      }
+    },
+    "25_2": {
+      "question_id": "25_2",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 32,
+          "percentage": 2.98
+        },
+        "2": {
+          "student_count": 123,
+          "percentage": 11.45
+        },
+        "3": {
+          "student_count": 478,
+          "percentage": 44.51
+        },
+        "4": {
+          "student_count": 441,
+          "percentage": 41.06
+        }
+      }
+    },
+    "25_3": {
+      "question_id": "25_3",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 29,
+          "percentage": 2.7
+        },
+        "2": {
+          "student_count": 114,
+          "percentage": 10.61
+        },
+        "3": {
+          "student_count": 504,
+          "percentage": 46.93
+        },
+        "4": {
+          "student_count": 427,
+          "percentage": 39.76
+        }
+      }
+    },
+    "25_4": {
+      "question_id": "25_4",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 30,
+          "percentage": 2.79
+        },
+        "2": {
+          "student_count": 113,
+          "percentage": 10.52
+        },
+        "3": {
+          "student_count": 468,
+          "percentage": 43.58
+        },
+        "4": {
+          "student_count": 463,
+          "percentage": 43.11
+        }
+      }
+    },
+    "25_5": {
+      "question_id": "25_5",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 26,
+          "percentage": 2.42
+        },
+        "2": {
+          "student_count": 129,
+          "percentage": 12.01
+        },
+        "3": {
+          "student_count": 444,
+          "percentage": 41.34
+        },
+        "4": {
+          "student_count": 475,
+          "percentage": 44.23
+        }
+      }
+    },
+    "25_6": {
+      "question_id": "25_6",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 26,
+          "percentage": 2.42
+        },
+        "2": {
+          "student_count": 84,
+          "percentage": 7.82
+        },
+        "3": {
+          "student_count": 484,
+          "percentage": 45.07
+        },
+        "4": {
+          "student_count": 480,
+          "percentage": 44.69
+        }
+      }
+    },
+    "25_7": {
+      "question_id": "25_7",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 31,
+          "percentage": 2.89
+        },
+        "2": {
+          "student_count": 64,
+          "percentage": 5.96
+        },
+        "3": {
+          "student_count": 464,
+          "percentage": 43.2
+        },
+        "4": {
+          "student_count": 515,
+          "percentage": 47.95
+        }
+      }
+    },
+    "25_8": {
+      "question_id": "25_8",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 31,
+          "percentage": 2.89
+        },
+        "2": {
+          "student_count": 78,
+          "percentage": 7.26
+        },
+        "3": {
+          "student_count": 469,
+          "percentage": 43.67
+        },
+        "4": {
+          "student_count": 496,
+          "percentage": 46.18
+        }
+      }
+    },
+    "25_9": {
+      "question_id": "25_9",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 34,
+          "percentage": 3.17
+        },
+        "2": {
+          "student_count": 96,
+          "percentage": 8.94
+        },
+        "3": {
+          "student_count": 465,
+          "percentage": 43.3
+        },
+        "4": {
+          "student_count": 479,
+          "percentage": 44.6
+        }
+      }
+    },
+    "26_1": {
+      "question_id": "26_1",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 215,
+          "percentage": 20.02
+        },
+        "2": {
+          "student_count": 264,
+          "percentage": 24.58
+        },
+        "3": {
+          "student_count": 265,
+          "percentage": 24.67
+        },
+        "4": {
+          "student_count": 246,
+          "percentage": 22.91
+        },
+        "5": {
+          "student_count": 84,
+          "percentage": 7.82
+        }
+      }
+    },
+    "26_2": {
+      "question_id": "26_2",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 163,
+          "percentage": 15.18
+        },
+        "2": {
+          "student_count": 562,
+          "percentage": 52.33
+        },
+        "3": {
+          "student_count": 150,
+          "percentage": 13.97
+        },
+        "4": {
+          "student_count": 128,
+          "percentage": 11.92
+        },
+        "5": {
+          "student_count": 71,
+          "percentage": 6.61
+        }
+      }
+    },
+    "26_3": {
+      "question_id": "26_3",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 240,
+          "percentage": 22.35
+        },
+        "2": {
+          "student_count": 223,
+          "percentage": 20.76
+        },
+        "3": {
+          "student_count": 195,
+          "percentage": 18.16
+        },
+        "4": {
+          "student_count": 323,
+          "percentage": 30.07
+        },
+        "5": {
+          "student_count": 93,
+          "percentage": 8.66
+        }
+      }
+    },
+    "26_4": {
+      "question_id": "26_4",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 249,
+          "percentage": 23.18
+        },
+        "2": {
+          "student_count": 327,
+          "percentage": 30.45
+        },
+        "3": {
+          "student_count": 272,
+          "percentage": 25.33
+        },
+        "4": {
+          "student_count": 151,
+          "percentage": 14.06
+        },
+        "5": {
+          "student_count": 75,
+          "percentage": 6.98
+        }
+      }
+    },
+    "26_5": {
+      "question_id": "26_5",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 289,
+          "percentage": 26.91
+        },
+        "2": {
+          "student_count": 261,
+          "percentage": 24.3
+        },
+        "3": {
+          "student_count": 232,
+          "percentage": 21.6
+        },
+        "4": {
+          "student_count": 202,
+          "percentage": 18.81
+        },
+        "5": {
+          "student_count": 90,
+          "percentage": 8.38
+        }
+      }
+    },
+    "26_6": {
+      "question_id": "26_6",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 294,
+          "percentage": 27.37
+        },
+        "2": {
+          "student_count": 360,
+          "percentage": 33.52
+        },
+        "3": {
+          "student_count": 228,
+          "percentage": 21.23
+        },
+        "4": {
+          "student_count": 123,
+          "percentage": 11.45
+        },
+        "5": {
+          "student_count": 69,
+          "percentage": 6.42
+        }
+      }
+    },
+    "26_7": {
+      "question_id": "26_7",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 322,
+          "percentage": 29.98
+        },
+        "2": {
+          "student_count": 376,
+          "percentage": 35.01
+        },
+        "3": {
+          "student_count": 200,
+          "percentage": 18.62
+        },
+        "4": {
+          "student_count": 107,
+          "percentage": 9.96
+        },
+        "5": {
+          "student_count": 69,
+          "percentage": 6.42
+        }
+      }
+    },
+    "27_1": {
+      "question_id": "27_1",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 277,
+          "percentage": 25.79
+        },
+        "2": {
+          "student_count": 291,
+          "percentage": 27.09
+        },
+        "3": {
+          "student_count": 235,
+          "percentage": 21.88
+        },
+        "4": {
+          "student_count": 189,
+          "percentage": 17.6
+        },
+        "5": {
+          "student_count": 82,
+          "percentage": 7.64
+        }
+      }
+    },
+    "27_2": {
+      "question_id": "27_2",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 235,
+          "percentage": 21.88
+        },
+        "2": {
+          "student_count": 474,
+          "percentage": 44.13
+        },
+        "3": {
+          "student_count": 185,
+          "percentage": 17.23
+        },
+        "4": {
+          "student_count": 117,
+          "percentage": 10.89
+        },
+        "5": {
+          "student_count": 63,
+          "percentage": 5.87
+        }
+      }
+    },
+    "27_3": {
+      "question_id": "27_3",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 311,
+          "percentage": 28.96
+        },
+        "2": {
+          "student_count": 252,
+          "percentage": 23.46
+        },
+        "3": {
+          "student_count": 212,
+          "percentage": 19.74
+        },
+        "4": {
+          "student_count": 220,
+          "percentage": 20.48
+        },
+        "5": {
+          "student_count": 79,
+          "percentage": 7.36
+        }
+      }
+    },
+    "27_4": {
+      "question_id": "27_4",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 340,
+          "percentage": 31.66
+        },
+        "2": {
+          "student_count": 324,
+          "percentage": 30.17
+        },
+        "3": {
+          "student_count": 219,
+          "percentage": 20.39
+        },
+        "4": {
+          "student_count": 126,
+          "percentage": 11.73
+        },
+        "5": {
+          "student_count": 65,
+          "percentage": 6.05
+        }
+      }
+    },
+    "27_5": {
+      "question_id": "27_5",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 327,
+          "percentage": 30.45
+        },
+        "2": {
+          "student_count": 264,
+          "percentage": 24.58
+        },
+        "3": {
+          "student_count": 229,
+          "percentage": 21.32
+        },
+        "4": {
+          "student_count": 177,
+          "percentage": 16.48
+        },
+        "5": {
+          "student_count": 77,
+          "percentage": 7.17
+        }
+      }
+    },
+    "27_6": {
+      "question_id": "27_6",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 325,
+          "percentage": 30.26
+        },
+        "2": {
+          "student_count": 358,
+          "percentage": 33.33
+        },
+        "3": {
+          "student_count": 221,
+          "percentage": 20.58
+        },
+        "4": {
+          "student_count": 108,
+          "percentage": 10.06
+        },
+        "5": {
+          "student_count": 62,
+          "percentage": 5.77
+        }
+      }
+    },
+    "27_7": {
+      "question_id": "27_7",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 398,
+          "percentage": 37.06
+        },
+        "2": {
+          "student_count": 323,
+          "percentage": 30.07
+        },
+        "3": {
+          "student_count": 197,
+          "percentage": 18.34
+        },
+        "4": {
+          "student_count": 93,
+          "percentage": 8.66
+        },
+        "5": {
+          "student_count": 63,
+          "percentage": 5.87
+        }
+      }
+    },
+    "28_1": {
+      "question_id": "28_1",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 36,
+          "percentage": 3.35
+        },
+        "2": {
+          "student_count": 15,
+          "percentage": 1.4
+        },
+        "3": {
+          "student_count": 24,
+          "percentage": 2.23
+        },
+        "4": {
+          "student_count": 47,
+          "percentage": 4.38
+        },
+        "5": {
+          "student_count": 163,
+          "percentage": 15.18
+        },
+        "6": {
+          "student_count": 123,
+          "percentage": 11.45
+        },
+        "7": {
+          "student_count": 132,
+          "percentage": 12.29
+        },
+        "8": {
+          "student_count": 189,
+          "percentage": 17.6
+        },
+        "9": {
+          "student_count": 102,
+          "percentage": 9.5
+        },
+        "10": {
+          "student_count": 243,
+          "percentage": 22.63
+        }
+      }
+    },
+    "28_2": {
+      "question_id": "28_2",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 23,
+          "percentage": 2.14
+        },
+        "2": {
+          "student_count": 6,
+          "percentage": 0.56
+        },
+        "3": {
+          "student_count": 13,
+          "percentage": 1.21
+        },
+        "4": {
+          "student_count": 20,
+          "percentage": 1.86
+        },
+        "5": {
+          "student_count": 80,
+          "percentage": 7.45
+        },
+        "6": {
+          "student_count": 53,
+          "percentage": 4.93
+        },
+        "7": {
+          "student_count": 79,
+          "percentage": 7.36
+        },
+        "8": {
+          "student_count": 150,
+          "percentage": 13.97
+        },
+        "9": {
+          "student_count": 133,
+          "percentage": 12.38
+        },
+        "10": {
+          "student_count": 517,
+          "percentage": 48.14
+        }
+      }
+    },
+    "28_3": {
+      "question_id": "28_3",
+      "scale_level": null,
+      "options": {
+        "1": {
+          "student_count": 19,
+          "percentage": 1.77
+        },
+        "2": {
+          "student_count": 15,
+          "percentage": 1.4
+        },
+        "3": {
+          "student_count": 22,
+          "percentage": 2.05
+        },
+        "4": {
+          "student_count": 19,
+          "percentage": 1.77
+        },
+        "5": {
+          "student_count": 92,
+          "percentage": 8.57
+        },
+        "6": {
+          "student_count": 75,
+          "percentage": 6.98
+        },
+        "7": {
+          "student_count": 94,
+          "percentage": 8.75
+        },
+        "8": {
+          "student_count": 153,
+          "percentage": 14.25
+        },
+        "9": {
+          "student_count": 186,
+          "percentage": 17.32
+        },
+        "10": {
+          "student_count": 399,
+          "percentage": 37.15
+        }
+      }
+    }
+  }
+}

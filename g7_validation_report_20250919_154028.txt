@@ -1,0 +1,50 @@
+
+G7-2025 批次数据验证报告
+=====================================
+验证时间: 2025-09-19 15:40:28
+批次代码: G7-2025
+
+验证结果概览:
+
+1. 数据一致性验证:
+   - 学校数量匹配: ❌
+   - 汇总级别: 2 种
+   - 数据版本一致: ✅
+   - 时间戳有效: ✅
+   - 重复记录: 0 个
+
+2. 核心指标验证:
+   - 总学校数: 41
+   - 平均分有效: ❌
+   - 等级分布有效: ❌
+   - 科目数量: 0
+
+3. API接口验证:
+   - 区域API: error
+     (0.00s)
+   - 学校API: unknown
+     (0.00s)
+   - 问卷API: unknown
+     (0.00s)
+
+4. 业务逻辑验证:
+   - 计算准确性: 0.0%
+     (0/0)
+   - 阈值合规性: 0.0%
+     (0/0)
+
+问题汇总:
+错误 (6 个):
+  ❌     学校数量不匹配: 区域级1, 学校级41
+  ❌ 核心指标验证失败: 'list' object has no attribute 'items'
+  ❌     区域API请求失败: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/v12/batch/G7-2025/regional (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002A1E322B770>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+  ❌     学校API请求失败: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/v12/batch/G7-2025/school/5001 (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002A1E32579D0>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+  ❌     问卷API请求失败: HTTPConnectionPool(host='localhost', port=8000): Max retries exceeded with url: /api/v12/batch/G7-2025/questionnaire (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002A1E328C2D0>: Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。'))
+  ❌ 业务逻辑验证失败: 'list' object has no attribute 'items'
+
+警告 (2 个):
+  ⚠️      学校ID格式问题: 41 个
+  ⚠️    备份表不存在，跳过对比
+
+总体结论: ❌ 验证失败
+发现 6 个错误，建议修复后重新验证。

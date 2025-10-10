@@ -1,0 +1,59 @@
+
+G7-2025 汇聚重启预检查总结报告
+=====================================
+开始时间: 2025-09-19 15:01:18
+结束时间: 2025-09-19 15:01:43
+总耗时: 0:00:25
+
+检查结果概览:
+- 总检查项: 5
+- 成功项目: 2
+- 失败项目: 3
+- 成功率: 40.0%
+
+详细结果:
+- old_pipeline_check: ❌ 失败 (3.4s)
+- disk_space_check: ❌ 失败 (1.9s)
+- db_locks_check: ✅ 通过 (1.9s)
+- backup: ✅ 通过 (0.3s)
+- validation: ❌ 失败 (15.9s)
+
+错误汇总 (5 个):
+-   ❌ check_no_active_old_pipeline.py 执行失败 (返回码: 3)
+-   ❌ check_disk_space.py 执行失败 (返回码: 1)
+-   错误输出: INFO:app.database.cache:Redis client connected successfully
+ERROR:app.database.connection:Database transaction error: unsupported operand type(s) for *: 'decimal.Decimal' and 'float'
+
+-   ❌ validate_g7_data.py 执行失败 (返回码: 1)
+-   错误输出: INFO:app.database.cache:Redis client connected successfully
+ERROR:app.database.connection:Database transaction error: 'list' object has no attribute 'items'
+ERROR:app.database.connection:Database transaction error: 'list' object has no attribute 'items'
+
+
+警告汇总 (23 个):
+-   执行SQL语句失败: Textual SQL expression '-- G7-2025 批次关键表简单备份脚本（UT...' should be explicitly declared as text('-- G7-2025 批次关键表简单备份脚本（UT...')
+-   执行SQL语句失败: Textual SQL expression 'SET @backup_timestamp := ...' should be explicitly declared as text('SET @backup_timestamp := ...')
+-   执行SQL语句失败: Textual SQL expression '-- 0) 记录备份任务\nCREATE TABLE...' should be explicitly declared as text('-- 0) 记录备份任务\nCREATE TABLE...')
+-   执行SQL语句失败: Textual SQL expression 'INSERT INTO backup_record...' should be explicitly declared as text('INSERT INTO backup_record...')
+-   执行SQL语句失败: Textual SQL expression 'SET @backup_id := LAST_IN...' should be explicitly declared as text('SET @backup_id := LAST_IN...')
+-   执行SQL语句失败: Textual SQL expression '-- 1) 备份 statistical_aggr...' should be explicitly declared as text('-- 1) 备份 statistical_aggr...')
+-   执行SQL语句失败: Textual SQL expression 'CREATE TABLE IF NOT EXIST...' should be explicitly declared as text('CREATE TABLE IF NOT EXIST...')
+-   执行SQL语句失败: Textual SQL expression 'DELETE FROM statistical_a...' should be explicitly declared as text('DELETE FROM statistical_a...')
+-   执行SQL语句失败: Textual SQL expression 'INSERT INTO statistical_a...' should be explicitly declared as text('INSERT INTO statistical_a...')
+-   执行SQL语句失败: Textual SQL expression 'SET @stats_count := ROW_C...' should be explicitly declared as text('SET @stats_count := ROW_C...')
+-   执行SQL语句失败: Textual SQL expression '-- 2) 备份 school_master_da...' should be explicitly declared as text('-- 2) 备份 school_master_da...')
+-   执行SQL语句失败: Textual SQL expression 'CREATE TABLE IF NOT EXIST...' should be explicitly declared as text('CREATE TABLE IF NOT EXIST...')
+-   执行SQL语句失败: Textual SQL expression 'DELETE FROM school_master...' should be explicitly declared as text('DELETE FROM school_master...')
+-   执行SQL语句失败: Textual SQL expression 'INSERT INTO school_master...' should be explicitly declared as text('INSERT INTO school_master...')
+-   执行SQL语句失败: Textual SQL expression 'SET @school_count := ROW_...' should be explicitly declared as text('SET @school_count := ROW_...')
+-   执行SQL语句失败: Textual SQL expression '-- 3) 备份 grade_aggregatio...' should be explicitly declared as text('-- 3) 备份 grade_aggregatio...')
+-   执行SQL语句失败: Textual SQL expression 'CREATE TABLE IF NOT EXIST...' should be explicitly declared as text('CREATE TABLE IF NOT EXIST...')
+-   执行SQL语句失败: Textual SQL expression 'DELETE FROM grade_aggrega...' should be explicitly declared as text('DELETE FROM grade_aggrega...')
+-   执行SQL语句失败: Textual SQL expression 'INSERT INTO grade_aggrega...' should be explicitly declared as text('INSERT INTO grade_aggrega...')
+-   执行SQL语句失败: Textual SQL expression 'SET @grade_count := ROW_C...' should be explicitly declared as text('SET @grade_count := ROW_C...')
+-   执行SQL语句失败: Textual SQL expression '-- 4) 汇总与收尾\nSET @records_...' should be explicitly declared as text('-- 4) 汇总与收尾\nSET @records_...')
+-   执行SQL语句失败: Textual SQL expression 'UPDATE backup_records\nSET...' should be explicitly declared as text('UPDATE backup_records\nSET...')
+-   执行输出语句失败: Textual SQL expression "SELECT 'BACKUP COMPLETED'..." should be explicitly declared as text("SELECT 'BACKUP COMPLETED'...")
+
+总体结论: ❌ 预检查未完全通过
+发现 3 个失败项目，建议修复后重新执行预检查。

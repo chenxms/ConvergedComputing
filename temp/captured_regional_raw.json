@@ -1,0 +1,3906 @@
+{
+  "academic_subjects": {
+    "AI交互": {
+      "subject_name": "AI交互",
+      "max_score": 23.0,
+      "school_stats": {
+        "avg_score": 9.175021987686895,
+        "std_score": 3.8957780759814598,
+        "min_score": 1.0,
+        "max_score_achieved": 19.5,
+        "student_count": 1137,
+        "score_rate": 0.3989139994646476
+      },
+      "grade_distribution": {
+        "excellent": {
+          "count": 0,
+          "percentage": 0.0
+        },
+        "good": {
+          "count": 47,
+          "percentage": 0.04133685136323659
+        },
+        "pass": {
+          "count": 95,
+          "percentage": 0.08355321020228672
+        },
+        "fail": {
+          "count": 995,
+          "percentage": 0.8751099384344767
+        }
+      },
+      "statistical_indicators": {
+        "difficulty_coefficient": 0.3989139994646476,
+        "pass_rate": 0.1248900615655233,
+        "excellent_rate": 0.0,
+        "average_score_rate": 0.3989139994646476,
+        "discrimination_index": 0.42036089798238147,
+        "discrimination_interpretation": "excellent"
+      },
+      "percentiles": {
+        "P10": 4.0,
+        "P25": 6.5,
+        "P50": 9.0,
+        "P75": 12.0,
+        "P90": 14.0,
+        "IQR": 5.5
+      },
+      "dimensions": {
+        "AI-wtsb": {
+          "dimension_code": "AI-wtsb",
+          "dimension_name": "问题识别",
+          "max_score": 2.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "问题识别",
+            "avg_score": 1.1899736147757256,
+            "std_score": 0.9433634476561139,
+            "min_score": 0.0,
+            "max_score_achieved": 2.0,
+            "student_count": 1137,
+            "score_rate": 0.5949868073878628
+          },
+          "percentiles": {
+            "P10": 0.0,
+            "P25": 0.0,
+            "P50": 2.0,
+            "P75": 2.0,
+            "P90": 2.0,
+            "IQR": 2.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.5949868073878628,
+            "pass_rate": 0.5576077396657871,
+            "excellent_rate": 0.5576077396657871,
+            "average_score_rate": 0.5949868073878628
+          },
+          "discrimination": {
+            "discrimination_index": 1.0,
+            "interpretation": "excellent"
+          }
+        },
+        "AI-xfpg": {
+          "dimension_code": "AI-xfpg",
+          "dimension_name": "想法评估",
+          "max_score": 8.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "想法评估",
+            "avg_score": 3.4547053649956023,
+            "std_score": 1.892097475727942,
+            "min_score": 0.0,
+            "max_score_achieved": 8.0,
+            "student_count": 1137,
+            "score_rate": 0.4318381706244503
+          },
+          "percentiles": {
+            "P10": 0.5,
+            "P25": 2.0,
+            "P50": 3.5,
+            "P75": 4.5,
+            "P90": 6.0,
+            "IQR": 2.5
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.4318381706244503,
+            "pass_rate": 0.24802110817941952,
+            "excellent_rate": 0.030782761653474055,
+            "average_score_rate": 0.4318381706244503
+          },
+          "discrimination": {
+            "discrimination_index": 0.5900735294117647,
+            "interpretation": "excellent"
+          }
+        },
+        "AI-xfsc-dcx": {
+          "dimension_code": "AI-xfsc-dcx",
+          "dimension_name": "想法生成-独创性",
+          "max_score": 2.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "想法生成-独创性",
+            "avg_score": 0.39577836411609496,
+            "std_score": 0.5873518214000013,
+            "min_score": 0.0,
+            "max_score_achieved": 2.0,
+            "student_count": 1137,
+            "score_rate": 0.19788918205804748
+          },
+          "percentiles": {
+            "P10": 0.0,
+            "P25": 0.0,
+            "P50": 0.0,
+            "P75": 1.0,
+            "P90": 1.0,
+            "IQR": 1.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.19788918205804748,
+            "pass_rate": 0.052770448548812667,
+            "excellent_rate": 0.052770448548812667,
+            "average_score_rate": 0.19788918205804748
+          },
+          "discrimination": {
+            "discrimination_index": 0.5980392156862745,
+            "interpretation": "excellent"
+          }
+        },
+        "AI-xfsc-lcx": {
+          "dimension_code": "AI-xfsc-lcx",
+          "dimension_name": "想法生成-流畅性",
+          "max_score": 2.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "想法生成-流畅性",
+            "avg_score": 0.4080914687774846,
+            "std_score": 0.6085117773514278,
+            "min_score": 0.0,
+            "max_score_achieved": 2.0,
+            "student_count": 1137,
+            "score_rate": 0.2040457343887423
+          },
+          "percentiles": {
+            "P10": 0.0,
+            "P25": 0.0,
+            "P50": 0.0,
+            "P75": 1.0,
+            "P90": 1.0,
+            "IQR": 1.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.2040457343887423,
+            "pass_rate": 0.06420404573438875,
+            "excellent_rate": 0.06420404573438875,
+            "average_score_rate": 0.2040457343887423
+          },
+          "discrimination": {
+            "discrimination_index": 0.619281045751634,
+            "interpretation": "excellent"
+          }
+        },
+        "AI-xfsc-lhx": {
+          "dimension_code": "AI-xfsc-lhx",
+          "dimension_name": "想法生成-灵活性",
+          "max_score": 2.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "想法生成-灵活性",
+            "avg_score": 0.12928759894459102,
+            "std_score": 0.38225922523520145,
+            "min_score": 0.0,
+            "max_score_achieved": 2.0,
+            "student_count": 1137,
+            "score_rate": 0.06464379947229551
+          },
+          "percentiles": {
+            "P10": 0.0,
+            "P25": 0.0,
+            "P50": 0.0,
+            "P75": 0.0,
+            "P90": 1.0,
+            "IQR": 0.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.06464379947229551,
+            "pass_rate": 0.016710642040457344,
+            "excellent_rate": 0.016710642040457344,
+            "average_score_rate": 0.06464379947229551
+          },
+          "discrimination": {
+            "discrimination_index": 0.24019607843137256,
+            "interpretation": "acceptable"
+          }
+        },
+        "AI-xxtqycl": {
+          "dimension_code": "AI-xxtqycl",
+          "dimension_name": "信息提取与处理",
+          "max_score": 9.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "信息提取与处理",
+            "avg_score": 3.5971855760773965,
+            "std_score": 1.2903730059872223,
+            "min_score": 0.0,
+            "max_score_achieved": 7.0,
+            "student_count": 1137,
+            "score_rate": 0.39968728623082184
+          },
+          "percentiles": {
+            "P10": 2.0,
+            "P25": 3.0,
+            "P50": 4.0,
+            "P75": 4.0,
+            "P90": 5.0,
+            "IQR": 1.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.39968728623082184,
+            "pass_rate": 0.048372911169744945,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.39968728623082184
+          },
+          "discrimination": {
+            "discrimination_index": 0.3460421205519244,
+            "interpretation": "good"
+          }
+        }
+      }
+    },
+    "历史": {
+      "subject_name": "历史",
+      "max_score": 100.0,
+      "school_stats": {
+        "avg_score": 65.01702257010412,
+        "std_score": 19.450437545776367,
+        "min_score": 2.5,
+        "max_score_achieved": 100.0,
+        "student_count": 13159,
+        "score_rate": 0.6501702257010412
+      },
+      "grade_distribution": {
+        "excellent": {
+          "count": 1750,
+          "percentage": 0.13298882893836916
+        },
+        "good": {
+          "count": 4671,
+          "percentage": 0.3549661828406414
+        },
+        "pass": {
+          "count": 2422,
+          "percentage": 0.18405653925070295
+        },
+        "fail": {
+          "count": 4316,
+          "percentage": 0.3279884489702865
+        }
+      },
+      "statistical_indicators": {
+        "difficulty_coefficient": 0.6501702257010412,
+        "pass_rate": 0.6720115510297135,
+        "excellent_rate": 0.13298882893836916,
+        "average_score_rate": 0.6501702257010412,
+        "discrimination_index": 0.46635135135135136,
+        "discrimination_interpretation": "excellent"
+      },
+      "percentiles": {
+        "P10": 36.0,
+        "P25": 54.0,
+        "P50": 69.0,
+        "P75": 80.0,
+        "P90": 86.5,
+        "IQR": 26.0
+      },
+      "dimensions": {
+        "LS-jgqh": {
+          "dimension_code": "LS-jgqh",
+          "dimension_name": "家国情怀",
+          "max_score": 113.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "家国情怀",
+            "avg_score": 16.833801960635306,
+            "std_score": 6.163690090179443,
+            "min_score": 0.0,
+            "max_score_achieved": 28.0,
+            "student_count": 13159,
+            "score_rate": 0.14897169876668412
+          },
+          "percentiles": {
+            "P10": 8.0,
+            "P25": 13.0,
+            "P50": 18.0,
+            "P75": 21.5,
+            "P90": 24.0,
+            "IQR": 8.5
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.14897169876668412,
+            "pass_rate": 0.0,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.14897169876668412
+          },
+          "discrimination": {
+            "discrimination_index": 0.13348207167344334,
+            "interpretation": "poor"
+          }
+        },
+        "LS-lsjs": {
+          "dimension_code": "LS-lsjs",
+          "dimension_name": "历史解释",
+          "max_score": 161.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "历史解释",
+            "avg_score": 42.66676799148871,
+            "std_score": 13.623836517333984,
+            "min_score": 0.0,
+            "max_score_achieved": 67.0,
+            "student_count": 13159,
+            "score_rate": 0.26501098131359446
+          },
+          "percentiles": {
+            "P10": 22.5,
+            "P25": 35.5,
+            "P50": 45.5,
+            "P75": 53.0,
+            "P90": 57.5,
+            "IQR": 17.5
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.26501098131359446,
+            "pass_rate": 0.0,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.26501098131359446
+          },
+          "discrimination": {
+            "discrimination_index": 0.2014567945274467,
+            "interpretation": "acceptable"
+          }
+        },
+        "LS-skgn": {
+          "dimension_code": "LS-skgn",
+          "dimension_name": "时空观念",
+          "max_score": 113.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "时空观念",
+            "avg_score": 36.315829470324495,
+            "std_score": 13.104636192321777,
+            "min_score": 0.0,
+            "max_score_achieved": 61.0,
+            "student_count": 13159,
+            "score_rate": 0.3213790218612787
+          },
+          "percentiles": {
+            "P10": 16.5,
+            "P25": 29.0,
+            "P50": 39.0,
+            "P75": 46.0,
+            "P90": 51.0,
+            "IQR": 17.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.3213790218612787,
+            "pass_rate": 0.0,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.3213790218612787
+          },
+          "discrimination": {
+            "discrimination_index": 0.28001923383560556,
+            "interpretation": "acceptable"
+          }
+        },
+        "LS-slzs": {
+          "dimension_code": "LS-slzs",
+          "dimension_name": "史料实证",
+          "max_score": 115.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "史料实证",
+            "avg_score": 28.93582339083517,
+            "std_score": 9.076892852783203,
+            "min_score": 0.0,
+            "max_score_achieved": 45.0,
+            "student_count": 13159,
+            "score_rate": 0.25161585557247973
+          },
+          "percentiles": {
+            "P10": 16.0,
+            "P25": 23.5,
+            "P50": 30.5,
+            "P75": 35.5,
+            "P90": 39.5,
+            "IQR": 12.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.25161585557247973,
+            "pass_rate": 0.0,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.25161585557247973
+          },
+          "discrimination": {
+            "discrimination_index": 0.19119907951429693,
+            "interpretation": "poor"
+          }
+        },
+        "LS-wwsg": {
+          "dimension_code": "LS-wwsg",
+          "dimension_name": "唯物史观",
+          "max_score": 50.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "唯物史观",
+            "avg_score": 7.084504901588266,
+            "std_score": 2.3997459411621094,
+            "min_score": 0.0,
+            "max_score_achieved": 9.0,
+            "student_count": 13159,
+            "score_rate": 0.14169009803176533
+          },
+          "percentiles": {
+            "P10": 3.0,
+            "P25": 6.0,
+            "P50": 9.0,
+            "P75": 9.0,
+            "P90": 9.0,
+            "IQR": 3.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.14169009803176533,
+            "pass_rate": 0.0,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.14169009803176533
+          },
+          "discrimination": {
+            "discrimination_index": 0.09822635135135135,
+            "interpretation": "poor"
+          }
+        }
+      }
+    },
+    "地理": {
+      "subject_name": "地理",
+      "max_score": 100.0,
+      "school_stats": {
+        "avg_score": 60.62992096063231,
+        "std_score": 19.93358039855957,
+        "min_score": 2.0,
+        "max_score_achieved": 99.5,
+        "student_count": 13158,
+        "score_rate": 0.6062992096063231
+      },
+      "grade_distribution": {
+        "excellent": {
+          "count": 1406,
+          "percentage": 0.10685514515883873
+        },
+        "good": {
+          "count": 3543,
+          "percentage": 0.269265845873233
+        },
+        "pass": {
+          "count": 2375,
+          "percentage": 0.1804985560115519
+        },
+        "fail": {
+          "count": 5834,
+          "percentage": 0.44338045295637635
+        }
+      },
+      "statistical_indicators": {
+        "difficulty_coefficient": 0.6062992096063231,
+        "pass_rate": 0.5566195470436236,
+        "excellent_rate": 0.10685514515883873,
+        "average_score_rate": 0.6062992096063231,
+        "discrimination_index": 0.4925098536036036,
+        "discrimination_interpretation": "excellent"
+      },
+      "percentiles": {
+        "P10": 32.0,
+        "P25": 47.5,
+        "P50": 63.0,
+        "P75": 76.5,
+        "P90": 85.0,
+        "IQR": 29.0
+      },
+      "dimensions": {
+        "DL-qyrz": {
+          "dimension_code": "DL-qyrz",
+          "dimension_name": "区域认知",
+          "max_score": 84.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "区域认知",
+            "avg_score": 49.53735370117039,
+            "std_score": 17.4493465423584,
+            "min_score": 0.0,
+            "max_score_achieved": 83.5,
+            "student_count": 13158,
+            "score_rate": 0.5897304012044093
+          },
+          "percentiles": {
+            "P10": 24.5,
+            "P25": 38.0,
+            "P50": 51.5,
+            "P75": 63.5,
+            "P90": 71.0,
+            "IQR": 25.5
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.5897304012044093,
+            "pass_rate": 0.524547803617571,
+            "excellent_rate": 0.09515123879008967,
+            "average_score_rate": 0.5897304012044093
+          },
+          "discrimination": {
+            "discrimination_index": 0.5142676158301158,
+            "interpretation": "excellent"
+          }
+        },
+        "DL-rdxtg": {
+          "dimension_code": "DL-rdxtg",
+          "dimension_name": "人地协调观",
+          "max_score": 62.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "人地协调观",
+            "avg_score": 38.46044231646147,
+            "std_score": 13.002650260925293,
+            "min_score": 0.0,
+            "max_score_achieved": 62.0,
+            "student_count": 13158,
+            "score_rate": 0.6203297147816366
+          },
+          "percentiles": {
+            "P10": 20.0,
+            "P25": 30.0,
+            "P50": 40.5,
+            "P75": 49.0,
+            "P90": 54.0,
+            "IQR": 19.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.6203297147816366,
+            "pass_rate": 0.583219334245326,
+            "excellent_rate": 0.13801489588083296,
+            "average_score_rate": 0.6203297147816366
+          },
+          "discrimination": {
+            "discrimination_index": 0.5153298459750073,
+            "interpretation": "excellent"
+          }
+        },
+        "DL-zhsw": {
+          "dimension_code": "DL-zhsw",
+          "dimension_name": "综合思维",
+          "max_score": 62.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "综合思维",
+            "avg_score": 36.606817145462834,
+            "std_score": 13.66805362701416,
+            "min_score": 0.0,
+            "max_score_achieved": 62.0,
+            "student_count": 13158,
+            "score_rate": 0.5904325346042393
+          },
+          "percentiles": {
+            "P10": 17.0,
+            "P25": 27.5,
+            "P50": 38.5,
+            "P75": 47.5,
+            "P90": 53.0,
+            "IQR": 20.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.5904325346042393,
+            "pass_rate": 0.53077975376197,
+            "excellent_rate": 0.11209910320717434,
+            "average_score_rate": 0.5904325346042393
+          },
+          "discrimination": {
+            "discrimination_index": 0.5438689697762278,
+            "interpretation": "excellent"
+          }
+        }
+      }
+    },
+    "政治": {
+      "subject_name": "政治",
+      "max_score": 100.0,
+      "school_stats": {
+        "avg_score": 70.61518881543955,
+        "std_score": 15.463324546813965,
+        "min_score": 3.0,
+        "max_score_achieved": 98.5,
+        "student_count": 13161,
+        "score_rate": 0.7061518881543956
+      },
+      "grade_distribution": {
+        "excellent": {
+          "count": 2684,
+          "percentage": 0.20393587113441228
+        },
+        "good": {
+          "count": 4881,
+          "percentage": 0.37086847503989057
+        },
+        "pass": {
+          "count": 2389,
+          "percentage": 0.18152116100600257
+        },
+        "fail": {
+          "count": 3207,
+          "percentage": 0.24367449281969455
+        }
+      },
+      "statistical_indicators": {
+        "difficulty_coefficient": 0.7061518881543956,
+        "pass_rate": 0.7563255071803054,
+        "excellent_rate": 0.20393587113441228,
+        "average_score_rate": 0.7061518881543956,
+        "discrimination_index": 0.3736490289895862,
+        "discrimination_interpretation": "good"
+      },
+      "percentiles": {
+        "P10": 49.0,
+        "P25": 60.0,
+        "P50": 73.5,
+        "P75": 83.0,
+        "P90": 88.0,
+        "IQR": 23.0
+      },
+      "dimensions": {
+        "ZZ-ddxy": {
+          "dimension_code": "ZZ-ddxy",
+          "dimension_name": "道德修养",
+          "max_score": 30.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "道德修养",
+            "avg_score": 18.722817415090038,
+            "std_score": 3.8940844535827637,
+            "min_score": 0.0,
+            "max_score_achieved": 24.0,
+            "student_count": 13161,
+            "score_rate": 0.6240939138363346
+          },
+          "percentiles": {
+            "P10": 15.0,
+            "P25": 15.0,
+            "P50": 18.0,
+            "P75": 21.0,
+            "P90": 24.0,
+            "IQR": 6.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.6240939138363346,
+            "pass_rate": 0.7446242686725932,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.6240939138363346
+          },
+          "discrimination": {
+            "discrimination_index": 0.30557275541795664,
+            "interpretation": "good"
+          }
+        },
+        "ZZ-fzgn": {
+          "dimension_code": "ZZ-fzgn",
+          "dimension_name": "法治观念",
+          "max_score": 121.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "法治观念",
+            "avg_score": 18.044639465086238,
+            "std_score": 4.891610145568848,
+            "min_score": 0.0,
+            "max_score_achieved": 27.0,
+            "student_count": 13161,
+            "score_rate": 0.14912925177757222
+          },
+          "percentiles": {
+            "P10": 11.5,
+            "P25": 15.0,
+            "P50": 18.5,
+            "P75": 22.0,
+            "P90": 24.0,
+            "IQR": 7.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.14912925177757222,
+            "pass_rate": 0.0,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.14912925177757222
+          },
+          "discrimination": {
+            "discrimination_index": 0.0995340917813604,
+            "interpretation": "poor"
+          }
+        },
+        "ZZ-jqrg": {
+          "dimension_code": "ZZ-jqrg",
+          "dimension_name": "健全人格",
+          "max_score": 65.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "健全人格",
+            "avg_score": 47.48719702150292,
+            "std_score": 9.177037239074707,
+            "min_score": 0.0,
+            "max_score_achieved": 62.0,
+            "student_count": 13161,
+            "score_rate": 0.7305722618692757
+          },
+          "percentiles": {
+            "P10": 35.0,
+            "P25": 41.5,
+            "P50": 49.5,
+            "P75": 54.5,
+            "P90": 57.5,
+            "IQR": 13.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.7305722618692757,
+            "pass_rate": 0.8268368664995062,
+            "excellent_rate": 0.22065192614542967,
+            "average_score_rate": 0.7305722618692757
+          },
+          "discrimination": {
+            "discrimination_index": 0.33701314165710455,
+            "interpretation": "good"
+          }
+        },
+        "ZZ-zrys": {
+          "dimension_code": "ZZ-zrys",
+          "dimension_name": "责任意识",
+          "max_score": 147.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "责任意识",
+            "avg_score": 41.964022490692194,
+            "std_score": 10.574273109436035,
+            "min_score": 0.0,
+            "max_score_achieved": 61.5,
+            "student_count": 13161,
+            "score_rate": 0.2854695407530081
+          },
+          "percentiles": {
+            "P10": 27.5,
+            "P25": 34.5,
+            "P50": 44.0,
+            "P75": 50.5,
+            "P90": 54.0,
+            "IQR": 16.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.2854695407530081,
+            "pass_rate": 0.0,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.2854695407530081
+          },
+          "discrimination": {
+            "discrimination_index": 0.17515905883884653,
+            "interpretation": "poor"
+          }
+        },
+        "ZZ-zzrt": {
+          "dimension_code": "ZZ-zzrt",
+          "dimension_name": "政治认同",
+          "max_score": 66.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "政治认同",
+            "avg_score": 12.605349137603525,
+            "std_score": 4.183079242706299,
+            "min_score": 0.0,
+            "max_score_achieved": 20.0,
+            "student_count": 13161,
+            "score_rate": 0.19099013844853827
+          },
+          "percentiles": {
+            "P10": 6.5,
+            "P25": 10.0,
+            "P50": 13.0,
+            "P75": 16.0,
+            "P90": 17.5,
+            "IQR": 6.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.19099013844853827,
+            "pass_rate": 0.0,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.19099013844853827
+          },
+          "discrimination": {
+            "discrimination_index": 0.1556153997049015,
+            "interpretation": "poor"
+          }
+        }
+      }
+    },
+    "数学": {
+      "subject_name": "数学",
+      "max_score": 150.0,
+      "school_stats": {
+        "avg_score": 87.36275106512477,
+        "std_score": 33.64616775512695,
+        "min_score": 0.5,
+        "max_score_achieved": 149.5,
+        "student_count": 13144,
+        "score_rate": 0.5824183404341651
+      },
+      "grade_distribution": {
+        "excellent": {
+          "count": 1159,
+          "percentage": 0.08817711503347535
+        },
+        "good": {
+          "count": 3812,
+          "percentage": 0.2900182592818016
+        },
+        "pass": {
+          "count": 2311,
+          "percentage": 0.17582166768107121
+        },
+        "fail": {
+          "count": 5862,
+          "percentage": 0.44598295800365184
+        }
+      },
+      "statistical_indicators": {
+        "difficulty_coefficient": 0.5824183404341651,
+        "pass_rate": 0.5540170419963482,
+        "excellent_rate": 0.08817711503347535,
+        "average_score_rate": 0.5824183404341651,
+        "discrimination_index": 0.5546664787673807,
+        "discrimination_interpretation": "excellent"
+      },
+      "percentiles": {
+        "P10": 35.5,
+        "P25": 63.5,
+        "P50": 95.0,
+        "P75": 114.0,
+        "P90": 126.0,
+        "IQR": 50.5
+      },
+      "dimensions": {
+        "SX-cxnl": {
+          "dimension_code": "SX-cxnl",
+          "dimension_name": "抽象能力",
+          "max_score": 21.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "抽象能力",
+            "avg_score": 8.798919659160074,
+            "std_score": 5.584019660949707,
+            "min_score": 0.0,
+            "max_score_achieved": 17.0,
+            "student_count": 13144,
+            "score_rate": 0.4189961742457178
+          },
+          "percentiles": {
+            "P10": 0.0,
+            "P25": 4.0,
+            "P50": 9.0,
+            "P75": 13.0,
+            "P90": 17.0,
+            "IQR": 9.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.4189961742457178,
+            "pass_rate": 0.32402617163724895,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.4189961742457178
+          },
+          "discrimination": {
+            "discrimination_index": 0.6664720566918989,
+            "interpretation": "excellent"
+          }
+        },
+        "SX-cxys": {
+          "dimension_code": "SX-cxys",
+          "dimension_name": "创新意识",
+          "max_score": 6.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "创新意识",
+            "avg_score": 2.188489044430919,
+            "std_score": 2.0084991455078125,
+            "min_score": 0.0,
+            "max_score_achieved": 6.0,
+            "student_count": 13144,
+            "score_rate": 0.36474817407181986
+          },
+          "percentiles": {
+            "P10": 0.0,
+            "P25": 0.0,
+            "P50": 2.0,
+            "P75": 4.0,
+            "P90": 4.0,
+            "IQR": 4.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.36474817407181986,
+            "pass_rate": 0.3902921485088253,
+            "excellent_rate": 0.08117772367620207,
+            "average_score_rate": 0.36474817407181986
+          },
+          "discrimination": {
+            "discrimination_index": 0.7697763998496806,
+            "interpretation": "excellent"
+          }
+        },
+        "SX-jhzg": {
+          "dimension_code": "SX-jhzg",
+          "dimension_name": "几何直观",
+          "max_score": 96.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "几何直观",
+            "avg_score": 20.69480371272063,
+            "std_score": 12.488943099975586,
+            "min_score": 0.0,
+            "max_score_achieved": 45.0,
+            "student_count": 13144,
+            "score_rate": 0.21557087200750658
+          },
+          "percentiles": {
+            "P10": 2.0,
+            "P25": 9.0,
+            "P50": 22.5,
+            "P75": 31.0,
+            "P90": 36.0,
+            "IQR": 22.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.21557087200750658,
+            "pass_rate": 0.0,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.21557087200750658
+          },
+          "discrimination": {
+            "discrimination_index": 0.3270842141112364,
+            "interpretation": "good"
+          }
+        },
+        "SX-kjgn": {
+          "dimension_code": "SX-kjgn",
+          "dimension_name": "空间观念",
+          "max_score": 75.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "空间观念",
+            "avg_score": 29.661252282410224,
+            "std_score": 12.414057731628418,
+            "min_score": 0.0,
+            "max_score_achieved": 57.0,
+            "student_count": 13144,
+            "score_rate": 0.39548336376546966
+          },
+          "percentiles": {
+            "P10": 11.0,
+            "P25": 19.0,
+            "P50": 33.0,
+            "P75": 40.0,
+            "P90": 43.5,
+            "IQR": 21.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.39548336376546966,
+            "pass_rate": 0.06421180766889836,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.39548336376546966
+          },
+          "discrimination": {
+            "discrimination_index": 0.40964487034949265,
+            "interpretation": "excellent"
+          }
+        },
+        "SX-mxgn": {
+          "dimension_code": "SX-mxgn",
+          "dimension_name": "模型观念",
+          "max_score": 28.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "模型观念",
+            "avg_score": 8.100007608034083,
+            "std_score": 5.201061248779297,
+            "min_score": 0.0,
+            "max_score_achieved": 17.0,
+            "student_count": 13144,
+            "score_rate": 0.28928598600121724
+          },
+          "percentiles": {
+            "P10": 0.0,
+            "P25": 4.0,
+            "P50": 9.0,
+            "P75": 12.0,
+            "P90": 15.0,
+            "IQR": 8.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.28928598600121724,
+            "pass_rate": 0.06253804017041996,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.28928598600121724
+          },
+          "discrimination": {
+            "discrimination_index": 0.4711658479626349,
+            "interpretation": "excellent"
+          }
+        },
+        "SX-sjgn": {
+          "dimension_code": "SX-sjgn",
+          "dimension_name": "数据观念",
+          "max_score": 16.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "数据观念",
+            "avg_score": 14.023204503956178,
+            "std_score": 3.292268753051758,
+            "min_score": 0.0,
+            "max_score_achieved": 16.0,
+            "student_count": 13144,
+            "score_rate": 0.8764502814972611
+          },
+          "percentiles": {
+            "P10": 10.0,
+            "P25": 14.0,
+            "P50": 16.0,
+            "P75": 16.0,
+            "P90": 16.0,
+            "IQR": 2.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.8764502814972611,
+            "pass_rate": 0.9095404747413268,
+            "excellent_rate": 0.7557060255629945,
+            "average_score_rate": 0.8764502814972611
+          },
+          "discrimination": {
+            "discrimination_index": 0.386978579481398,
+            "interpretation": "good"
+          }
+        },
+        "SX-tlnl": {
+          "dimension_code": "SX-tlnl",
+          "dimension_name": "推理能力",
+          "max_score": 92.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "推理能力",
+            "avg_score": 34.03210590383445,
+            "std_score": 17.80559730529785,
+            "min_score": 0.0,
+            "max_score_achieved": 72.0,
+            "student_count": 13144,
+            "score_rate": 0.3699141946068962
+          },
+          "percentiles": {
+            "P10": 8.0,
+            "P25": 18.5,
+            "P50": 37.0,
+            "P75": 49.0,
+            "P90": 56.0,
+            "IQR": 30.5
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.3699141946068962,
+            "pass_rate": 0.11305538648813147,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.3699141946068962
+          },
+          "discrimination": {
+            "discrimination_index": 0.48616642566540863,
+            "interpretation": "excellent"
+          }
+        },
+        "SX-ysnl": {
+          "dimension_code": "SX-ysnl",
+          "dimension_name": "运算能力",
+          "max_score": 127.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "运算能力",
+            "avg_score": 27.596089470480827,
+            "std_score": 11.624430656433105,
+            "min_score": 0.0,
+            "max_score_achieved": 47.0,
+            "student_count": 13144,
+            "score_rate": 0.2172920430746522
+          },
+          "percentiles": {
+            "P10": 9.0,
+            "P25": 20.0,
+            "P50": 30.0,
+            "P75": 36.0,
+            "P90": 40.5,
+            "IQR": 16.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.2172920430746522,
+            "pass_rate": 0.0,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.2172920430746522
+          },
+          "discrimination": {
+            "discrimination_index": 0.22459143001713286,
+            "interpretation": "acceptable"
+          }
+        },
+        "SX-yyys": {
+          "dimension_code": "SX-yyys",
+          "dimension_name": "应用意识",
+          "max_score": 78.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "应用意识",
+            "avg_score": 26.838367315885574,
+            "std_score": 14.232900619506836,
+            "min_score": 0.0,
+            "max_score_achieved": 55.0,
+            "student_count": 13144,
+            "score_rate": 0.34408163225494326
+          },
+          "percentiles": {
+            "P10": 6.0,
+            "P25": 15.0,
+            "P50": 28.5,
+            "P75": 39.0,
+            "P90": 45.0,
+            "IQR": 24.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.34408163225494326,
+            "pass_rate": 0.06253804017041996,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.34408163225494326
+          },
+          "discrimination": {
+            "discrimination_index": 0.4590975775445899,
+            "interpretation": "excellent"
+          }
+        }
+      }
+    },
+    "生物": {
+      "subject_name": "生物",
+      "max_score": 100.0,
+      "school_stats": {
+        "avg_score": 60.680208254161286,
+        "std_score": 20.83384132385254,
+        "min_score": 0.5,
+        "max_score_achieved": 100.0,
+        "student_count": 13157,
+        "score_rate": 0.6068020825416128
+      },
+      "grade_distribution": {
+        "excellent": {
+          "count": 1849,
+          "percentage": 0.14053355628182718
+        },
+        "good": {
+          "count": 3088,
+          "percentage": 0.23470395986927112
+        },
+        "pass": {
+          "count": 2099,
+          "percentage": 0.15953484836968915
+        },
+        "fail": {
+          "count": 6121,
+          "percentage": 0.4652276354792126
+        }
+      },
+      "statistical_indicators": {
+        "difficulty_coefficient": 0.6068020825416128,
+        "pass_rate": 0.5347723645207875,
+        "excellent_rate": 0.14053355628182718,
+        "average_score_rate": 0.6068020825416128,
+        "discrimination_index": 0.5185684121621621,
+        "discrimination_interpretation": "excellent"
+      },
+      "percentiles": {
+        "P10": 32.0,
+        "P25": 46.0,
+        "P50": 62.0,
+        "P75": 77.5,
+        "P90": 87.5,
+        "IQR": 31.5
+      },
+      "dimensions": {
+        "SW-kxsw": {
+          "dimension_code": "SW-kxsw",
+          "dimension_name": "科学思维",
+          "max_score": 86.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "科学思维",
+            "avg_score": 51.31561146157939,
+            "std_score": 18.624874114990234,
+            "min_score": 0.0,
+            "max_score_achieved": 86.0,
+            "student_count": 13157,
+            "score_rate": 0.5966931565299929
+          },
+          "percentiles": {
+            "P10": 25.5,
+            "P25": 38.0,
+            "P50": 52.5,
+            "P75": 66.5,
+            "P90": 75.5,
+            "IQR": 28.5
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.5966931565299929,
+            "pass_rate": 0.5163031086113856,
+            "excellent_rate": 0.13323706012008815,
+            "average_score_rate": 0.5966931565299929
+          },
+          "discrimination": {
+            "discrimination_index": 0.5396615729101194,
+            "interpretation": "excellent"
+          }
+        },
+        "SW-kxtj": {
+          "dimension_code": "SW-kxtj",
+          "dimension_name": "科学探究",
+          "max_score": 12.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "科学探究",
+            "avg_score": 8.136087253933267,
+            "std_score": 3.2803425788879395,
+            "min_score": 0.0,
+            "max_score_achieved": 12.0,
+            "student_count": 13157,
+            "score_rate": 0.6780072711611056
+          },
+          "percentiles": {
+            "P10": 3.0,
+            "P25": 6.0,
+            "P50": 9.0,
+            "P75": 11.0,
+            "P90": 12.0,
+            "IQR": 5.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.6780072711611056,
+            "pass_rate": 0.6752299156342632,
+            "excellent_rate": 0.3264421980694687,
+            "average_score_rate": 0.6780072711611056
+          },
+          "discrimination": {
+            "discrimination_index": 0.6624319632132133,
+            "interpretation": "excellent"
+          }
+        },
+        "SW-shzr": {
+          "dimension_code": "SW-shzr",
+          "dimension_name": "社会责任",
+          "max_score": 44.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "社会责任",
+            "avg_score": 29.23508398571103,
+            "std_score": 9.56898307800293,
+            "min_score": 0.0,
+            "max_score_achieved": 44.0,
+            "student_count": 13157,
+            "score_rate": 0.664433726947978
+          },
+          "percentiles": {
+            "P10": 16.0,
+            "P25": 23.0,
+            "P50": 31.0,
+            "P75": 37.0,
+            "P90": 40.0,
+            "IQR": 14.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.664433726947978,
+            "pass_rate": 0.6516683134453143,
+            "excellent_rate": 0.24017633199057536,
+            "average_score_rate": 0.664433726947978
+          },
+          "discrimination": {
+            "discrimination_index": 0.5288601812039311,
+            "interpretation": "excellent"
+          }
+        },
+        "SW-smgn": {
+          "dimension_code": "SW-smgn",
+          "dimension_name": "生命观念",
+          "max_score": 62.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "生命观念",
+            "avg_score": 38.04548909325834,
+            "std_score": 13.454532623291016,
+            "min_score": 0.0,
+            "max_score_achieved": 62.0,
+            "student_count": 13157,
+            "score_rate": 0.6136369208590055
+          },
+          "percentiles": {
+            "P10": 20.0,
+            "P25": 28.0,
+            "P50": 38.5,
+            "P75": 49.0,
+            "P90": 56.0,
+            "IQR": 21.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.6136369208590055,
+            "pass_rate": 0.5329482404803526,
+            "excellent_rate": 0.1661472980162651,
+            "average_score_rate": 0.6136369208590055
+          },
+          "discrimination": {
+            "discrimination_index": 0.542363684248765,
+            "interpretation": "excellent"
+          }
+        }
+      }
+    },
+    "艺术": {
+      "subject_name": "艺术",
+      "max_score": 200.0,
+      "school_stats": {
+        "avg_score": 126.38966580663059,
+        "std_score": 20.339730084697596,
+        "min_score": 41.0,
+        "max_score_achieved": 179.61000061035156,
+        "student_count": 1945,
+        "score_rate": 0.6319483290331529
+      },
+      "grade_distribution": {
+        "excellent": {
+          "count": 34,
+          "percentage": 0.017480719794344474
+        },
+        "good": {
+          "count": 468,
+          "percentage": 0.24061696658097687
+        },
+        "pass": {
+          "count": 686,
+          "percentage": 0.3526992287917738
+        },
+        "fail": {
+          "count": 757,
+          "percentage": 0.3892030848329049
+        }
+      },
+      "statistical_indicators": {
+        "difficulty_coefficient": 0.6319483290331529,
+        "pass_rate": 0.6107969151670951,
+        "excellent_rate": 0.017480719794344474,
+        "average_score_rate": 0.6319483290331529,
+        "discrimination_index": 0.24957676035563153,
+        "discrimination_interpretation": "acceptable"
+      },
+      "percentiles": {
+        "P10": 101.02999877929688,
+        "P25": 112.30000305175781,
+        "P50": 126.23999786376953,
+        "P75": 140.4199981689453,
+        "P90": 153.47000122070312,
+        "IQR": 28.1199951171875
+      },
+      "dimensions": {
+        "MS-jn": {
+          "dimension_code": "MS-jn",
+          "dimension_name": "美术技能",
+          "max_score": 100.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "美术技能",
+            "avg_score": 35.82208227221028,
+            "std_score": 3.511595205339736,
+            "min_score": 0.0,
+            "max_score_achieved": 46.5,
+            "student_count": 1945,
+            "score_rate": 0.3582208227221028
+          },
+          "percentiles": {
+            "P10": 32.150001525878906,
+            "P25": 34.0,
+            "P50": 35.650001525878906,
+            "P75": 37.650001525878906,
+            "P90": 40.0,
+            "IQR": 3.6500015258789062
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.3582208227221028,
+            "pass_rate": 0.0,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.3582208227221028
+          },
+          "discrimination": {
+            "discrimination_index": 0.07644952429646537,
+            "interpretation": "poor"
+          }
+        },
+        "MS-zs": {
+          "dimension_code": "MS-zs",
+          "dimension_name": "美术知识",
+          "max_score": 100.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "美术知识",
+            "avg_score": 35.68586118251928,
+            "std_score": 7.374570545580848,
+            "min_score": 9.0,
+            "max_score_achieved": 50.0,
+            "student_count": 1945,
+            "score_rate": 0.35685861182519285
+          },
+          "percentiles": {
+            "P10": 26.0,
+            "P25": 31.0,
+            "P50": 36.0,
+            "P75": 41.0,
+            "P90": 46.0,
+            "IQR": 10.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.35685861182519285,
+            "pass_rate": 0.0,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.35685861182519285
+          },
+          "discrimination": {
+            "discrimination_index": 0.1822095238095238,
+            "interpretation": "poor"
+          }
+        },
+        "YY-jn": {
+          "dimension_code": "YY-jn",
+          "dimension_name": "音乐技能",
+          "max_score": 100.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "音乐技能",
+            "avg_score": 22.52161954023461,
+            "std_score": 10.28064356074526,
+            "min_score": 0.0,
+            "max_score_achieved": 45.439998626708984,
+            "student_count": 1945,
+            "score_rate": 0.2252161954023461
+          },
+          "percentiles": {
+            "P10": 9.40999984741211,
+            "P25": 16.260000228881836,
+            "P50": 22.190000534057617,
+            "P75": 27.260000228881836,
+            "P90": 39.099998474121094,
+            "IQR": 11.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.2252161954023461,
+            "pass_rate": 0.0,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.2252161954023461
+          },
+          "discrimination": {
+            "discrimination_index": 0.2529331428375982,
+            "interpretation": "acceptable"
+          }
+        },
+        "YY-zs": {
+          "dimension_code": "YY-zs",
+          "dimension_name": "音乐知识",
+          "max_score": 100.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "音乐知识",
+            "avg_score": 32.36010262800673,
+            "std_score": 7.267887090868386,
+            "min_score": 11.300000190734863,
+            "max_score_achieved": 50.0,
+            "student_count": 1945,
+            "score_rate": 0.32360102628006726
+          },
+          "percentiles": {
+            "P10": 23.0,
+            "P25": 27.700000762939453,
+            "P50": 32.0,
+            "P75": 37.29999923706055,
+            "P90": 42.0,
+            "IQR": 9.599998474121094
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.32360102628006726,
+            "pass_rate": 0.0,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.32360102628006726
+          },
+          "discrimination": {
+            "discrimination_index": 0.17814285632542198,
+            "interpretation": "poor"
+          }
+        }
+      }
+    },
+    "英语": {
+      "subject_name": "英语",
+      "max_score": 150.0,
+      "school_stats": {
+        "avg_score": 83.52334245742092,
+        "std_score": 37.954811096191406,
+        "min_score": 3.0,
+        "max_score_achieved": 149.5,
+        "student_count": 13152,
+        "score_rate": 0.5568222830494728
+      },
+      "grade_distribution": {
+        "excellent": {
+          "count": 2367,
+          "percentage": 0.17997262773722628
+        },
+        "good": {
+          "count": 2182,
+          "percentage": 0.16590632603406327
+        },
+        "pass": {
+          "count": 1353,
+          "percentage": 0.10287408759124088
+        },
+        "fail": {
+          "count": 7250,
+          "percentage": 0.5512469586374696
+        }
+      },
+      "statistical_indicators": {
+        "difficulty_coefficient": 0.5568222830494728,
+        "pass_rate": 0.4487530413625304,
+        "excellent_rate": 0.17997262773722628,
+        "average_score_rate": 0.5568222830494728,
+        "discrimination_index": 0.6386313714446635,
+        "discrimination_interpretation": "excellent"
+      },
+      "percentiles": {
+        "P10": 33.0,
+        "P25": 48.5,
+        "P50": 83.0,
+        "P75": 118.5,
+        "P90": 135.75,
+        "IQR": 70.0
+      },
+      "dimensions": {
+        "YY-swpz": {
+          "dimension_code": "YY-swpz",
+          "dimension_name": "思维品质",
+          "max_score": 65.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "思维品质",
+            "avg_score": 28.67333865571776,
+            "std_score": 16.87495994567871,
+            "min_score": 0.0,
+            "max_score_achieved": 62.5,
+            "student_count": 13152,
+            "score_rate": 0.44112828701104245
+          },
+          "percentiles": {
+            "P10": 8.75,
+            "P25": 13.25,
+            "P50": 25.75,
+            "P75": 44.25,
+            "P90": 53.25,
+            "IQR": 31.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.44112828701104245,
+            "pass_rate": 0.3235249391727494,
+            "excellent_rate": 0.07208029197080291,
+            "average_score_rate": 0.44112828701104245
+          },
+          "discrimination": {
+            "discrimination_index": 0.6458809002881094,
+            "interpretation": "excellent"
+          }
+        },
+        "YY-whys": {
+          "dimension_code": "YY-whys",
+          "dimension_name": "文化意识",
+          "max_score": 22.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "文化意识",
+            "avg_score": 5.909101277372263,
+            "std_score": 5.914883136749268,
+            "min_score": 0.0,
+            "max_score_achieved": 20.0,
+            "student_count": 13152,
+            "score_rate": 0.2685955126078301
+          },
+          "percentiles": {
+            "P10": 0.0,
+            "P25": 0.75,
+            "P50": 3.75,
+            "P75": 10.0,
+            "P90": 15.75,
+            "IQR": 9.25
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.2685955126078301,
+            "pass_rate": 0.16104014598540145,
+            "excellent_rate": 0.037560827250608275,
+            "average_score_rate": 0.2685955126078301
+          },
+          "discrimination": {
+            "discrimination_index": 0.6474168608074551,
+            "interpretation": "excellent"
+          }
+        },
+        "YY-xxnl": {
+          "dimension_code": "YY-xxnl",
+          "dimension_name": "学习能力",
+          "max_score": 152.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "学习能力",
+            "avg_score": 80.43972399635037,
+            "std_score": 34.9853630065918,
+            "min_score": 3.0,
+            "max_score_achieved": 139.5,
+            "student_count": 13152,
+            "score_rate": 0.529208710502305
+          },
+          "percentiles": {
+            "P10": 32.75,
+            "P25": 48.0,
+            "P50": 81.75,
+            "P75": 113.0,
+            "P90": 127.0,
+            "IQR": 65.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.529208710502305,
+            "pass_rate": 0.4232816301703163,
+            "excellent_rate": 0.07831508515815085,
+            "average_score_rate": 0.529208710502305
+          },
+          "discrimination": {
+            "discrimination_index": 0.5805045650595089,
+            "interpretation": "excellent"
+          }
+        },
+        "YY-yynl": {
+          "dimension_code": "YY-yynl",
+          "dimension_name": "语言能力",
+          "max_score": 172.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "语言能力",
+            "avg_score": 86.60696091849148,
+            "std_score": 40.98863220214844,
+            "min_score": 3.0,
+            "max_score_achieved": 159.5,
+            "student_count": 13152,
+            "score_rate": 0.503528842549369
+          },
+          "percentiles": {
+            "P10": 33.0,
+            "P25": 48.75,
+            "P50": 84.25,
+            "P75": 124.25,
+            "P90": 144.5,
+            "IQR": 75.5
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.503528842549369,
+            "pass_rate": 0.3778132603406326,
+            "excellent_rate": 0.08447384428223845,
+            "average_score_rate": 0.503528842549369
+          },
+          "discrimination": {
+            "discrimination_index": 0.6012734702966083,
+            "interpretation": "excellent"
+          }
+        }
+      }
+    },
+    "语文": {
+      "subject_name": "语文",
+      "max_score": 150.0,
+      "school_stats": {
+        "avg_score": 106.45662916223202,
+        "std_score": 18.31985092163086,
+        "min_score": 0.75,
+        "max_score_achieved": 138.5,
+        "student_count": 13154,
+        "score_rate": 0.7097108610815468
+      },
+      "grade_distribution": {
+        "excellent": {
+          "count": 579,
+          "percentage": 0.04401702904059602
+        },
+        "good": {
+          "count": 7765,
+          "percentage": 0.5903147331610157
+        },
+        "pass": {
+          "count": 2839,
+          "percentage": 0.215827885053976
+        },
+        "fail": {
+          "count": 1971,
+          "percentage": 0.14984035274441235
+        }
+      },
+      "statistical_indicators": {
+        "difficulty_coefficient": 0.7097108610815468,
+        "pass_rate": 0.8501596472555877,
+        "excellent_rate": 0.04401702904059602,
+        "average_score_rate": 0.7097108610815468,
+        "discrimination_index": 0.2704327419506242,
+        "discrimination_interpretation": "acceptable"
+      },
+      "percentiles": {
+        "P10": 84.0,
+        "P25": 98.5,
+        "P50": 110.75,
+        "P75": 119.25,
+        "P90": 124.5,
+        "IQR": 20.75
+      },
+      "dimensions": {
+        "YW-smcz": {
+          "dimension_code": "YW-smcz",
+          "dimension_name": "审美创造",
+          "max_score": 136.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "审美创造",
+            "avg_score": 56.66211798692413,
+            "std_score": 6.899125576019287,
+            "min_score": 0.0,
+            "max_score_achieved": 66.5,
+            "student_count": 13154,
+            "score_rate": 0.4166332204920892
+          },
+          "percentiles": {
+            "P10": 52.0,
+            "P25": 55.25,
+            "P50": 57.75,
+            "P75": 60.0,
+            "P90": 61.5,
+            "IQR": 4.75
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.4166332204920892,
+            "pass_rate": 0.0,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.4166332204920892
+          },
+          "discrimination": {
+            "discrimination_index": 0.08285776997366114,
+            "interpretation": "poor"
+          }
+        },
+        "YW-swnl": {
+          "dimension_code": "YW-swnl",
+          "dimension_name": "思维能力",
+          "max_score": 238.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "思维能力",
+            "avg_score": 93.28029496731033,
+            "std_score": 16.320613861083984,
+            "min_score": 0.0,
+            "max_score_achieved": 123.5,
+            "student_count": 13154,
+            "score_rate": 0.39193401246769044
+          },
+          "percentiles": {
+            "P10": 73.5,
+            "P25": 85.75,
+            "P50": 96.5,
+            "P75": 104.5,
+            "P90": 109.75,
+            "IQR": 18.75
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.39193401246769044,
+            "pass_rate": 0.0,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.39193401246769044
+          },
+          "discrimination": {
+            "discrimination_index": 0.15249491798972478,
+            "interpretation": "poor"
+          }
+        },
+        "YW-whzx": {
+          "dimension_code": "YW-whzx",
+          "dimension_name": "文化自信",
+          "max_score": 60.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "文化自信",
+            "avg_score": 27.984339364451877,
+            "std_score": 7.33532190322876,
+            "min_score": 0.0,
+            "max_score_achieved": 41.75,
+            "student_count": 13154,
+            "score_rate": 0.4664056560741979
+          },
+          "percentiles": {
+            "P10": 18.0,
+            "P25": 24.5,
+            "P50": 29.5,
+            "P75": 33.25,
+            "P90": 35.75,
+            "IQR": 8.75
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.4664056560741979,
+            "pass_rate": 0.09244336323551772,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.4664056560741979
+          },
+          "discrimination": {
+            "discrimination_index": 0.284747254294565,
+            "interpretation": "acceptable"
+          }
+        },
+        "YW-yyyy": {
+          "dimension_code": "YW-yyyy",
+          "dimension_name": "语言运用",
+          "max_score": 194.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "语言运用",
+            "avg_score": 81.46252090618823,
+            "std_score": 12.393675804138184,
+            "min_score": 0.0,
+            "max_score_achieved": 100.5,
+            "student_count": 13154,
+            "score_rate": 0.41990990157828983
+          },
+          "percentiles": {
+            "P10": 67.5,
+            "P25": 76.5,
+            "P50": 84.25,
+            "P75": 89.75,
+            "P90": 93.0,
+            "IQR": 13.25
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.41990990157828983,
+            "pass_rate": 0.0,
+            "excellent_rate": 0.0,
+            "average_score_rate": 0.41990990157828983
+          },
+          "discrimination": {
+            "discrimination_index": 0.13525448036998433,
+            "interpretation": "poor"
+          }
+        }
+      }
+    }
+  },
+  "non_academic_subjects": {
+    "问卷": {
+      "subject_name": "问卷",
+      "max_score": 276.0,
+      "school_stats": {
+        "avg_score": 187.88879159369526,
+        "std_score": 32.48480905049005,
+        "min_score": 25.0,
+        "max_score_achieved": 276.0,
+        "student_count": 1142,
+        "score_rate": 0.6807564912815046
+      },
+      "grade_distribution": {
+        "excellent": {
+          "count": 89,
+          "percentage": 0.07793345008756568
+        },
+        "good": {
+          "count": 378,
+          "percentage": 0.3309982486865149
+        },
+        "pass": {
+          "count": 414,
+          "percentage": 0.36252189141856395
+        },
+        "fail": {
+          "count": 261,
+          "percentage": 0.22854640980735552
+        }
+      },
+      "statistical_indicators": {
+        "difficulty_coefficient": 0.6807564912815046,
+        "pass_rate": 0.7714535901926445,
+        "excellent_rate": 0.07793345008756568,
+        "average_score_rate": 0.6807564912815046,
+        "discrimination_index": 0.28082062864671553,
+        "discrimination_interpretation": "acceptable"
+      },
+      "percentiles": {
+        "P10": 152.0,
+        "P25": 167.0,
+        "P50": 186.0,
+        "P75": 208.0,
+        "P90": 229.0,
+        "IQR": 41.0
+      },
+      "dimensions": {
+        "CZL-czx": {
+          "dimension_code": "CZL-czx",
+          "dimension_name": "创造力-创造性",
+          "max_score": 12.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "创造力-创造性",
+            "avg_score": 5.922942206654991,
+            "std_score": 2.515023903647996,
+            "min_score": 0.0,
+            "max_score_achieved": 12.0,
+            "student_count": 1142,
+            "score_rate": 0.49357851722124924
+          },
+          "percentiles": {
+            "P10": 3.0,
+            "P25": 4.0,
+            "P50": 6.0,
+            "P75": 7.0,
+            "P90": 9.0,
+            "IQR": 3.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.49357851722124924,
+            "pass_rate": 0.2434325744308231,
+            "excellent_rate": 0.063922942206655,
+            "average_score_rate": 0.49357851722124924
+          },
+          "discrimination": {
+            "discrimination_index": 0.5075757575757575,
+            "interpretation": "excellent"
+          }
+        },
+        "CZL-hqx": {
+          "dimension_code": "CZL-hqx",
+          "dimension_name": "创造力-好奇心",
+          "max_score": 36.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "创造力-好奇心",
+            "avg_score": 26.798598949211907,
+            "std_score": 5.0586115742365285,
+            "min_score": 9.0,
+            "max_score_achieved": 36.0,
+            "student_count": 1142,
+            "score_rate": 0.7444055263669974
+          },
+          "percentiles": {
+            "P10": 21.0,
+            "P25": 24.0,
+            "P50": 27.0,
+            "P75": 30.0,
+            "P90": 33.0,
+            "IQR": 6.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.7444055263669974,
+            "pass_rate": 0.8782837127845884,
+            "excellent_rate": 0.22591943957968477,
+            "average_score_rate": 0.7444055263669974
+          },
+          "discrimination": {
+            "discrimination_index": 0.3376623376623376,
+            "interpretation": "good"
+          }
+        },
+        "CZL-kf": {
+          "dimension_code": "CZL-kf",
+          "dimension_name": "创造力-开放",
+          "max_score": 20.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "创造力-开放",
+            "avg_score": 15.772329246935202,
+            "std_score": 3.472542303198761,
+            "min_score": 0.0,
+            "max_score_achieved": 20.0,
+            "student_count": 1142,
+            "score_rate": 0.7886164623467601
+          },
+          "percentiles": {
+            "P10": 12.0,
+            "P25": 14.0,
+            "P50": 15.0,
+            "P75": 19.0,
+            "P90": 20.0,
+            "IQR": 5.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.7886164623467601,
+            "pass_rate": 0.9054290718038529,
+            "excellent_rate": 0.4106830122591944,
+            "average_score_rate": 0.7886164623467601
+          },
+          "discrimination": {
+            "discrimination_index": 0.4150974025974025,
+            "interpretation": "excellent"
+          }
+        },
+        "CZL-mmjs": {
+          "dimension_code": "CZL-mmjs",
+          "dimension_name": "创造力-冒险精神",
+          "max_score": 12.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "创造力-冒险精神",
+            "avg_score": 8.832749562171628,
+            "std_score": 1.8457272748117564,
+            "min_score": 0.0,
+            "max_score_achieved": 12.0,
+            "student_count": 1142,
+            "score_rate": 0.7360624635143024
+          },
+          "percentiles": {
+            "P10": 7.0,
+            "P25": 8.0,
+            "P50": 9.0,
+            "P75": 10.0,
+            "P90": 11.0,
+            "IQR": 2.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.7360624635143024,
+            "pass_rate": 0.8239929947460596,
+            "excellent_rate": 0.17600700525394045,
+            "average_score_rate": 0.7360624635143024
+          },
+          "discrimination": {
+            "discrimination_index": 0.36066017316017307,
+            "interpretation": "good"
+          }
+        },
+        "CZL-xxl": {
+          "dimension_code": "CZL-xxl",
+          "dimension_name": "创造力-想象力",
+          "max_score": 16.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "创造力-想象力",
+            "avg_score": 10.514886164623467,
+            "std_score": 2.24120580244334,
+            "min_score": 0.0,
+            "max_score_achieved": 16.0,
+            "student_count": 1142,
+            "score_rate": 0.6571803852889667
+          },
+          "percentiles": {
+            "P10": 8.0,
+            "P25": 9.0,
+            "P50": 10.0,
+            "P75": 12.0,
+            "P90": 13.0,
+            "IQR": 3.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.6571803852889667,
+            "pass_rate": 0.7408056042031523,
+            "excellent_rate": 0.06830122591943957,
+            "average_score_rate": 0.6571803852889667
+          },
+          "discrimination": {
+            "discrimination_index": 0.32345779220779225,
+            "interpretation": "good"
+          }
+        },
+        "CZL-zl": {
+          "dimension_code": "CZL-zl",
+          "dimension_name": "创造力-智力开放",
+          "max_score": 16.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "创造力-智力开放",
+            "avg_score": 11.983362521891419,
+            "std_score": 3.014525728975249,
+            "min_score": 0.0,
+            "max_score_achieved": 16.0,
+            "student_count": 1142,
+            "score_rate": 0.7489601576182137
+          },
+          "percentiles": {
+            "P10": 8.0,
+            "P25": 10.0,
+            "P50": 12.0,
+            "P75": 14.0,
+            "P90": 16.0,
+            "IQR": 4.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.7489601576182137,
+            "pass_rate": 0.7950963222416813,
+            "excellent_rate": 0.31961471103327493,
+            "average_score_rate": 0.7489601576182137
+          },
+          "discrimination": {
+            "discrimination_index": 0.4669237012987013,
+            "interpretation": "excellent"
+          }
+        },
+        "CZX-jthj": {
+          "dimension_code": "CZX-jthj",
+          "dimension_name": "创造性-家庭环境",
+          "max_score": 20.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "创造性-家庭环境",
+            "avg_score": 16.21628721541156,
+            "std_score": 3.359236101369534,
+            "min_score": 0.0,
+            "max_score_achieved": 20.0,
+            "student_count": 1142,
+            "score_rate": 0.8108143607705779
+          },
+          "percentiles": {
+            "P10": 12.0,
+            "P25": 15.0,
+            "P50": 16.0,
+            "P75": 20.0,
+            "P90": 20.0,
+            "IQR": 5.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.8108143607705779,
+            "pass_rate": 0.9211908931698775,
+            "excellent_rate": 0.44833625218914186,
+            "average_score_rate": 0.8108143607705779
+          },
+          "discrimination": {
+            "discrimination_index": 0.389448051948052,
+            "interpretation": "good"
+          }
+        },
+        "CZX-tbhj": {
+          "dimension_code": "CZX-tbhj",
+          "dimension_name": "创造性-同伴环境",
+          "max_score": 12.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "创造性-同伴环境",
+            "avg_score": 10.033274956217163,
+            "std_score": 2.03017023754045,
+            "min_score": 0.0,
+            "max_score_achieved": 12.0,
+            "student_count": 1142,
+            "score_rate": 0.8361062463514303
+          },
+          "percentiles": {
+            "P10": 8.0,
+            "P25": 9.0,
+            "P50": 10.0,
+            "P75": 12.0,
+            "P90": 12.0,
+            "IQR": 3.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.8361062463514303,
+            "pass_rate": 0.9150612959719789,
+            "excellent_rate": 0.46935201401050786,
+            "average_score_rate": 0.8361062463514303
+          },
+          "discrimination": {
+            "discrimination_index": 0.35633116883116883,
+            "interpretation": "good"
+          }
+        },
+        "CZX-xxhj": {
+          "dimension_code": "CZX-xxhj",
+          "dimension_name": "创造性-学校环境",
+          "max_score": 12.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "创造性-学校环境",
+            "avg_score": 9.683012259194395,
+            "std_score": 2.2730464328163538,
+            "min_score": 0.0,
+            "max_score_achieved": 12.0,
+            "student_count": 1142,
+            "score_rate": 0.8069176882661996
+          },
+          "percentiles": {
+            "P10": 7.0,
+            "P25": 9.0,
+            "P50": 9.0,
+            "P75": 12.0,
+            "P90": 12.0,
+            "IQR": 3.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.8069176882661996,
+            "pass_rate": 0.8458844133099825,
+            "excellent_rate": 0.4159369527145359,
+            "average_score_rate": 0.8069176882661996
+          },
+          "discrimination": {
+            "discrimination_index": 0.42775974025974023,
+            "interpretation": "excellent"
+          }
+        },
+        "CZX-zwxn": {
+          "dimension_code": "CZX-zwxn",
+          "dimension_name": "创造性-自我效能",
+          "max_score": 20.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "创造性-自我效能",
+            "avg_score": 14.211033274956216,
+            "std_score": 3.9084776036915914,
+            "min_score": 0.0,
+            "max_score_achieved": 20.0,
+            "student_count": 1142,
+            "score_rate": 0.7105516637478109
+          },
+          "percentiles": {
+            "P10": 10.0,
+            "P25": 12.0,
+            "P50": 15.0,
+            "P75": 17.0,
+            "P90": 20.0,
+            "IQR": 5.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.7105516637478109,
+            "pass_rate": 0.7618213660245184,
+            "excellent_rate": 0.2600700525394046,
+            "average_score_rate": 0.7105516637478109
+          },
+          "discrimination": {
+            "discrimination_index": 0.4892857142857142,
+            "interpretation": "excellent"
+          }
+        },
+        "CZXHJ-xnhd": {
+          "dimension_code": "CZXHJ-xnhd",
+          "dimension_name": "创造性环境-校内活动",
+          "max_score": 35.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "创造性环境-校内活动",
+            "avg_score": 17.689141856392293,
+            "std_score": 7.3002854541225535,
+            "min_score": 0.0,
+            "max_score_achieved": 35.0,
+            "student_count": 1142,
+            "score_rate": 0.5054040530397798
+          },
+          "percentiles": {
+            "P10": 8.0,
+            "P25": 13.0,
+            "P50": 16.0,
+            "P75": 21.0,
+            "P90": 28.0,
+            "IQR": 8.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.5054040530397798,
+            "pass_rate": 0.3318739054290718,
+            "excellent_rate": 0.06567425569176882,
+            "average_score_rate": 0.5054040530397798
+          },
+          "discrimination": {
+            "discrimination_index": 0.5046382189239332,
+            "interpretation": "excellent"
+          }
+        },
+        "CZXHJ-xwhd": {
+          "dimension_code": "CZXHJ-xwhd",
+          "dimension_name": "创造性环境-校外活动",
+          "max_score": 35.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "创造性环境-校外活动",
+            "avg_score": 16.600700525394046,
+            "std_score": 7.474286592695357,
+            "min_score": 0.0,
+            "max_score_achieved": 35.0,
+            "student_count": 1142,
+            "score_rate": 0.47430572929697273
+          },
+          "percentiles": {
+            "P10": 7.0,
+            "P25": 11.0,
+            "P50": 15.0,
+            "P75": 21.0,
+            "P90": 28.0,
+            "IQR": 10.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.47430572929697273,
+            "pass_rate": 0.29772329246935203,
+            "excellent_rate": 0.05691768826619965,
+            "average_score_rate": 0.47430572929697273
+          },
+          "discrimination": {
+            "discrimination_index": 0.5187384044526903,
+            "interpretation": "excellent"
+          }
+        },
+        "TDRW-wjnlcd": {
+          "dimension_code": "TDRW-wjnlcd",
+          "dimension_name": "填答任务-问卷努力程度",
+          "max_score": 30.0,
+          "question_count": 0,
+          "question_ids": [],
+          "basic_stats": {
+            "name": "填答任务-问卷努力程度",
+            "avg_score": 23.63047285464098,
+            "std_score": 5.892259330817959,
+            "min_score": 0.0,
+            "max_score_achieved": 30.0,
+            "student_count": 1142,
+            "score_rate": 0.7876824284880327
+          },
+          "percentiles": {
+            "P10": 15.0,
+            "P25": 20.0,
+            "P50": 25.0,
+            "P75": 28.0,
+            "P90": 30.0,
+            "IQR": 8.0
+          },
+          "educational_metrics": {
+            "difficulty_coefficient": 0.7876824284880327,
+            "pass_rate": 0.8546409807355516,
+            "excellent_rate": 0.45183887915936954,
+            "average_score_rate": 0.7876824284880327
+          },
+          "discrimination": {
+            "discrimination_index": 0.4607142857142857,
+            "interpretation": "excellent"
+          }
+        },
+        "_option_distributions": {
+          "21_1": {
+            "question_id": "21_1",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 51,
+                "percentage": 4.75
+              },
+              "2": {
+                "student_count": 79,
+                "percentage": 7.36
+              },
+              "3": {
+                "student_count": 506,
+                "percentage": 47.11
+              },
+              "4": {
+                "student_count": 438,
+                "percentage": 40.78
+              }
+            }
+          },
+          "21_2": {
+            "question_id": "21_2",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 82,
+                "percentage": 7.64
+              },
+              "2": {
+                "student_count": 224,
+                "percentage": 20.86
+              },
+              "3": {
+                "student_count": 467,
+                "percentage": 43.48
+              },
+              "4": {
+                "student_count": 301,
+                "percentage": 28.03
+              }
+            }
+          },
+          "21_3": {
+            "question_id": "21_3",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 58,
+                "percentage": 5.4
+              },
+              "2": {
+                "student_count": 163,
+                "percentage": 15.18
+              },
+              "3": {
+                "student_count": 460,
+                "percentage": 42.83
+              },
+              "4": {
+                "student_count": 393,
+                "percentage": 36.59
+              }
+            }
+          },
+          "21_4": {
+            "question_id": "21_4",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 41,
+                "percentage": 3.82
+              },
+              "2": {
+                "student_count": 107,
+                "percentage": 9.96
+              },
+              "3": {
+                "student_count": 454,
+                "percentage": 42.27
+              },
+              "4": {
+                "student_count": 472,
+                "percentage": 43.95
+              }
+            }
+          },
+          "21_5": {
+            "question_id": "21_5",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 60,
+                "percentage": 5.59
+              },
+              "2": {
+                "student_count": 280,
+                "percentage": 26.07
+              },
+              "3": {
+                "student_count": 444,
+                "percentage": 41.34
+              },
+              "4": {
+                "student_count": 290,
+                "percentage": 27.0
+              }
+            }
+          },
+          "21_6": {
+            "question_id": "21_6",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 94,
+                "percentage": 8.75
+              },
+              "2": {
+                "student_count": 253,
+                "percentage": 23.56
+              },
+              "3": {
+                "student_count": 421,
+                "percentage": 39.2
+              },
+              "4": {
+                "student_count": 306,
+                "percentage": 28.49
+              }
+            }
+          },
+          "21_7": {
+            "question_id": "21_7",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 484,
+                "percentage": 45.07
+              },
+              "2": {
+                "student_count": 307,
+                "percentage": 28.58
+              },
+              "3": {
+                "student_count": 163,
+                "percentage": 15.18
+              },
+              "4": {
+                "student_count": 120,
+                "percentage": 11.17
+              }
+            }
+          },
+          "21_8": {
+            "question_id": "21_8",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 46,
+                "percentage": 4.28
+              },
+              "2": {
+                "student_count": 132,
+                "percentage": 12.29
+              },
+              "3": {
+                "student_count": 431,
+                "percentage": 40.13
+              },
+              "4": {
+                "student_count": 465,
+                "percentage": 43.3
+              }
+            }
+          },
+          "21_9": {
+            "question_id": "21_9",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 31,
+                "percentage": 2.89
+              },
+              "2": {
+                "student_count": 77,
+                "percentage": 7.17
+              },
+              "3": {
+                "student_count": 468,
+                "percentage": 43.58
+              },
+              "4": {
+                "student_count": 498,
+                "percentage": 46.37
+              }
+            }
+          },
+          "22_1": {
+            "question_id": "22_1",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 49,
+                "percentage": 4.56
+              },
+              "2": {
+                "student_count": 49,
+                "percentage": 4.56
+              },
+              "3": {
+                "student_count": 453,
+                "percentage": 42.18
+              },
+              "4": {
+                "student_count": 523,
+                "percentage": 48.7
+              }
+            }
+          },
+          "22_2": {
+            "question_id": "22_2",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 49,
+                "percentage": 4.56
+              },
+              "2": {
+                "student_count": 167,
+                "percentage": 15.55
+              },
+              "3": {
+                "student_count": 486,
+                "percentage": 45.25
+              },
+              "4": {
+                "student_count": 372,
+                "percentage": 34.64
+              }
+            }
+          },
+          "22_3": {
+            "question_id": "22_3",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 49,
+                "percentage": 4.56
+              },
+              "2": {
+                "student_count": 124,
+                "percentage": 11.55
+              },
+              "3": {
+                "student_count": 459,
+                "percentage": 42.74
+              },
+              "4": {
+                "student_count": 442,
+                "percentage": 41.15
+              }
+            }
+          },
+          "22_4": {
+            "question_id": "22_4",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 60,
+                "percentage": 5.59
+              },
+              "2": {
+                "student_count": 201,
+                "percentage": 18.72
+              },
+              "3": {
+                "student_count": 477,
+                "percentage": 44.41
+              },
+              "4": {
+                "student_count": 336,
+                "percentage": 31.28
+              }
+            }
+          },
+          "22_5": {
+            "question_id": "22_5",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 55,
+                "percentage": 5.12
+              },
+              "2": {
+                "student_count": 164,
+                "percentage": 15.27
+              },
+              "3": {
+                "student_count": 483,
+                "percentage": 44.97
+              },
+              "4": {
+                "student_count": 372,
+                "percentage": 34.64
+              }
+            }
+          },
+          "22_6": {
+            "question_id": "22_6",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 84,
+                "percentage": 7.82
+              },
+              "2": {
+                "student_count": 260,
+                "percentage": 24.21
+              },
+              "3": {
+                "student_count": 417,
+                "percentage": 38.83
+              },
+              "4": {
+                "student_count": 313,
+                "percentage": 29.14
+              }
+            }
+          },
+          "22_7": {
+            "question_id": "22_7",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 100,
+                "percentage": 9.31
+              },
+              "2": {
+                "student_count": 242,
+                "percentage": 22.53
+              },
+              "3": {
+                "student_count": 416,
+                "percentage": 38.73
+              },
+              "4": {
+                "student_count": 316,
+                "percentage": 29.42
+              }
+            }
+          },
+          "22_8": {
+            "question_id": "22_8",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 73,
+                "percentage": 6.8
+              },
+              "2": {
+                "student_count": 263,
+                "percentage": 24.49
+              },
+              "3": {
+                "student_count": 430,
+                "percentage": 40.04
+              },
+              "4": {
+                "student_count": 308,
+                "percentage": 28.68
+              }
+            }
+          },
+          "22_9": {
+            "question_id": "22_9",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 37,
+                "percentage": 3.45
+              },
+              "2": {
+                "student_count": 87,
+                "percentage": 8.1
+              },
+              "3": {
+                "student_count": 475,
+                "percentage": 44.23
+              },
+              "4": {
+                "student_count": 475,
+                "percentage": 44.23
+              }
+            }
+          },
+          "23_1": {
+            "question_id": "23_1",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 461,
+                "percentage": 42.92
+              },
+              "2": {
+                "student_count": 358,
+                "percentage": 33.33
+              },
+              "3": {
+                "student_count": 183,
+                "percentage": 17.04
+              },
+              "4": {
+                "student_count": 72,
+                "percentage": 6.7
+              }
+            }
+          },
+          "23_10": {
+            "question_id": "23_10",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 562,
+                "percentage": 52.33
+              },
+              "2": {
+                "student_count": 259,
+                "percentage": 24.12
+              },
+              "3": {
+                "student_count": 173,
+                "percentage": 16.11
+              },
+              "4": {
+                "student_count": 80,
+                "percentage": 7.45
+              }
+            }
+          },
+          "23_2": {
+            "question_id": "23_2",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 255,
+                "percentage": 23.74
+              },
+              "2": {
+                "student_count": 283,
+                "percentage": 26.35
+              },
+              "3": {
+                "student_count": 365,
+                "percentage": 33.99
+              },
+              "4": {
+                "student_count": 171,
+                "percentage": 15.92
+              }
+            }
+          },
+          "23_3": {
+            "question_id": "23_3",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 65,
+                "percentage": 6.05
+              },
+              "2": {
+                "student_count": 134,
+                "percentage": 12.48
+              },
+              "3": {
+                "student_count": 526,
+                "percentage": 48.98
+              },
+              "4": {
+                "student_count": 349,
+                "percentage": 32.5
+              }
+            }
+          },
+          "23_4": {
+            "question_id": "23_4",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 49,
+                "percentage": 4.56
+              },
+              "2": {
+                "student_count": 164,
+                "percentage": 15.27
+              },
+              "3": {
+                "student_count": 485,
+                "percentage": 45.16
+              },
+              "4": {
+                "student_count": 376,
+                "percentage": 35.01
+              }
+            }
+          },
+          "23_5": {
+            "question_id": "23_5",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 233,
+                "percentage": 21.69
+              },
+              "2": {
+                "student_count": 330,
+                "percentage": 30.73
+              },
+              "3": {
+                "student_count": 322,
+                "percentage": 29.98
+              },
+              "4": {
+                "student_count": 189,
+                "percentage": 17.6
+              }
+            }
+          },
+          "23_6": {
+            "question_id": "23_6",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 61,
+                "percentage": 5.68
+              },
+              "2": {
+                "student_count": 180,
+                "percentage": 16.76
+              },
+              "3": {
+                "student_count": 517,
+                "percentage": 48.14
+              },
+              "4": {
+                "student_count": 316,
+                "percentage": 29.42
+              }
+            }
+          },
+          "23_7": {
+            "question_id": "23_7",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 54,
+                "percentage": 5.03
+              },
+              "2": {
+                "student_count": 92,
+                "percentage": 8.57
+              },
+              "3": {
+                "student_count": 354,
+                "percentage": 32.96
+              },
+              "4": {
+                "student_count": 574,
+                "percentage": 53.45
+              }
+            }
+          },
+          "23_8": {
+            "question_id": "23_8",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 275,
+                "percentage": 25.61
+              },
+              "2": {
+                "student_count": 398,
+                "percentage": 37.06
+              },
+              "3": {
+                "student_count": 248,
+                "percentage": 23.09
+              },
+              "4": {
+                "student_count": 153,
+                "percentage": 14.25
+              }
+            }
+          },
+          "23_9": {
+            "question_id": "23_9",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 484,
+                "percentage": 45.07
+              },
+              "2": {
+                "student_count": 308,
+                "percentage": 28.68
+              },
+              "3": {
+                "student_count": 185,
+                "percentage": 17.23
+              },
+              "4": {
+                "student_count": 97,
+                "percentage": 9.03
+              }
+            }
+          },
+          "24_1": {
+            "question_id": "24_1",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 79,
+                "percentage": 7.36
+              },
+              "2": {
+                "student_count": 314,
+                "percentage": 29.24
+              },
+              "3": {
+                "student_count": 443,
+                "percentage": 41.25
+              },
+              "4": {
+                "student_count": 238,
+                "percentage": 22.16
+              }
+            }
+          },
+          "24_2": {
+            "question_id": "24_2",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 75,
+                "percentage": 6.98
+              },
+              "2": {
+                "student_count": 291,
+                "percentage": 27.09
+              },
+              "3": {
+                "student_count": 454,
+                "percentage": 42.27
+              },
+              "4": {
+                "student_count": 254,
+                "percentage": 23.65
+              }
+            }
+          },
+          "24_3": {
+            "question_id": "24_3",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 81,
+                "percentage": 7.54
+              },
+              "2": {
+                "student_count": 263,
+                "percentage": 24.49
+              },
+              "3": {
+                "student_count": 441,
+                "percentage": 41.06
+              },
+              "4": {
+                "student_count": 289,
+                "percentage": 26.91
+              }
+            }
+          },
+          "24_4": {
+            "question_id": "24_4",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 68,
+                "percentage": 6.33
+              },
+              "2": {
+                "student_count": 284,
+                "percentage": 26.44
+              },
+              "3": {
+                "student_count": 446,
+                "percentage": 41.53
+              },
+              "4": {
+                "student_count": 276,
+                "percentage": 25.7
+              }
+            }
+          },
+          "24_5": {
+            "question_id": "24_5",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 82,
+                "percentage": 7.64
+              },
+              "2": {
+                "student_count": 284,
+                "percentage": 26.44
+              },
+              "3": {
+                "student_count": 427,
+                "percentage": 39.76
+              },
+              "4": {
+                "student_count": 281,
+                "percentage": 26.16
+              }
+            }
+          },
+          "25_1": {
+            "question_id": "25_1",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 41,
+                "percentage": 3.82
+              },
+              "2": {
+                "student_count": 143,
+                "percentage": 13.31
+              },
+              "3": {
+                "student_count": 505,
+                "percentage": 47.02
+              },
+              "4": {
+                "student_count": 385,
+                "percentage": 35.85
+              }
+            }
+          },
+          "25_10": {
+            "question_id": "25_10",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 50,
+                "percentage": 4.66
+              },
+              "2": {
+                "student_count": 141,
+                "percentage": 13.13
+              },
+              "3": {
+                "student_count": 434,
+                "percentage": 40.41
+              },
+              "4": {
+                "student_count": 449,
+                "percentage": 41.81
+              }
+            }
+          },
+          "25_11": {
+            "question_id": "25_11",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 60,
+                "percentage": 5.59
+              },
+              "2": {
+                "student_count": 144,
+                "percentage": 13.41
+              },
+              "3": {
+                "student_count": 442,
+                "percentage": 41.15
+              },
+              "4": {
+                "student_count": 428,
+                "percentage": 39.85
+              }
+            }
+          },
+          "25_2": {
+            "question_id": "25_2",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 32,
+                "percentage": 2.98
+              },
+              "2": {
+                "student_count": 123,
+                "percentage": 11.45
+              },
+              "3": {
+                "student_count": 478,
+                "percentage": 44.51
+              },
+              "4": {
+                "student_count": 441,
+                "percentage": 41.06
+              }
+            }
+          },
+          "25_3": {
+            "question_id": "25_3",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 29,
+                "percentage": 2.7
+              },
+              "2": {
+                "student_count": 114,
+                "percentage": 10.61
+              },
+              "3": {
+                "student_count": 504,
+                "percentage": 46.93
+              },
+              "4": {
+                "student_count": 427,
+                "percentage": 39.76
+              }
+            }
+          },
+          "25_4": {
+            "question_id": "25_4",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 30,
+                "percentage": 2.79
+              },
+              "2": {
+                "student_count": 113,
+                "percentage": 10.52
+              },
+              "3": {
+                "student_count": 468,
+                "percentage": 43.58
+              },
+              "4": {
+                "student_count": 463,
+                "percentage": 43.11
+              }
+            }
+          },
+          "25_5": {
+            "question_id": "25_5",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 26,
+                "percentage": 2.42
+              },
+              "2": {
+                "student_count": 129,
+                "percentage": 12.01
+              },
+              "3": {
+                "student_count": 444,
+                "percentage": 41.34
+              },
+              "4": {
+                "student_count": 475,
+                "percentage": 44.23
+              }
+            }
+          },
+          "25_6": {
+            "question_id": "25_6",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 26,
+                "percentage": 2.42
+              },
+              "2": {
+                "student_count": 84,
+                "percentage": 7.82
+              },
+              "3": {
+                "student_count": 484,
+                "percentage": 45.07
+              },
+              "4": {
+                "student_count": 480,
+                "percentage": 44.69
+              }
+            }
+          },
+          "25_7": {
+            "question_id": "25_7",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 31,
+                "percentage": 2.89
+              },
+              "2": {
+                "student_count": 64,
+                "percentage": 5.96
+              },
+              "3": {
+                "student_count": 464,
+                "percentage": 43.2
+              },
+              "4": {
+                "student_count": 515,
+                "percentage": 47.95
+              }
+            }
+          },
+          "25_8": {
+            "question_id": "25_8",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 31,
+                "percentage": 2.89
+              },
+              "2": {
+                "student_count": 78,
+                "percentage": 7.26
+              },
+              "3": {
+                "student_count": 469,
+                "percentage": 43.67
+              },
+              "4": {
+                "student_count": 496,
+                "percentage": 46.18
+              }
+            }
+          },
+          "25_9": {
+            "question_id": "25_9",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 34,
+                "percentage": 3.17
+              },
+              "2": {
+                "student_count": 96,
+                "percentage": 8.94
+              },
+              "3": {
+                "student_count": 465,
+                "percentage": 43.3
+              },
+              "4": {
+                "student_count": 479,
+                "percentage": 44.6
+              }
+            }
+          },
+          "26_1": {
+            "question_id": "26_1",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 215,
+                "percentage": 20.02
+              },
+              "2": {
+                "student_count": 264,
+                "percentage": 24.58
+              },
+              "3": {
+                "student_count": 265,
+                "percentage": 24.67
+              },
+              "4": {
+                "student_count": 246,
+                "percentage": 22.91
+              },
+              "5": {
+                "student_count": 84,
+                "percentage": 7.82
+              }
+            }
+          },
+          "26_2": {
+            "question_id": "26_2",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 163,
+                "percentage": 15.18
+              },
+              "2": {
+                "student_count": 562,
+                "percentage": 52.33
+              },
+              "3": {
+                "student_count": 150,
+                "percentage": 13.97
+              },
+              "4": {
+                "student_count": 128,
+                "percentage": 11.92
+              },
+              "5": {
+                "student_count": 71,
+                "percentage": 6.61
+              }
+            }
+          },
+          "26_3": {
+            "question_id": "26_3",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 240,
+                "percentage": 22.35
+              },
+              "2": {
+                "student_count": 223,
+                "percentage": 20.76
+              },
+              "3": {
+                "student_count": 195,
+                "percentage": 18.16
+              },
+              "4": {
+                "student_count": 323,
+                "percentage": 30.07
+              },
+              "5": {
+                "student_count": 93,
+                "percentage": 8.66
+              }
+            }
+          },
+          "26_4": {
+            "question_id": "26_4",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 249,
+                "percentage": 23.18
+              },
+              "2": {
+                "student_count": 327,
+                "percentage": 30.45
+              },
+              "3": {
+                "student_count": 272,
+                "percentage": 25.33
+              },
+              "4": {
+                "student_count": 151,
+                "percentage": 14.06
+              },
+              "5": {
+                "student_count": 75,
+                "percentage": 6.98
+              }
+            }
+          },
+          "26_5": {
+            "question_id": "26_5",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 289,
+                "percentage": 26.91
+              },
+              "2": {
+                "student_count": 261,
+                "percentage": 24.3
+              },
+              "3": {
+                "student_count": 232,
+                "percentage": 21.6
+              },
+              "4": {
+                "student_count": 202,
+                "percentage": 18.81
+              },
+              "5": {
+                "student_count": 90,
+                "percentage": 8.38
+              }
+            }
+          },
+          "26_6": {
+            "question_id": "26_6",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 294,
+                "percentage": 27.37
+              },
+              "2": {
+                "student_count": 360,
+                "percentage": 33.52
+              },
+              "3": {
+                "student_count": 228,
+                "percentage": 21.23
+              },
+              "4": {
+                "student_count": 123,
+                "percentage": 11.45
+              },
+              "5": {
+                "student_count": 69,
+                "percentage": 6.42
+              }
+            }
+          },
+          "26_7": {
+            "question_id": "26_7",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 322,
+                "percentage": 29.98
+              },
+              "2": {
+                "student_count": 376,
+                "percentage": 35.01
+              },
+              "3": {
+                "student_count": 200,
+                "percentage": 18.62
+              },
+              "4": {
+                "student_count": 107,
+                "percentage": 9.96
+              },
+              "5": {
+                "student_count": 69,
+                "percentage": 6.42
+              }
+            }
+          },
+          "27_1": {
+            "question_id": "27_1",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 277,
+                "percentage": 25.79
+              },
+              "2": {
+                "student_count": 291,
+                "percentage": 27.09
+              },
+              "3": {
+                "student_count": 235,
+                "percentage": 21.88
+              },
+              "4": {
+                "student_count": 189,
+                "percentage": 17.6
+              },
+              "5": {
+                "student_count": 82,
+                "percentage": 7.64
+              }
+            }
+          },
+          "27_2": {
+            "question_id": "27_2",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 235,
+                "percentage": 21.88
+              },
+              "2": {
+                "student_count": 474,
+                "percentage": 44.13
+              },
+              "3": {
+                "student_count": 185,
+                "percentage": 17.23
+              },
+              "4": {
+                "student_count": 117,
+                "percentage": 10.89
+              },
+              "5": {
+                "student_count": 63,
+                "percentage": 5.87
+              }
+            }
+          },
+          "27_3": {
+            "question_id": "27_3",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 311,
+                "percentage": 28.96
+              },
+              "2": {
+                "student_count": 252,
+                "percentage": 23.46
+              },
+              "3": {
+                "student_count": 212,
+                "percentage": 19.74
+              },
+              "4": {
+                "student_count": 220,
+                "percentage": 20.48
+              },
+              "5": {
+                "student_count": 79,
+                "percentage": 7.36
+              }
+            }
+          },
+          "27_4": {
+            "question_id": "27_4",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 340,
+                "percentage": 31.66
+              },
+              "2": {
+                "student_count": 324,
+                "percentage": 30.17
+              },
+              "3": {
+                "student_count": 219,
+                "percentage": 20.39
+              },
+              "4": {
+                "student_count": 126,
+                "percentage": 11.73
+              },
+              "5": {
+                "student_count": 65,
+                "percentage": 6.05
+              }
+            }
+          },
+          "27_5": {
+            "question_id": "27_5",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 327,
+                "percentage": 30.45
+              },
+              "2": {
+                "student_count": 264,
+                "percentage": 24.58
+              },
+              "3": {
+                "student_count": 229,
+                "percentage": 21.32
+              },
+              "4": {
+                "student_count": 177,
+                "percentage": 16.48
+              },
+              "5": {
+                "student_count": 77,
+                "percentage": 7.17
+              }
+            }
+          },
+          "27_6": {
+            "question_id": "27_6",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 325,
+                "percentage": 30.26
+              },
+              "2": {
+                "student_count": 358,
+                "percentage": 33.33
+              },
+              "3": {
+                "student_count": 221,
+                "percentage": 20.58
+              },
+              "4": {
+                "student_count": 108,
+                "percentage": 10.06
+              },
+              "5": {
+                "student_count": 62,
+                "percentage": 5.77
+              }
+            }
+          },
+          "27_7": {
+            "question_id": "27_7",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 398,
+                "percentage": 37.06
+              },
+              "2": {
+                "student_count": 323,
+                "percentage": 30.07
+              },
+              "3": {
+                "student_count": 197,
+                "percentage": 18.34
+              },
+              "4": {
+                "student_count": 93,
+                "percentage": 8.66
+              },
+              "5": {
+                "student_count": 63,
+                "percentage": 5.87
+              }
+            }
+          },
+          "28_1": {
+            "question_id": "28_1",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 36,
+                "percentage": 3.35
+              },
+              "2": {
+                "student_count": 15,
+                "percentage": 1.4
+              },
+              "3": {
+                "student_count": 24,
+                "percentage": 2.23
+              },
+              "4": {
+                "student_count": 47,
+                "percentage": 4.38
+              },
+              "5": {
+                "student_count": 163,
+                "percentage": 15.18
+              },
+              "6": {
+                "student_count": 123,
+                "percentage": 11.45
+              },
+              "7": {
+                "student_count": 132,
+                "percentage": 12.29
+              },
+              "8": {
+                "student_count": 189,
+                "percentage": 17.6
+              },
+              "9": {
+                "student_count": 102,
+                "percentage": 9.5
+              },
+              "10": {
+                "student_count": 243,
+                "percentage": 22.63
+              }
+            }
+          },
+          "28_2": {
+            "question_id": "28_2",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 23,
+                "percentage": 2.14
+              },
+              "2": {
+                "student_count": 6,
+                "percentage": 0.56
+              },
+              "3": {
+                "student_count": 13,
+                "percentage": 1.21
+              },
+              "4": {
+                "student_count": 20,
+                "percentage": 1.86
+              },
+              "5": {
+                "student_count": 80,
+                "percentage": 7.45
+              },
+              "6": {
+                "student_count": 53,
+                "percentage": 4.93
+              },
+              "7": {
+                "student_count": 79,
+                "percentage": 7.36
+              },
+              "8": {
+                "student_count": 150,
+                "percentage": 13.97
+              },
+              "9": {
+                "student_count": 133,
+                "percentage": 12.38
+              },
+              "10": {
+                "student_count": 517,
+                "percentage": 48.14
+              }
+            }
+          },
+          "28_3": {
+            "question_id": "28_3",
+            "scale_level": null,
+            "options": {
+              "1": {
+                "student_count": 19,
+                "percentage": 1.77
+              },
+              "2": {
+                "student_count": 15,
+                "percentage": 1.4
+              },
+              "3": {
+                "student_count": 22,
+                "percentage": 2.05
+              },
+              "4": {
+                "student_count": 19,
+                "percentage": 1.77
+              },
+              "5": {
+                "student_count": 92,
+                "percentage": 8.57
+              },
+              "6": {
+                "student_count": 75,
+                "percentage": 6.98
+              },
+              "7": {
+                "student_count": 94,
+                "percentage": 8.75
+              },
+              "8": {
+                "student_count": 153,
+                "percentage": 14.25
+              },
+              "9": {
+                "student_count": 186,
+                "percentage": 17.32
+              },
+              "10": {
+                "student_count": 399,
+                "percentage": 37.15
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "calculation_metadata": {
+    "calculation_time": 1758256907.1127799,
+    "data_version": "1.0",
+    "algorithm_versions": {},
+    "total_subjects": 10,
+    "batch_code": "G7-2025",
+    "validation_warnings": [
+      "发现23110个超出范围的分数"
+    ]
+  }
+}

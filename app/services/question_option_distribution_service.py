@@ -408,10 +408,7 @@ class QuestionOptionDistributionService:
         return total_inserted
 
     def _get_question_scale_label_maps(self, db: Session, batch_code: str, subject_name: str) -> Dict[str, Dict[int, str]]:
-        """构建题目级标签映射：{question_id: {option_level: option_label}}。
-        优先使用 questionnaire_scale_options（按该题目的主 instrument_type+scale_level），
-        再回退该题在明细中的最常见标签。
-        """
+        """构建题目级标签映射：{question_id: {option_level: option_label}}"""
         pick_sql = text(
             """
             SELECT question_id, instrument_type, scale_level, MAX(COALESCE(is_reverse, 0)) AS is_reverse, COUNT(*) AS cnt
@@ -431,35 +428,51 @@ class QuestionOptionDistributionService:
 
         result: Dict[str, Dict[int, str]] = {}
         for qid, meta in main_scale.items():
-            inst = meta["instrument_type"]
-            scale = meta["scale_level"]
-            is_rev = meta.get("is_reverse", 0)
-            opts: List[Any] = []
-            # 先尝试含 is_reverse 的量表字典（若表结构支持），失败则回退不带 is_reverse 的匹配
-            try:
-                opt_sql_rev = text(
-                    """
-                    SELECT option_level, option_label
-                    FROM questionnaire_scale_options
-                    WHERE instrument_type COLLATE utf8mb4_unicode_ci = CAST(:inst AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
-                      AND scale_level   COLLATE utf8mb4_unicode_ci = CAST(:scale AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
-                      AND is_reverse = :rev
-                    ORDER BY option_level
-                    """
-                )
-                opts = db.execute(opt_sql_rev, {"inst": inst, "scale": scale, "rev": int(is_rev)}).fetchall()
-            except Exception:
-                opt_sql = text(
-                    """
-                    SELECT option_level, option_label
-                    FROM questionnaire_scale_options
-                    WHERE instrument_type COLLATE utf8mb4_unicode_ci = CAST(:inst AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
-                      AND scale_level   COLLATE utf8mb4_unicode_ci = CAST(:scale AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
-                    ORDER BY option_level
-                    """
-                )
-                opts = db.execute(opt_sql, {"inst": inst, "scale": scale}).fetchall()
-
+            inst = str(meta.get("instrument_type", "")).strip() if meta.get("instrument_type") is not None else ""
+            scale_value = meta.get("scale_level")
+            scale = str(scale_value).strip() if scale_value not in (None, '', 'None') else ''
+            is_rev = int(meta.get("is_reverse", 0))
+            opts = []
+            if inst:
+                params = {"inst": inst}
+                if scale:
+                    params_with_scale = dict(params)
+                    params_with_scale.update({"scale": scale, "rev": is_rev})
+                    opt_sql_rev = text(
+                        """
+                        SELECT option_level, option_label
+                        FROM questionnaire_scale_options
+                        WHERE instrument_type COLLATE utf8mb4_unicode_ci = CAST(:inst AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+                          AND scale_level   COLLATE utf8mb4_unicode_ci = CAST(:scale AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+                          AND is_reverse = :rev
+                        ORDER BY option_level
+                        """
+                    )
+                    try:
+                        opts = db.execute(opt_sql_rev, params_with_scale).fetchall()
+                    except Exception:
+                        opts = []
+                    if not opts:
+                        opt_sql = text(
+                            """
+                            SELECT option_level, option_label
+                            FROM questionnaire_scale_options
+                            WHERE instrument_type COLLATE utf8mb4_unicode_ci = CAST(:inst AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+                              AND scale_level   COLLATE utf8mb4_unicode_ci = CAST(:scale AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+                            ORDER BY option_level
+                            """
+                        )
+                        opts = db.execute(opt_sql, {"inst": inst, "scale": scale}).fetchall()
+                if not opts:
+                    opt_sql_plain = text(
+                        """
+                        SELECT option_level, option_label
+                        FROM questionnaire_scale_options
+                        WHERE instrument_type COLLATE utf8mb4_unicode_ci = CAST(:inst AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+                        ORDER BY option_level
+                        """
+                    )
+                    opts = db.execute(opt_sql_plain, params).fetchall()
             normalized_map: Dict[int, str] = {}
             expected_levels = {int(lvl) for (lvl, _lbl) in opts}
             for lvl, lbl in opts:
@@ -468,10 +481,7 @@ class QuestionOptionDistributionService:
                     continue
                 normalized_map[int(lvl)] = label_text
 
-            need_guess = not expected_levels or set(normalized_map.keys()) != expected_levels
-
-            if need_guess:
-                # 回退：每题在明细里的最常见 label
+            if not normalized_map or set(normalized_map.keys()) != expected_levels:
                 guess_sql = text(
                     """
                     SELECT option_level, option_label, COUNT(*) AS cnt
@@ -497,12 +507,12 @@ class QuestionOptionDistributionService:
 
             if normalized_map:
                 result[qid] = normalized_map
+
         return result
-    
+
     def _get_scale_label_map(self, batch_code: str, subject_name: str, db: Session) -> Dict[int, str]:
-        """获取量表标签映射（优先 questionnaire_scale_options，回退问卷明细推断/通用标签）。"""
+        """获取选项标签映射（优先 questionnaire_scale_options，其次回退问卷明细/通用标签）"""
         try:
-            # 先从问卷明细中选择出现次数最多的 instrument_type + scale_level 组合
             pick_sql = text(
                 """
                 SELECT instrument_type, scale_level, COUNT(*) AS cnt
@@ -519,17 +529,35 @@ class QuestionOptionDistributionService:
             label_map: Dict[int, str] = {}
             expected_levels = set()
             if row:
-                inst, scale = row[0], row[1]
-                opt_sql = text(
-                    """
-                    SELECT option_level, option_label
-                    FROM questionnaire_scale_options
-                    WHERE instrument_type COLLATE utf8mb4_unicode_ci = CAST(:inst AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
-                      AND scale_level   COLLATE utf8mb4_unicode_ci = CAST(:scale AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
-                    ORDER BY option_level
-                    """
-                )
-                opts = db.execute(opt_sql, {"inst": inst, "scale": scale}).fetchall()
+                inst_raw, scale_raw = row[0], row[1]
+                inst = str(inst_raw).strip() if inst_raw is not None else ""
+                scale = str(scale_raw).strip() if scale_raw is not None else ""
+                opts = []
+                if inst:
+                    params = {"inst": inst}
+                    if scale:
+                        params_with_scale = dict(params)
+                        params_with_scale["scale"] = scale
+                        opt_sql = text(
+                            """
+                            SELECT option_level, option_label
+                            FROM questionnaire_scale_options
+                            WHERE instrument_type COLLATE utf8mb4_unicode_ci = CAST(:inst AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+                              AND scale_level   COLLATE utf8mb4_unicode_ci = CAST(:scale AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+                            ORDER BY option_level
+                            """
+                        )
+                        opts = db.execute(opt_sql, params_with_scale).fetchall()
+                    if not opts:
+                        opt_sql = text(
+                            """
+                            SELECT option_level, option_label
+                            FROM questionnaire_scale_options
+                            WHERE instrument_type COLLATE utf8mb4_unicode_ci = CAST(:inst AS CHAR CHARACTER SET utf8mb4) COLLATE utf8mb4_unicode_ci
+                            ORDER BY option_level
+                            """
+                        )
+                        opts = db.execute(opt_sql, params).fetchall()
                 expected_levels = {int(lvl) for (lvl, _lbl) in opts}
                 for lvl, lbl in opts:
                     normalized = self._normalize_label(lbl)
@@ -538,7 +566,6 @@ class QuestionOptionDistributionService:
                     label_map[int(lvl)] = normalized
 
             if not expected_levels or set(label_map.keys()) != expected_levels:
-                # 回退：从问卷明细猜测每个等级最常见的标签
                 guess_sql = text(
                     """
                     SELECT option_level, option_label, COUNT(*) AS cnt
@@ -565,7 +592,6 @@ class QuestionOptionDistributionService:
             if label_map:
                 return label_map
 
-            # 最后回退：按量表等级数给出通用标签（优先明细，无则用物化表）
             levels_sql = text(
                 """
                 SELECT COUNT(DISTINCT option_level) AS levels
@@ -586,7 +612,6 @@ class QuestionOptionDistributionService:
                 lv_row2 = db.execute(levels_sql_qod, {"batch": batch_code, "subject": subject_name}).fetchone()
                 levels = int(lv_row2[0] or 0) if lv_row2 else 0
 
-            # 尝试：若能识别等级数，优先按 scale_level 从量表表中回退一次
             if levels > 0:
                 try:
                     opt_sql_scale = text(
@@ -600,35 +625,26 @@ class QuestionOptionDistributionService:
                     )
                     rows_so = db.execute(opt_sql_scale, {"scale": str(levels)}).fetchall()
                     if rows_so:
-                        best: Dict[int, tuple] = {}
+                        best_scale: Dict[int, tuple] = {}
                         for lvl, label, cnt in rows_so:
-                            lvl = int(lvl)
-                            cnt = int(cnt or 0)
-                            if lvl not in best or cnt > best[lvl][1]:
-                                best[lvl] = (str(label), cnt)
-                        if best:
-                            picked_levels = sorted(best.keys())
+                            lvl_int = int(lvl)
+                            cnt_int = int(cnt or 0)
+                            normalized = self._normalize_label(label) or f"选项{lvl_int}"
+                            if lvl_int not in best_scale or cnt_int > best_scale[lvl_int][1]:
+                                best_scale[lvl_int] = (normalized, cnt_int)
+                        if best_scale:
+                            picked_levels = sorted(best_scale.keys())
                             if picked_levels and picked_levels[0] == 0:
-                                return {k+1: v for k, (v, _) in best.items()}
-                            return {k: v for k, (v, _) in best.items()}
+                                return {lvl + 1: best_scale[lvl][0] for lvl in best_scale}
+                            return {lvl: best_scale[lvl][0] for lvl in best_scale}
                 except Exception:
                     pass
 
-            # 通用标签（4级无中立项）
-            if levels == 5:
-                return {1: "完全不符合", 2: "基本不符合", 3: "不确定", 4: "基本符合", 5: "完全符合"}
-            elif levels == 4:
-                return {1: '非常不满意', 2: '不满意', 3: '满意', 4: '非常满意'}
-            elif levels == 3:
-                return {1: '不满意', 2: '一般', 3: '满意'}
-
-            # 兜底：给出序号标签
             return {i: f"选项{i}" for i in range(1, max(levels, 5) + 1)}
-
         except Exception as e:
-            logger.warning(f"获取量表标签映射失败: {e}，使用默认标签")
+            logger.warning(f"获取选项标签映射失败: {e}，使用默认标签")
             return {1: "选项1", 2: "选项2", 3: "选项3", 4: "选项4", 5: "选项5"}
-    
+
     def cleanup_old_distributions(self, batch_code: str, subject_name: str = None,
                                 school_id: str = None) -> Dict[str, Any]:
         """清理旧的题目选项分布数据

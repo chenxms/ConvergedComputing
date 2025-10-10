@@ -32,6 +32,8 @@ class CalculationService:
         self._max_score_cache = {}
         # 维度统计缓存 {batch_code: {subject_name: dimension_stats}}
         self._dimension_statistics_cache = {}
+        self._questionnaire_keywords = ('问卷', '调查', '满意度', '测评', 'survey', 'questionnaire')
+        self._questionnaire_normalized = {kw.lower() for kw in self._questionnaire_keywords}
     
     def _get_dimension_name(self, batch_code: str, subject_name: str, dimension_code: str) -> str:
         """获取维度中文名称，带缓存机制"""
@@ -568,7 +570,54 @@ class CalculationService:
     def reset_engine_performance_stats(self):
         """重置计算引擎性能统计"""
         self.engine.reset_performance_stats()
-    
+
+    # ================================
+    # 输出结构稳健性修复（问卷选项去重兜底）
+    # ================================
+    def _dedupe_option_list(self, options: Any) -> Any:
+        try:
+            if not isinstance(options, list) or not options:
+                return options
+            seen = {}
+            for it in options:
+                try:
+                    lvl = int(it.get('option_level')) if isinstance(it, dict) and it.get('option_level') is not None else None
+                except Exception:
+                    lvl = None
+                if lvl is None:
+                    continue
+                if lvl not in seen:
+                    seen[lvl] = dict(it)
+            return sorted(seen.values(), key=lambda x: x.get('option_level', 0))
+        except Exception:
+            return options
+
+    def _sanitize_questionnaire_subjects(self, subjects: Any) -> Any:
+        """对问卷subjects做最终兜底清洗：按等级去重选项分布。"""
+        if not isinstance(subjects, list):
+            return subjects
+        for subj in subjects:
+            try:
+                if not isinstance(subj, dict) or str(subj.get('type', '')).lower() != 'questionnaire':
+                    continue
+                dims = subj.get('dimensions')
+                if isinstance(dims, list):
+                    for dim in dims:
+                        if not isinstance(dim, dict):
+                            continue
+                        # 维度级选项分布
+                        if isinstance(dim.get('option_distribution'), list):
+                            dim['option_distribution'] = self._dedupe_option_list(dim['option_distribution'])
+                        # 题目级选项分布
+                        qs = dim.get('questions')
+                        if isinstance(qs, list):
+                            for q in qs:
+                                if isinstance(q, dict) and isinstance(q.get('option_distribution'), list):
+                                    q['option_distribution'] = self._dedupe_option_list(q['option_distribution'])
+            except Exception:
+                continue
+        return subjects
+
     # ================================
     # 私有辅助方法
     # ================================
@@ -751,14 +800,15 @@ class CalculationService:
             # 转换格式以保持兼容性
             subjects = []
             for config in subject_configs:
+                normalized_type = self._normalize_subject_type(config)
                 subjects.append({
-                    'subject_name': config['subject_name'],
-                    'max_score': config['max_score'],
-                    'question_count': config['question_count'],
-                    'subject_type': config['subject_type'],  # 新增字段
-                    'question_type_enum': config.get('question_type_enum')
+                    'subject_name': config.get('subject_name'),
+                    'max_score': config.get('max_score'),
+                    'question_count': config.get('question_count'),
+                    'subject_type': normalized_type,
+                    'question_type_enum': config.get('question_type_enum'),
+                    'instrument_id': config.get('instrument_id'),
                 })
-            
             logger.info(f"批次 {batch_code} 包含 {len(subjects)} 个科目")
             logger.debug(f"科目类型分布: {[s['subject_type'] for s in subjects]}")
             return subjects
@@ -769,15 +819,36 @@ class CalculationService:
     
     def _normalize_subject_type(self, subject_config: Dict[str, Any]) -> str:
         """统一科目类型判断逻辑 - 与DataAdapterRepository保持一致"""
+        subject_name = subject_config.get('subject_name', '')
         subject_type = subject_config.get('subject_type', '')
         question_type_enum = subject_config.get('question_type_enum', '')
-        
-        if question_type_enum and question_type_enum.lower() == 'questionnaire':
+        instrument_id = subject_config.get('instrument_id')
+
+        subject_type_value = (subject_type or '').strip().lower()
+        question_type_value = (question_type_enum or '').strip().lower()
+
+        if question_type_value == 'questionnaire' or subject_type_value == 'questionnaire':
             return 'questionnaire'
-        elif subject_type:
-            return subject_type.lower()
-        else:
-            return 'exam'  # 默认考试类型
+
+        if instrument_id:
+            instrument_value = str(instrument_id).strip().lower()
+            if any(token in instrument_value for token in ('likert', 'survey', 'questionnaire', '问卷')):
+                return 'questionnaire'
+
+        name_value = (subject_name or '').strip()
+        name_lower = name_value.lower()
+        for kw in self._questionnaire_keywords:
+            if kw and kw in name_value:
+                return 'questionnaire'
+        for kw in self._questionnaire_normalized:
+            if kw and kw in name_lower:
+                return 'questionnaire'
+
+        if subject_type_value:
+            return subject_type_value
+        if question_type_value:
+            return question_type_value
+        return 'exam'  # 默认考试类型
     
     async def _consolidate_multi_subject_results(self, batch_code: str, scores_df: pd.DataFrame, 
                                                 validation_result: Dict[str, Any] = None,
@@ -818,7 +889,13 @@ class CalculationService:
             # 筛选该科目的数据
             subject_data_df = scores_df[scores_df['subject_name'] == subject_name].copy()
             if subject_data_df.empty:
-                raise ValueError(f"科目 {subject_name} 在批次 {batch_code} 的清洗数据缺失")
+                # 容错：当清洗阶段因数据缺失/过滤导致该科目无数据时，跳过该科目并记录
+                logger.warning(f"科目 {subject_name} 在批次 {batch_code} 的清洗数据缺失，已跳过该科目")
+                try:
+                    consolidated['calculation_metadata'].setdefault('skipped_subjects', []).append(subject_name)
+                except Exception:
+                    pass
+                continue
 
             # 清洗表中的数据已经是每个学生每个科目一条记录
             logger.debug(f"清洗数据记录数: {len(subject_data_df)}")
@@ -1081,8 +1158,20 @@ class CalculationService:
                 if not subject.get('grade_distribution'):
                     raise ValueError(f"{scope} subjects 缺少等级分布: {subject_name}")
             else:
-                questions = subject.get('questions')
-                if not isinstance(questions, list) or not questions:
+                dimensions_payload = subject.get('dimensions')
+                if not isinstance(dimensions_payload, list) or not dimensions_payload:
+                    raise ValueError(f"{scope} 问卷subjects缺少维度信息: {subject_name}")
+                has_question_distribution = False
+                for dim_entry in dimensions_payload:
+                    dim_questions = dim_entry.get('questions') if isinstance(dim_entry, dict) else None
+                    if isinstance(dim_questions, list) and dim_questions:
+                        for q_entry in dim_questions:
+                            if isinstance(q_entry, dict) and isinstance(q_entry.get('option_distribution'), list) and q_entry['option_distribution']:
+                                has_question_distribution = True
+                                break
+                    if has_question_distribution:
+                        break
+                if not has_question_distribution:
                     raise ValueError(f"{scope} 问卷subjects缺少题目选项分布: {subject_name}")
 
             if scope == 'regional':
@@ -1094,9 +1183,11 @@ class CalculationService:
                     if not isinstance(dims, list) or not dims:
                         raise ValueError(f"区域问卷subjects缺少维度分布: {subject_name}")
             if scope == 'school':
+                # 学校级：问卷科目必须包含题目分布；考试科目不强制维度
                 dims = subject.get('dimensions')
-                if not isinstance(dims, list) or not dims:
-                    raise ValueError(f"学校subjects缺少维度信息: {subject_name}")
+                if subject_type == 'questionnaire':
+                    if not isinstance(dims, list) or not dims:
+                        raise ValueError(f"学校问卷subjects缺少维度信息: {subject_name}")
 
 
     async def _save_regional_statistics(self, batch_code: str, statistics_data: Dict[str, Any], 
@@ -1106,6 +1197,8 @@ class CalculationService:
         builder = SubjectsBuilder()
         try:
             subjects = builder.build_regional_subjects_v12(batch_code, enhanced_stats=statistics_data)
+            # 兜底去重，避免任何上游重复平铺泄漏进最终JSON
+            subjects = self._sanitize_questionnaire_subjects(subjects)
             logger.debug(f"区域级subjects(v1.2)构建完成，包含 {len(subjects)} 个科目")
         except Exception as e:
             logger.exception(f"构建区域级subjects v1.2 失败: {e}")
@@ -1147,7 +1240,19 @@ class CalculationService:
         # v1.2：计算完成即产出 subjects 结构（传递计算的统计数据）
         builder = SubjectsBuilder()
         try:
-            subjects = builder.build_school_subjects_v12(batch_code, school_id, enhanced_stats=statistics_data)
+            # 规范化 school_id，避免诸如 '5001.0' 导致预计算查找不到
+            try:
+                sid = str(school_id).strip()
+                if "." in sid:
+                    head, tail = sid.split(".", 1)
+                    if tail and set(tail) <= {"0"} and head.lstrip("-+").isdigit():
+                        sid = head
+            except Exception:
+                sid = str(school_id)
+
+            subjects = builder.build_school_subjects_v12(batch_code, sid, enhanced_stats=statistics_data)
+            # 兜底去重
+            subjects = self._sanitize_questionnaire_subjects(subjects)
             logger.debug(f"学校 {school_id} subjects(v1.2) 构建完成，包含 {len(subjects)} 个科目")
         except Exception as e:
             logger.exception(f"构建学校 {school_id} subjects v1.2 失败: {e}")
@@ -1157,7 +1262,7 @@ class CalculationService:
             'schema_version': 'v1.2',
             'batch_code': batch_code,
             'aggregation_level': 'SCHOOL',
-            'school_id': school_id,
+            'school_id': sid,
             'school_name': school_name,
             'subjects': subjects,
         }
@@ -1315,20 +1420,23 @@ class CalculationService:
                     }
 
         if not dimension_scores_map:
-            raise ValueError(f"科目 {subject_name} 缺少维度JSON数据")
+            logger.warning(f"科目 {subject_name} 缺少维度JSON数据，将跳过维度统计并继续生成其它指标")
+            return {}
 
         grade_level = self._get_batch_grade_level(batch_code)
         dimension_results: Dict[str, Dict[str, Any]] = {}
 
         for dimension_code, scores in sorted(dimension_scores_map.items()):
             if not scores or all(s == 0 for s in scores):
-                raise ValueError(f"科目 {subject_name} 的维度 {dimension_code} 缺少有效得分")
+                logger.warning(f"科目 {subject_name} 的维度 {dimension_code} 缺少有效得分，已跳过该维度")
+                continue
 
             dimension_max_score = self._get_dimension_max_score(batch_code, subject_name, dimension_code)
             if not dimension_max_score:
                 dimension_max_score = float(dimension_max_scores_info.get(dimension_code, {}).get('max_score', 0))
             if dimension_max_score <= 0:
-                raise ValueError(f"维度 {dimension_code} 缺少有效满分配置")
+                logger.warning(f"维度 {dimension_code} 缺少有效满分配置，已跳过该维度")
+                continue
 
             dimension_name = dimension_name_mapping.get(dimension_code, dimension_code)
             dimension_df = pd.DataFrame({'score': scores})

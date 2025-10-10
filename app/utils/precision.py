@@ -88,29 +88,35 @@ def to_pct(value: Union[float, int, None]) -> Optional[float]:
 def round2_json(data: Union[Dict, List, Any]) -> Union[Dict, List, Any]:
     """
     递归处理JSON数据中的数值精度
-    
+
     Args:
         data: 需要处理的数据（字典、列表或其他类型）
-        
+
     Returns:
         精度处理后的数据
     """
     if isinstance(data, dict):
         result = {}
         for key, value in data.items():
-            # 检查是否为百分比字段
-            if key.endswith('_pct') or key.endswith('_rate') or key.endswith('_percentage'):
-                # 百分比字段特殊处理
+            key_lower = key.lower()
+            if key_lower.endswith('_pct') or key_lower.endswith('_percentage'):
                 if isinstance(value, (int, float)) and not isinstance(value, bool):
-                    # 如果值在0-1之间，转换为百分比；否则直接保留两位小数
                     if 0 <= value <= 1:
                         result[key] = to_pct(value)
                     else:
                         result[key] = round2(value)
                 else:
                     result[key] = round2_json(value)
+            elif key_lower.endswith('_rate'):
+                if isinstance(value, (int, float)) and not isinstance(value, bool):
+                    if key_lower in {'score_rate', 'completion_rate'} and value > 1:
+                        result[key] = round2(value)
+                    else:
+                        normalized = value / 100.0 if value > 1 else value
+                        result[key] = round2(normalized)
+                else:
+                    result[key] = round2_json(value)
             else:
-                # 普通字段递归处理
                 result[key] = round2_json(value)
         return result
     elif isinstance(data, list):
